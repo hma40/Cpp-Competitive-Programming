@@ -105,7 +105,7 @@ signed main() {
                 recons[i]=*x;
                 exist2.erase(recons[i]);
             }
-            recons[0]=*recons.begin();
+            recons[0]=*exists2.begin();
             // cout << recons << endl;
         }
         cout << recons[0];
