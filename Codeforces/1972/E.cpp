@@ -75,6 +75,19 @@ signed main() {
         fact[i]=fact[i-1]*i;
         invFact[i]=bexpo(fact[i], mod-2);
     }
+    vt<vt<int>> dist(20);
+    F0R(i, 20) {
+        FOR(j, 1, 1<<i) {
+            int temp = j;
+            int times = 0;
+            while(temp<(1<<i)) {
+                temp+=temp&-temp;
+                times++;
+            }
+            dist[i].add(times);
+        }
+    }
+    // cout << dist << endl;
     int t;
     cin >> t;
     while(t--) {
@@ -84,7 +97,7 @@ signed main() {
         int chooseTop = k-1, chooseBot = 0;
         coef.add(1);
         while((1<<coef.size())<=n) {
-            cout << coef << " " << chooseTop << " " << chooseBot << endl;
+            // cout << coef << " " << chooseTop << " " << chooseBot << endl;
             int temp = coef.back();
             temp*=++chooseTop;
             temp%=mod;
@@ -100,15 +113,28 @@ signed main() {
         F0R(i, 20) {
             mp[1<<i]=i;
         }
-        F0R(i, n) {
+        F0R(i, n+1) {
             int b = i&-i;
             layers[mp[b]].add(i);
         }
-        trav(x, layers) {
-            trav(y, x) {
-                
+        // cout << layers << " " << coef << endl;
+        for(int layer = 0; layer < 20; layer++) {
+            trav(x, layers[layer]) {
+                if(x==0) continue;
+                x--;
+                F0R(y, (1<<layer)-1) {
+                    // cout << layer << " " << x << " " << y << endl;
+                    bit[x]-=orig[x-(1<<layer)+1+y]*coef[dist[layer][y]];
+                    bit[x]%=mod;
+                    bit[x]+=mod;
+                    bit[x]%=mod;
+                }
+                orig[x]=bit[x];
             }
         }
+        cout << orig[0];
+        FOR(i, 1, n) cout << " " << orig[i];
+        cout << endl;
     }
     return 0;
 }
@@ -116,4 +142,26 @@ signed main() {
 1
 8 1
 1 2 1 4 1 2 1 8
+*/
+/*
+0 0 0 0 0 0 0 1
+0 0 0 0 0 0 1 2
+0 0 0 0 0 1 0 0
+0 0 0 0 1 2 2 3
+0 0 0 1 0 0 0 0
+0 0 1 2 0 0 0 0
+0 1 0 0 0 0 0 0
+1 3 3 6 3 6 6 10
+*/
+/*
+0001
+0010
+0100
+1000
+
+0011
+0100
+1000
+
+
 */
