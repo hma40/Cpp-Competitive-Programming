@@ -11,9 +11,8 @@ using pi = pair<int, int>;
 #define s second
 #define trav(a,x) for (auto& a: x)
 #define int long long
-#define vt vector
 ll mod = 1000000007;
-ll inf = 1e18;
+ll inf = 1e15;
 template<typename T1, typename T2>
 std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
@@ -54,9 +53,22 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    freopen("out.txt", "w", stdout);
-    cout << 1 << endl << 50000 << " " << 1 << " " << 50000 << endl;
-    F0R(i, 50000) cout << "a";
-    cout << endl;
+    int t;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        if(n==2) {
+            cout << "1 1\n1 2" << endl << endl;
+        } else if(n==3) {
+            cout << "2 1\n2 3\n3 1" << endl << endl;
+        } else {
+            cout << "1 1\n" << n << " " << n << "\n" << "2 1\n";
+            F0R(i, n-3) {
+                cout << "1 " << i+3 << "\n";
+            }
+            cout << endl;
+        }
+    }
     return 0;
 }
