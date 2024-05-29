@@ -55,8 +55,8 @@ signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     freopen("out.txt", "w", stdout);
-    cout << 1 << endl << 50000 << " " << 1 << " " << 50000 << endl;
-    F0R(i, 50000) cout << "a";
+    cout << 1 << endl << 100 << " " << 1 << " " << 1 << endl;
+    F0R(i, 100) cout << 'a';//(char)(rand()%26+'a');
     cout << endl;
     return 0;
 }

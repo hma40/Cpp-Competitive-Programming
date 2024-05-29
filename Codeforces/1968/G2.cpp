@@ -12,7 +12,6 @@ using pi = pair<int, int>;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-// ll mod = 1000000007;
 ll inf = 1e18;
 template<typename T1, typename T2>
 std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
@@ -51,100 +50,100 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+__int128_t MOD = (1LL<<61)-1;
+__int128_t pol;
+vt<__int128_t> polPow;
 int MAXN = 2e5+50;
-ll MOD = 1000000007;//(1LL<<61)-1;
-ll pol;
-vt<ll> powPol(MAXN);
 struct Hash {
-    vt<ll> pow;
+    vt<__int128_t> prefHash;
     Hash(string s) {
-        pow.resize(s.size()+1);
-        pow[0]=0;
+        prefHash.resize(s.size()+1);
+        prefHash[0]=0;
         F0R(i, s.size()) {
-            pow[i+1]=(pow[i]*pol+s[i])%MOD;
+            prefHash[i+1]=(prefHash[i]*pol+s[i])%MOD;
         }
     }
-    int getHash(int start, int end) {
-        ll raw = pow[end+1]-pow[start]*powPol[end-start+1];
+    int getHash(int s, int e) {
+        cout << "getHash called for " << s << " " << e << endl;
+        __int128_t raw = prefHash[e+1]-prefHash[s]*polPow[e-s+1];
         return (raw%MOD+MOD)%MOD;
     }
 };
-bool poss(Hash &h, string &s, int x, int test) {
-    vt<int> dp(s.size()+1);
-    R0F(i, s.size()-test+1) {
-        dp[i]=dp[i+1];
-        if(h.getHash(0,test-1)==h.getHash(i, i+test-1)) {
-            dp[i]=max(dp[i], dp[i+test]+1);
+vt<int> largest;
+struct RMQ {
+    vt<vt<int>> sparse;
+    RMQ(vt<int> orig) {
+        sparse.resize(orig.size(), vt<int>(20));
+        F0R(i, orig.size()) {
+            sparse[i][0]=orig[i];
         }
-    }
-    return dp[0]>=x;
-}
-int maxSeg(Hash &h, string &s, int test) {
-    vt<int> dp(s.size()+1);
-    R0F(i, s.size()-test+1) {
-        dp[i]=dp[i+1];
-        if(h.getHash(0,test-1)==h.getHash(i, i+test-1)) {
-            dp[i]=max(dp[i], dp[i+test]+1);
+        FOR(i, 1, 20) {
+            // cout << "LINE 81 " << orig.size() << " " << (1<<i) << " " << orig.size()-(1<<i)+1 << endl;
+            if(orig.size()+1<=(1<<i)) continue;
+            F0R(j, orig.size()-(1<<i)+1) {
+                cout << i << " " << j << " " << j+(1<<(i-1)) << endl;
+                sparse[j][i]=max(sparse[j][i-1], sparse[j+(1<<(i-1))][i-1]);
+            }
         }
+        // cout << sparse << endl;
     }
-    return dp[0];
-}
+    int getMax(int lo, int hi) {
+        int sz = hi-lo+1;
+        cout << "LINE 92 " << lo << " " << hi << " " << sz << " " << largest[sz] << " " << endl;
+        return max(sparse[lo][largest[sz]], sparse[hi-(1<<largest[sz])][largest[sz]]);
+    }
+};
 signed main() {
     srand(time(NULL));
     pol=rand()%MOD;
-    powPol[0]=1;
-    FOR(i, 1, MAXN) {
-        powPol[i]=powPol[i-1]*pol%MOD;
-    }
-    vt<int> STRAT_CHANGE(MAXN);
-    STRAT_CHANGE[1]=1;
-    int tmp = 2;
-    FOR(i, 2, MAXN) {
-        while(tmp*tmp/3<i) {
-            tmp++;
-        }
-        STRAT_CHANGE[i]=tmp;
-    }
-    // cout << STRAT_CHANGE << endl;
-    // cout << rand() << " " << rand() << endl;
+    pol*=rand();
+    pol%=MOD;
+    pol*=rand();
+    pol%=MOD;
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
+    polPow.add(1);
+    largest.add(0);
+    int temp = 1;
+    FOR(i, 1, MAXN) {
+        if(temp*2==i) {
+            temp*=2;
+            largest.add(largest.back()+1);
+        } else {
+            largest.add(largest.back());
+        }
+    }
+    // cout << largest << endl;
+    FOR(i, 1, MAXN) polPow.add(polPow.back()*pol%MOD);
+
     int t;
     cin >> t;
     while(t--) {
         int n,l,r;
-        cin >> n >> l >> r;
         string s;
-        cin >> s;
-        // cout << STRAT_CHANGE << endl;
+        cin >> n >> l >> r >> s;
         Hash h(s);
-        vt<int> maxParts(STRAT_CHANGE[n]+1);
-        maxParts[0]=inf;
-        FOR(i, 1, STRAT_CHANGE[n]+1) maxParts[i]=maxSeg(h, s, i);
-        // cout << maxParts << endl;
-        vt<int> ans(n+1);
-        int i;
-        assert(false)
-        for(i = 1; i <= n && maxParts.back()>=i; i++) {
-            int lo = 0, hi = n;
-            while(lo<hi) {
-                int mid = (1+lo+hi)/2;
-                if(!poss(h, s, i, mid)) {
-                    hi=mid-1;
-                } else {
+        vt<int> LCP(n);
+        F0R(i, n) {
+            if(s[i]!=s[0]) continue;
+            int lo = 0, hi = n-i;
+            while(lo+1<hi) {
+                int mid = (lo+hi)/2;
+                if(h.getHash(0,mid)==h.getHash(i, i+mid)) {
                     lo=mid;
+                } else {
+                    hi=mid;
                 }
             }
-            ans[i]=lo;
+            LCP[i]=lo+1;
         }
-        int ind = STRAT_CHANGE[n];
-        for(; i<=n; i++) {
-            while(maxParts[ind]<i) ind--;
-            ans[i]=ind;
+        RMQ rr(LCP);
+        cout << LCP << endl;
+        F0R(i, n) {
+            F0R(j, n) {
+                cout << i << " " << j << " " << rr.getMax(i,j) << endl;
+            }
         }
-        cout << ans[l];
-        FOR(j, l+1, r+1) cout << " " << ans[j];
-        cout << endl;
     }
     return 0;
 }
