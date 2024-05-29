@@ -53,6 +53,41 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    
+    int t;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        bool last = false;
+        int height = 1;
+        int x;
+        cin >> x;
+        if(x) {
+            height=2;
+            last=true;
+        }
+        FOR(i, 1, n) {
+            int x;
+            cin >> x;
+            if(x) {
+                if(last) {
+                    height+=5;
+                } else {
+                    height++;
+                }
+                last=true;
+            } else {
+                if(!last) {
+                    height=-inf;
+                }
+                last=false;
+            }
+        }
+        if(height<0) {
+            cout << -1 << endl;
+        } else {
+            cout << height << endl;
+        }
+    }
     return 0;
 }

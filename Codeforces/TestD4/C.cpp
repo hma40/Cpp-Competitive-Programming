@@ -53,6 +53,24 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    
+    int t;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        vt<int> v(n);
+        F0R(i, n) cin >> v[i];
+        int sum = 0;
+        int ans = 0;
+        int biggest = 0;
+        F0R(i, n) {
+            biggest=max(biggest, v[i]);
+            sum+=v[i];
+            if(sum==biggest*2) {
+                ans++;
+            }
+        }
+        cout << ans << endl;
+    }
     return 0;
 }

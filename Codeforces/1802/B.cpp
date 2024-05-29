@@ -53,6 +53,29 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    
+    int t;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        int num = 0;
+        int ans = 0;
+        int cur = 0;
+        F0R(i, n) {
+            int x;
+            cin >> x;
+            if(x==1) {
+                num++;
+                cur++;
+                ans=max(ans, cur);
+            } else {
+                if(num) {
+                    cur=(num+2)/2;
+                }
+                ans=max(ans,cur);
+            }
+        }
+        cout << ans << endl;
+    }
     return 0;
 }

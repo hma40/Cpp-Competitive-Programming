@@ -50,9 +50,34 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+int med(int a, int b, int c) {
+    vt<int> v = {a,b,c};
+    sort(begin(v),end(v));
+    return v[1];
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    
+    int t;
+    cin >> t;
+    while(t--) {
+        int n;cin >> n;
+        vt<int> v(n);
+        F0R(i, n) cin >> v[i];
+        if(n==2) {
+            cout << min(v[0], v[1]) << endl;
+            continue;
+        }
+        int ans = min(v[0], v[1]);
+        FOR(i, 1, n) {
+            ans=max(ans, min(v[i-1], v[i]));
+        }
+
+        int ans2 = med(v[0],v[1],v[2]);
+        FOR(i, 2, n) {
+            ans2=max(ans2, med(v[i-2],v[i-1],v[i]));
+        }
+        cout << max(ans,ans2);
+    }
     return 0;
 }

@@ -53,6 +53,31 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    
+    int t;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        vt<int> v(n);
+        F0R(i, n) cin >> v[i];
+        sort(begin(v),end(v));
+        pair<int,int> b = {-1,-1};
+        b.f=v[0];
+        bool fail = false;
+        F0R(i, n) {
+            if(v[i]%b.f!=0) {
+                if(b.s==-1) {
+                    b.s=v[i];
+                } else if(v[i]%b.s!=0) {
+                    fail=true;
+                }
+            }
+        }
+        if(fail) {
+            cout << "No" << endl;
+        } else {
+            cout << "Yes" << endl;
+        }
+    }
     return 0;
 }

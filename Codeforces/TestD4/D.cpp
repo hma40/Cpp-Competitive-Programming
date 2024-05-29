@@ -53,6 +53,30 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    
+    int t;
+    cin >> t;
+    while(t--) {
+        int n,m;
+        cin >> n >> m;
+        vt<string> v(n);
+        F0R(i, n) cin >> v[i];
+        int pos = -1;
+        int top = -1;
+        F0R(i, n) {
+            F0R(j, m) {
+                if(v[i][j]=='#') {
+                    pos=j;
+                    top=i;
+                    break;
+                }
+            }
+            if(pos!=-1) break;
+        }
+        int radius = 0;
+        FOR(x, top, n) {
+            if(v[x][pos]=='#') radius++;
+        }
+        cout << top+radius/2+1 << " " << pos+1 << endl;
+    }
     return 0;
 }

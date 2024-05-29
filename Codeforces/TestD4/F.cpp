@@ -50,9 +50,37 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+int binExp(int base, int pow) {
+    int ans = 1;
+    while(pow) {
+        if(pow%2) {ans*=base;ans%=mod;}
+        base*=base;
+        base%=mod;
+        pow/=2;
+    }
+    return ans;
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    
+    int t;
+    cin >> t;
+    int inv6 = binExp(6, mod-2);
+    int inv2 = binExp(2, mod-2);
+    while(t--) {
+        int l,r,k;
+        cin >> l >> r >> k;
+        if(k>=10) {
+            cout << 0 << endl;
+            continue;
+        }
+        // int ans = 0;
+        int numPer = 9/k;
+        int ans = binExp(numPer+1, r)-binExp(numPer+1, l);
+        ans%=mod;
+        ans+=mod;
+        ans%=mod;
+        cout << ans << endl;
+    }
     return 0;
 }

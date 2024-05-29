@@ -53,6 +53,15 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    
+    int t;
+    cin >> t;
+    while(t--) {
+        string s,t;
+        cin >> s >> t;
+        char temp = s[0];
+        s[0]=t[0];
+        t[0]=temp;
+        cout << s << " " <<t << endl;
+    }
     return 0;
 }

@@ -64,7 +64,7 @@ struct Hash {
         }
     }
     int getHash(int s, int e) {
-        cout << "getHash called for " << s << " " << e << endl;
+        // cout << "getHash called for " << s << " " << e << endl;
         __int128_t raw = prefHash[e+1]-prefHash[s]*polPow[e-s+1];
         return (raw%MOD+MOD)%MOD;
     }
@@ -81,7 +81,7 @@ struct RMQ {
             // cout << "LINE 81 " << orig.size() << " " << (1<<i) << " " << orig.size()-(1<<i)+1 << endl;
             if(orig.size()+1<=(1<<i)) continue;
             F0R(j, orig.size()-(1<<i)+1) {
-                cout << i << " " << j << " " << j+(1<<(i-1)) << endl;
+                // cout << i << " " << j << " " << j+(1<<(i-1)) << endl;
                 sparse[j][i]=max(sparse[j][i-1], sparse[j+(1<<(i-1))][i-1]);
             }
         }
@@ -89,11 +89,33 @@ struct RMQ {
     }
     int getMax(int lo, int hi) {
         int sz = hi-lo+1;
-        cout << "LINE 92 " << lo << " " << hi << " " << sz << " " << largest[sz] << " " << endl;
-        return max(sparse[lo][largest[sz]], sparse[hi-(1<<largest[sz])][largest[sz]]);
+        // cout << endl << "LINE 92 " << lo << " " << hi << " " << sz << " " << largest[sz] << " " << hi-(1<<largest[sz])+1 << endl;
+        // cout << sparse[lo][largest[sz]] << endl;
+        // cout << sparse[hi-(1<<largest[sz])]
+        return max(sparse[lo][largest[sz]], sparse[hi-(1<<largest[sz])+1][largest[sz]]);
+    }
+    int lastLB(int hi, int amount) {
+        int lo = 0;
+        int h = hi;
+        // cout << "LINE 100 " << hi << " " << amount << endl;
+        while(lo+1<h) {
+            // cout << lo << " " << h << endl;
+            int mid = (lo+h)/2;
+            if(getMax(mid,hi)<amount) {
+                h=mid;
+            } else {
+                lo=mid;
+            }
+        }
+        if(sparse[h][0]>=amount) {
+            // cout << "RETURNING " << h << endl;
+            return h;
+        }
+        // cout << "RETURNING " << lo << endl;
+        return lo;
     }
 };
-signed main() {
+signed main() { 
     srand(time(NULL));
     pol=rand()%MOD;
     pol*=rand();
@@ -138,12 +160,30 @@ signed main() {
             LCP[i]=lo+1;
         }
         RMQ rr(LCP);
-        cout << LCP << endl;
-        F0R(i, n) {
-            F0R(j, n) {
-                cout << i << " " << j << " " << rr.getMax(i,j) << endl;
+        vt<int> maxSeg(n+1);
+        maxSeg[0]=inf;
+        FOR(i, 1, n+1) {
+            int cur = n-i;
+            while(cur>=0) {
+                // cout << i << " " << cur << endl;
+                int nxt = rr.lastLB(cur, i);
+                maxSeg[i]++;
+                cur=nxt;
+                cur-=i;
             }
         }
+        // cout << maxSeg << endl;
+        vt<int> ans(n+1);
+        int ind = n;
+        FOR(i, 1, n+1) {
+            while(maxSeg[ind]<i) {
+                ind--;
+            }
+            ans[i]=ind;
+        }
+        cout << ans[l];
+        FOR(i, l+1, r+1) cout << " " << ans[i];
+        cout << endl;
     }
     return 0;
 }

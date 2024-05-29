@@ -53,6 +53,63 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    
+    int n;
+    cin >> n;
+    vt<int> v((1<<n)+1);
+    F0R(i, 1<<n-1) {
+        cin >> v[i+1];
+    }
+    if(n==1) {
+        if(v[1]&1) {
+            if(v[1]&2) {
+                cout << "2\n0\n1" << endl;
+            } else {
+                cout << "1\n0" << endl;
+            }
+        } else if(v[1]&2) {
+            cout << "1\n1" << endl;
+        } else {
+            cout << "0" << endl;
+        }
+        return 0;
+    }
+    vt<vt<int>> all(1<<n);
+    F0R(i, 1<<n) {
+        F0R(j, n) {
+            if(i&(1<<j)) all[i].add(j);
+        }
+    }
+    vt<vt<int>> children((1<<n));
+    vt<vt<int>> popCount(n+1);
+    FOR(mask, 1, 1<<n) {
+        cout << mask << endl;
+        popCount[__builtin_popcount(mask)].add(mask);
+        F0R(j, n) {
+            if(mask&(1<<j)) {
+                children[mask].add(mask^(1<<j));
+            }
+        }
+    }
+    vt<vt<set<int>>> allMasks(1<<n);
+    FOR(i, 1, 1<<n) {
+        allMasks[i].resize(all[i].size()+1);
+    }
+    trav(x, popCount[1]) {
+        if(v[x]&1) {
+            allMasks[x][0].insert(0);
+        }
+        if(v[x]&2) {
+            allMasks[x][1].insert(all[x][0]);
+        }
+    }
+    FOR(pop, 2, n+1) {
+        trav(x, popCount[pop]) {
+            F0R(j, all[x].size()+1) {
+                if(v[x]&(1<<j)) {
+                    
+                }
+            }
+        }
+    }
     return 0;
 }

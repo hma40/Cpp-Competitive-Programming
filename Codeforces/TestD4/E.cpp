@@ -53,6 +53,25 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    
+    int t;
+    cin >> t;
+    while(t--) {
+        int x,y,z,k;
+        cin >> x >> y >> z >> k;
+        int ans = 0;
+        FOR(i, 1, x+1) {
+            FOR(j, 1, y+1) {
+                if(k%(i*j)==0) {
+                    int tmp = k/i/j;
+                    int posx = x-i+1;
+                    int posy=y-j+1;
+                    int posz = z-tmp+1;
+                    if(posx<0||posy<0||posz<0) continue;
+                    ans=max(ans, posx*posy*posz);
+                }
+            }
+        }
+        cout << ans << endl;
+    }
     return 0;
 }

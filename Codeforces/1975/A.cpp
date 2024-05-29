@@ -50,9 +50,38 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+bool isSorted(vt<int> v) {
+    vt<int> temp = v;
+    sort(begin(temp),end(temp));
+    if(temp==v) return true;
+    return false;
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    
+    int t;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        vt<int> v(n);
+        F0R(i, n) cin >> v[i];
+        bool done = false;
+        F0R(i, n+1) {
+            vt<int> temp;
+            FOR(j, i, n) {
+                temp.add(v[j]);
+            }
+            F0R(j, i) temp.add(v[j]);
+            if(isSorted(temp)) {
+                cout << "Yes" << endl;
+                done=true;
+                break;
+            }
+        }
+        if(!done) {
+            cout << "No" << endl;
+        }
+    }
     return 0;
 }
