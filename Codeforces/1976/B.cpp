@@ -57,34 +57,28 @@ signed main() {
     cin >> t;
     while(t--) {
         int n;
-        string s;
-        cin >> n >> s;
-        char lastNum = '0';
-        char lastLet = 'a';
-        bool fail = false;
+        cin >> n;
+        vt<int> a(n), b(n+1);
+        F0R(i, n) cin >> a[i];
+        F0R(i, n+1) cin >> b[i];
+        int moves = 1;
         F0R(i, n) {
-            if(s[i]>='0'&&s[i]-'0'<=9) {
-                if(s[i]<lastNum) {
-                    fail=true;
-                }
-                lastNum=s[i];
-            } else {
-                if(s[i]<lastLet) {
-                    fail=true;
-                }
-                lastLet=s[i];
-            }
-            if(i>0) {
-                if(s[i]>='0'&&s[i]-'0'<=9&&s[i-1]-'a'<=26&&s[i-1]>='a') {
-                    fail=true;
-                }
-            }
+            moves+=abs(a[i]-b[i]);
         }
-        if(fail) {
-            cout << "NO" << endl;
-        } else {
-            cout << "YES" << endl;
+        bool done = false;
+        F0R(i, n) {
+            if(a[i]<=b[n]&&b[n]<=b[i]) done=true;
+            else if(a[i]>=b[n]&&b[n]>=b[i]) done=true;
         }
+        if(done) {
+            cout << moves << endl;
+            continue;
+        }
+        int extraFact = inf;
+        F0R(i, n) {
+            extraFact= min(extraFact, min(abs(a[i]-b[n]), abs(b[i]-b[n])));
+        }
+        cout << moves+extraFact << endl;
     }
     return 0;
 }

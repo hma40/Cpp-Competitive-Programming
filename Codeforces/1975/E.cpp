@@ -342,15 +342,11 @@ signed main() {
         }
         par[0]=-1;
         dfs();
-        // cout << depth << " " << par << endl;
-        // cout << "LINE 130" << endl;
         setSparse(n);
         HLD();
-        // printSts();
         trav(x, start) {
             query(x);
         }
-        // cout << "DEPTHS: " << depth << endl;
         F0R(i, q) {
             int nd;
             cin >> nd;
