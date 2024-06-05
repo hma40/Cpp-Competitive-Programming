@@ -50,56 +50,46 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+
+bool poss(int mid, int x1, int x2, int y1, int y2) {
+    int xd = abs(x1-x2), yd = abs(y1-y2);
+    int tx1=x1,ty1=y1,tx2=x2,ty2=y2;
+    if(xd<mid) {
+        tx2=tx1;
+    } else {
+        if(tx2>tx1) tx2-=mid;
+        else tx2+=mid;
+    }
+    if(yd<mid) {
+        ty2=ty1;
+    } else {
+        if(ty2>ty1) ty2-=mid;
+        else ty2+=mid;
+    }
+    if(abs(tx1-tx2)+abs(ty1-ty2)<=mid) return true;
+    return false;
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    int MAXN = 3e5+1;
-    vt<bool> isPrime(MAXN, true);
-    vt<int> primes;
-    for(int i = 2; i < MAXN; i++) {
-        if(isPrime[i]) {
-            primes.add(i);
-            for(int j = i*i; j < MAXN; j+=i) {
-                isPrime[j]=false;
-            }
-        }
-    }
-    vt<int> maxEdges(primes.size()+1);
-    FOR(i, 1, primes.size()) {
-        if(i%2) {
-            maxEdges[i]=i*(i+1)/2;
-        } else {
-            maxEdges[i]=i*(i+1)/2-i/2+1;
-        }
-    }
-    vt<int> numbersUsed(1e6+1);
-    int cur = 1;
-    FOR(i, 1, 1e6+1) {
-        if(maxEdges[cur]<i-1) {
-            cur++;
-        }
-        numbersUsed[i]=cur;
-    }
     int t;
     cin >> t;
     while(t--) {
-        int n;
-        cin >> n;
-        int x = numbersUsed[n];
-        vt<set<int>> edges(x);
-        F0R(i, x) {
-            F0R(j, x) {
-                if(i==j) continue;
-                edges[i].insert(j);
+        ll x1,y1,x2,y2;
+        cin >> x1 >> y1 >> x2 >> y2;
+        int lo = 0, hi = 1e10;
+        while(lo+1<hi) {
+            int mid = (lo+hi)/2;
+            if(poss(mid,x1,x2,y1,y2)) {
+                hi=mid;
+            } else {
+                lo=mid;
             }
         }
-        int nEd = x*(x+1)/2;
-        priority_queue<pair<int, int>> evenEdges;
-        if(x%2) F0R(i, x) evenEdges.push({x-1, i});
-        vt<int> edgeAmount(x, x-1);
-        while(nEd>n-1) {
-
-        }
+        if(poss(lo,x1,x2,y1,y2)) cout << lo << endl;
+        else cout << hi << endl;
+        // cout << poss(2,x1,x2,y1,y2) << endl;
+        
     }
     return 0;
 }

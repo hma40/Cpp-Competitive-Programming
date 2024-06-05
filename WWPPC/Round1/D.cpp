@@ -50,56 +50,34 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+bool poss(int qual, int n, int k) {
+    //n-qual-1
+    int last = n-qual-1;
+    if(last<0) return true;
+    int first = n%(qual+1);
+    int terms = (last-first)/(qual+1)+1;
+    int time = n+(first+last)*terms/2;
+    return time<=k;
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    int MAXN = 3e5+1;
-    vt<bool> isPrime(MAXN, true);
-    vt<int> primes;
-    for(int i = 2; i < MAXN; i++) {
-        if(isPrime[i]) {
-            primes.add(i);
-            for(int j = i*i; j < MAXN; j+=i) {
-                isPrime[j]=false;
-            }
-        }
-    }
-    vt<int> maxEdges(primes.size()+1);
-    FOR(i, 1, primes.size()) {
-        if(i%2) {
-            maxEdges[i]=i*(i+1)/2;
-        } else {
-            maxEdges[i]=i*(i+1)/2-i/2+1;
-        }
-    }
-    vt<int> numbersUsed(1e6+1);
-    int cur = 1;
-    FOR(i, 1, 1e6+1) {
-        if(maxEdges[cur]<i-1) {
-            cur++;
-        }
-        numbersUsed[i]=cur;
-    }
     int t;
     cin >> t;
     while(t--) {
-        int n;
-        cin >> n;
-        int x = numbersUsed[n];
-        vt<set<int>> edges(x);
-        F0R(i, x) {
-            F0R(j, x) {
-                if(i==j) continue;
-                edges[i].insert(j);
+        int n,k;
+        cin >> n >> k;
+        int lo = 0, hi = 1e10;
+        while(lo+1<hi) {
+            int mid = (lo+hi)/2;
+            if(poss(mid,n,k)) {
+                hi=mid;
+            } else {
+                lo=mid;
             }
         }
-        int nEd = x*(x+1)/2;
-        priority_queue<pair<int, int>> evenEdges;
-        if(x%2) F0R(i, x) evenEdges.push({x-1, i});
-        vt<int> edgeAmount(x, x-1);
-        while(nEd>n-1) {
-
-        }
+        if(poss(lo,n,k)) cout << lo << endl;
+        else cout << hi << endl;
     }
     return 0;
 }

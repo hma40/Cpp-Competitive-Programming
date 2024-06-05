@@ -53,53 +53,56 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    int MAXN = 3e5+1;
-    vt<bool> isPrime(MAXN, true);
-    vt<int> primes;
-    for(int i = 2; i < MAXN; i++) {
-        if(isPrime[i]) {
-            primes.add(i);
-            for(int j = i*i; j < MAXN; j+=i) {
-                isPrime[j]=false;
+    int n;
+    cin >> n;
+    vt<int> a(n),b(n);
+    vt<int> inv(n+1);
+    F0R(i, n) {
+        cin >> a[i];
+        inv[a[i]]=i;
+    }
+    F0R(i, n) {
+        cin >> b[i];
+        b[i]=inv[b[i]];
+    }
+    // cout << b << endl;
+    vt<int> changeDir(n);
+    F0R(i, n) {
+        int changeTime = b[i]-i;
+        if(changeTime<0) changeTime+=n;
+        if(b[i]!=n-1) {
+            changeDir[changeTime]+=2;
+        }
+    }
+    int cur = 0, ans = 0;
+    int delta = 0;
+    // cout << changeDir << endl;
+    F0R(i, n) {
+        if(i!=n-1) {
+            if(b[i]>=i) {
+                delta++;
+            } else {
+                delta--;
             }
         }
+        ans+=abs(b[i]-i);
     }
-    vt<int> maxEdges(primes.size()+1);
-    FOR(i, 1, primes.size()) {
-        if(i%2) {
-            maxEdges[i]=i*(i+1)/2;
-        } else {
-            maxEdges[i]=i*(i+1)/2-i/2+1;
+    cur=ans;
+    // cout << cur << endl;
+    F0R(i, n-1) {
+        //calculate new delta
+        delta-=changeDir[i];
+        int last = b[n-i-1];
+        //calculate cur
+        cur=cur-delta-abs(last-n+1)+last;
+        ans=min(ans, cur);
+        // cout << "LINE 96: " << i << " " << delta << " " << cur << " " << last << endl;
+        //calculate delta
+        if(b[n-i-2]!=n-1) {
+            delta+=2;
         }
+        // cout << "LINE 101: " << i << " " << delta << endl;
     }
-    vt<int> numbersUsed(1e6+1);
-    int cur = 1;
-    FOR(i, 1, 1e6+1) {
-        if(maxEdges[cur]<i-1) {
-            cur++;
-        }
-        numbersUsed[i]=cur;
-    }
-    int t;
-    cin >> t;
-    while(t--) {
-        int n;
-        cin >> n;
-        int x = numbersUsed[n];
-        vt<set<int>> edges(x);
-        F0R(i, x) {
-            F0R(j, x) {
-                if(i==j) continue;
-                edges[i].insert(j);
-            }
-        }
-        int nEd = x*(x+1)/2;
-        priority_queue<pair<int, int>> evenEdges;
-        if(x%2) F0R(i, x) evenEdges.push({x-1, i});
-        vt<int> edgeAmount(x, x-1);
-        while(nEd>n-1) {
-
-        }
-    }
+    cout << ans << endl;
     return 0;
 }

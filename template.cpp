@@ -11,6 +11,7 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
+#define endl "\n"
 ll mod = 1000000007;
 ll inf = 1e18;
 template<typename T1, typename T2>

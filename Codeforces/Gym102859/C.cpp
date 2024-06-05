@@ -53,53 +53,47 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    int MAXN = 3e5+1;
-    vt<bool> isPrime(MAXN, true);
-    vt<int> primes;
-    for(int i = 2; i < MAXN; i++) {
-        if(isPrime[i]) {
-            primes.add(i);
-            for(int j = i*i; j < MAXN; j+=i) {
-                isPrime[j]=false;
+    int n,m;
+    cin >> n >> m;
+    vt<vt<int>> z(n, vt<int>(m)), y(n, vt<int>(m));
+    int nextNum = 1;
+    bool backwards = true;
+    R0F(i, n) {
+        if(backwards) {
+            R0F(j, m) {
+                z[i][j]=nextNum++;
             }
-        }
-    }
-    vt<int> maxEdges(primes.size()+1);
-    FOR(i, 1, primes.size()) {
-        if(i%2) {
-            maxEdges[i]=i*(i+1)/2;
         } else {
-            maxEdges[i]=i*(i+1)/2-i/2+1;
-        }
-    }
-    vt<int> numbersUsed(1e6+1);
-    int cur = 1;
-    FOR(i, 1, 1e6+1) {
-        if(maxEdges[cur]<i-1) {
-            cur++;
-        }
-        numbersUsed[i]=cur;
-    }
-    int t;
-    cin >> t;
-    while(t--) {
-        int n;
-        cin >> n;
-        int x = numbersUsed[n];
-        vt<set<int>> edges(x);
-        F0R(i, x) {
-            F0R(j, x) {
-                if(i==j) continue;
-                edges[i].insert(j);
+            F0R(j, m) {
+                z[i][j]=nextNum++;
             }
         }
-        int nEd = x*(x+1)/2;
-        priority_queue<pair<int, int>> evenEdges;
-        if(x%2) F0R(i, x) evenEdges.push({x-1, i});
-        vt<int> edgeAmount(x, x-1);
-        while(nEd>n-1) {
-
+        backwards=!backwards;
+    }
+    nextNum=1;
+    backwards=false;
+    F0R(i, m) {
+        if(backwards) {
+            R0F(j, n) {
+                y[j][i]=nextNum++;
+            }
+        } else {
+            F0R(j, n) {
+                y[j][i]=nextNum++;
+            }
         }
+        backwards=!backwards;
+    }
+    set<int> all;
+    F0R(i, n) {
+        F0R(j, m) {
+            if(z[i][j]==y[i][j]) all.insert(z[i][j]);
+        }
+    }
+    cout << all.size() << endl;
+    while(all.size()) {
+        cout << *all.begin() << endl;
+        all.erase(*all.begin());
     }
     return 0;
 }
