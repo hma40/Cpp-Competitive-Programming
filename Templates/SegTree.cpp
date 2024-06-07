@@ -14,6 +14,39 @@ using ll = long long;
 #define endl "\n"
 ll mod = 1000000007;
 ll inf = 1e18;
+struct Node {
+    int value;
+    Node(int val): value(val){
+
+    };
+    Node() {
+        value=0;
+    }
+    Node combi(Node &a, Node &b) {
+        return Node(a.value+b.value);//CHANGE THIS
+    }
+    Node addProp(Node a, int range) {
+
+    }
+};
+struct SegTree {
+    int n;
+    vt<int> beg,end;
+    vt<Node> tree;
+    vt<Node> setLazy;
+    vt<Node> addLazy; 
+    SegTree(int nn): n(nn) {
+        while((n&(-n))!=n) {
+            n++;
+        }
+        beg.resize(2*n);
+        end.resize(2*n);
+        tree.resize(2*n);
+        setLazy.resize(2*n);
+        addLazy.resize(2*n);
+    }
+    
+};
 template<typename T1, typename T2>
 std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
@@ -54,61 +87,6 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    int t;
-    cin >> t;
-    while(t--) {
-        int n,m,k;
-        cin >> n >> m >> k;
-        vt<int> col(n);
-        F0R(i, n) cin >> col[i];
-        vt<int> price(n);
-        F0R(i, n) cin >> price[i];
-        vt<int> outDeg(n);
-        vt<vt<int>> adj(n),invadj(n);
-        F0R(i, m) {
-            int x,y;
-            cin >> x >> y;
-            x--;
-            y--;
-            if(x==y) continue;
-            adj[x].add(y);
-            invadj[y].add(x);
-            outDeg[x]++;
-        }
-        vt<bool> vis(n);
-        priority_queue<pair<int, int>> pq;
-        F0R(i, n) pq.push({price[i], i});
-        while(pq.size()) {
-            auto f = pq.top();
-            pq.pop();
-            if(vis[f.s]) continue;
-            vis[f.s]=true;
-            trav(x, invadj[f.s]) {
-                if(price[x]<price[f.s]) {
-                    price[x]=price[f.s];
-                    pq.push({price[f.s], x});
-                }
-            }
-        } 
-        F0R(i, n) col[i]=price[col[i]-1];
-        sort(begin(col),end(col));
-        int ans = 0;
-        F0R(i, k) {
-            ans+=col[n-i-1];
-        }
-        cout << ans << endl;
-    }
+    
     return 0;
 }
-/*
-1
-5 6 5
-1 5 2 1 3
-2 1 5 9 4
-3 1
-1 4
-5 2
-4 4
-3 3
-1 5
-*/
