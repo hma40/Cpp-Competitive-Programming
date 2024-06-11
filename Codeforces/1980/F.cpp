@@ -67,6 +67,7 @@ struct SegTree {
         }
     }  
     void set(int i, int pos, int val) {
+        // cout << "SET CALLED FOR " << i << " " << pos << " " << val << endl;
         if(i>=n) {
             tree[i]=min(val, tree[i]);
             return;
@@ -77,10 +78,12 @@ struct SegTree {
             set(2*i+1, pos, val);
         }
         tree[i]=min(tree[2*i], tree[2*i+1]);
+        // cout << tree << endl;
     }
     int getMax(int i, int lo, int hi) {
         // cout << "GETMAX CALLED FOR " << i << " " << lo << " " << hi << endl;
         if(beg[i]==lo&&end[i]==hi) {
+            // cout << "RETURNING " << tree[i] << " for " << i << " " << lo << " " << hi << endl;
             return tree[i];
         }
         int ans = inf;
@@ -90,6 +93,7 @@ struct SegTree {
         if(beg[2*i+1]<=hi&&end[2*i+1]>=lo) {
             ans=min(ans, getMax(2*i+1, max(lo, beg[2*i+1]), hi));
         }
+        // cout << "RETURNING " << ans << " for " << i << " " << lo << " " << hi << endl;
         return ans;
     }
 };
@@ -126,10 +130,11 @@ signed main() {
         }
         // cout << hello << endl;
         SegTree st(invComp.size());
+        // cout << "LINE 133 " << hello << endl;
         F0R(i, k) {
             st.set(1, hello[i].f, hello[i].s-1);
         }
-        st.set(1, n, m);
+        st.set(1, comp[n], m);
         int width = 0, area = 0;   
         // cout << st.tree << endl;
         // cout << st.getMax(1,2,3) << endl;
@@ -161,9 +166,18 @@ signed main() {
     return 0;
 }
 /*
+5 5 10 [ (2, 5) (1, 5) (1, 2) (3, 2) (3, 3) (3, 1) (2, 1) (2, 2) (3, 5) (2, 3) ]
+2000000000000000000
 1
-6 3 3
-1 1
-4 3
-6 3
+5 5 10
+2 5
+1 5
+1 2
+3 2
+3 3
+3 1
+2 1
+2 2
+3 5
+2 3
 */
