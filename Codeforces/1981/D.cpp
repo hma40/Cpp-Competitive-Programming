@@ -50,6 +50,10 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+int repeat;
+vt<int> order;
+vt<set<int>> adj;
+vt<set<vt<int>>> cycles;
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
@@ -86,6 +90,7 @@ signed main() {
         int n;
         cin >> n;
         int x = numbersUsed[n];
+        // cout << x << endl;
         vt<set<int>> edges(x);
         F0R(i, x) {
             F0R(j, x) {
@@ -94,12 +99,77 @@ signed main() {
             }
         }
         int nEd = x*(x+1)/2;
-        priority_queue<pair<int, int>> evenEdges;
-        if(x%2) F0R(i, x) evenEdges.push({x-1, i});
-        vt<int> edgeAmount(x, x-1);
-        while(nEd>n-1) {
-
+        set<pair<int, int>> oddDegree;
+        if(x%2==0) {
+            oddDegree.insert({x-1, 0});
+            oddDegree.insert({x-1, 1});
+            for(int i = 2; i < x; i+=2) {
+                nEd--;
+                edges[i].erase(i+1);
+                edges[i+1].erase(i);
+            }
         }
+        // cout << nEd << endl;
+        repeat = x;
+        while(nEd>n-1) {
+            if(repeat>0) {
+                repeat--;
+                nEd--;
+                continue;
+            }
+            int del = 0;
+            if(oddDegree.size()) {
+                auto first = *oddDegree.rbegin();
+                oddDegree.erase(first);
+                del=first.s;
+            }
+            // cout << nEd << " " << oddDegree << " " << del << " " << edges[del] << endl;
+            int y = *edges[del].begin();
+            if(edges[y].size()%2) {
+                oddDegree.erase({edges[y].size(),y});
+            } else {
+                oddDegree.insert({edges[y].size()-1, y});
+            }
+            edges[del].erase(y);
+            edges[y].erase(del);
+            if(edges[del].size()%2) {
+                oddDegree.insert({edges[del].size(), del});
+            }
+            nEd--;
+        }
+        // F0R(i, x) {
+        //     cout << i << " " << edges[i] << endl;
+        // }
+        // // cout << oddDegree << endl;
+        deque<int> dq;
+        if(oddDegree.size()) {
+            dq.push_back((*oddDegree.begin()).s);
+        } else {
+            dq.push_back(0);
+        }
+        set<int> seen;
+        vt<int> ans;
+        while(dq.size()) {
+            int z = dq.front();
+            if(edges[z].size()) {
+                int next = *(edges[z].begin());
+                edges[z].erase(next);
+                edges[next].erase(z);
+                dq.push_front(next);
+            } else {
+                ans.add(z);
+                if(!seen.count(z)) {
+                    seen.insert(z);
+                    if(repeat) {
+                        repeat--;
+                        ans.add(z);
+                    }
+                }
+                dq.pop_front();
+            }
+        }
+        assert(ans.size()==n);
+        trav(z, ans) cout << primes[z] << "\n";
     }
     return 0;
 }
