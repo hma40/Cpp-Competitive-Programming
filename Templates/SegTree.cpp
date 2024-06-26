@@ -13,39 +13,30 @@ using ll = long long;
 #define vt vector
 ll mod = 1000000007;
 ll inf = 1e18;
-struct Node {
-    int value;
-    Node(int val): value(val){
-
-    };
-    Node() {
-        value=0;
-    }
-};
 struct SegTree {
     int n;
     vt<int> beg,end;
-    vt<Node> tree;
-    vt<Node> setLazy;
-    vt<Node> addLazy; 
+    vt<int> tree;
+    vt<int> setLazy;
+    vt<int> addLazy; 
     //CHANGE THESE!
-    Node none;
-    Node combi(Node &f, Node &s) {
+    int none;
+    int combi(int &f, int &s) {
         //ALWAYS COMBINING LEFT TO RIGHT (for non-commutative operations)
-        return Node(f.value+s.value);
+        return (f+s);
     }
-    Node addRange(Node orig, Node add, int range) {
-        return Node(orig.value+add.value*range);
+    int addRange(int orig, int add, int range) {
+        return (orig+add*range);
     }
-    Node setRange(Node set, int range) {
-        return Node(set.value*range);
+    int setRange(int set, int range) {
+        return (set*range);
     }
-    Node ad(Node orig, Node ad) {
+    int ad(int orig, int ad) {
         //ALWAYS ADDING AD TO ORIG (for non-commutative operations)
-        return Node(ad.value+orig.value);
+        return (ad+orig);
     }
     SegTree(int nn): n(nn) {
-        none=Node(inf);
+        none=(inf);
         while((n&(-n))!=n) {
             n++;
         }
@@ -64,7 +55,7 @@ struct SegTree {
         // cout << beg << end << endl;
     }
     void prop(int i) {
-        if(setLazy[i].value!=none.value) {
+        if(setLazy[i]!=none) {
             setLazy[2*i]=setLazy[i];
             setLazy[2*i+1]=setLazy[i];
             tree[2*i]=setRange(setLazy[i], end[2*i]-beg[2*i]+1);
@@ -73,17 +64,17 @@ struct SegTree {
             addLazy[2*i+1]=none;
             setLazy[i]=none;
         }   
-        if(addLazy[i].value!=none.value) {
-            if(setLazy[2*i].value!=none.value) {
+        if(addLazy[i]!=none) {
+            if(setLazy[2*i]!=none) {
                 setLazy[2*i]=ad(setLazy[2*i], addLazy[i]);
-            } else if(addLazy[2*i].value!=none.value) {
+            } else if(addLazy[2*i]!=none) {
                 addLazy[2*i]=ad(addLazy[2*i], addLazy[i]);
             } else {
                 addLazy[2*i]=addLazy[i];
             }
-            if(setLazy[2*i+1].value!=none.value) {
+            if(setLazy[2*i+1]!=none) {
                 setLazy[2*i+1]=ad(setLazy[2*i+1], addLazy[i]);
-            } else if(addLazy[2*i+1].value!=none.value) {
+            } else if(addLazy[2*i+1]!=none) {
                 addLazy[2*i+1]=ad(addLazy[2*i+1], addLazy[i]);
             } else {
                 addLazy[2*i+1]=addLazy[i];
@@ -93,7 +84,7 @@ struct SegTree {
             addLazy[i]=none;
         }
     }
-    void pointSet(int i, int index, Node val) {
+    void pointSet(int i, int index, int val) {
         if(i>=n) {
             tree[i]=val;
             return;
@@ -106,10 +97,10 @@ struct SegTree {
         }
         tree[i]=combi(tree[2*i], tree[2*i+1]);
     }
-    void pointSet(int index, Node val) {
+    void pointSet(int index, int val) {
         pointSet(1,index,val);
     }
-    void pointAdd(int i, int index, Node val) {
+    void pointAdd(int i, int index, int val) {
         if(i>=n) {
             tree[i]=ad(tree[i], val);
             return;
@@ -122,19 +113,19 @@ struct SegTree {
         }
         tree[i]=combi(tree[2*i], tree[2*i+1]);
     }
-    void pointAdd(int index, Node val) {
+    void pointAdd(int index, int val) {
         pointAdd(1, index, val);
     }
-    Node rangeQuery(int index, int left, int right) {
+    int rangeQuery(int index, int left, int right) {
         if(index<n) prop(index);
         if(beg[index]==left&&end[index]==right) return tree[index];
-        Node ans = none;
+        int ans = none;
         if(beg[2*index]<=right&&end[2*index]>=left) {
             ans=rangeQuery(2*index, left, min(right, end[2*index]));
         }
         if(beg[2*index+1]<=right&&end[2*index+1]>=left) {
-            Node r = rangeQuery(2*index+1, max(left, beg[2*index+1]), right);
-            if(ans.value==none.value) {
+            int r = rangeQuery(2*index+1, max(left, beg[2*index+1]), right);
+            if(ans==none) {
                 ans=r;
             } else {
                 ans=combi(ans, r);
@@ -142,13 +133,13 @@ struct SegTree {
         }
         return ans;
     }
-    Node rangeQuery(int left, int right) {
+    int rangeQuery(int left, int right) {
         return rangeQuery(1, left, right);
     }
-    void rangeSet(int left, int right, Node val) {
+    void rangeSet(int left, int right, int val) {
         rangeSet(1,left,right,val);
     }
-    void rangeSet(int i, int left, int right, Node val) {
+    void rangeSet(int i, int left, int right, int val) {
         if(i<n) prop(i);
         if(beg[i]==left&&end[i]==right) {
             setLazy[i]=val;
@@ -163,10 +154,10 @@ struct SegTree {
         }
         tree[i]=combi(tree[2*i], tree[2*i+1]);
     }
-    void rangeAdd(int left, int right, Node val) {
+    void rangeAdd(int left, int right, int val) {
         rangeAdd(1, left, right, val);
     }
-    void rangeAdd(int i, int left, int right, Node val) {
+    void rangeAdd(int i, int left, int right, int val) {
         if(i<n) prop(i);
         if(beg[i]==left&&end[i]==right) {
             addLazy[i]=val;
@@ -234,6 +225,6 @@ signed main() {
     // F0R(i, st.tree.size()) {
     //     cout << i << " " << st.beg[i] << " " << st.end[i] << " " << st.tree[i].value << " " << st.setLazy[i].value << " " << st.addLazy[i].value << endl;
     // }
-    cout << st.rangeQuery(0,4).value << endl;
+    cout << st.rangeQuery(0,4) << endl;
     return 0;
 }

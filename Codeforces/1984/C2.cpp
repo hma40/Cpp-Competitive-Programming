@@ -11,8 +11,8 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-// #define endl "\n"
-ll mod = 1000000007;
+#define endl "\n"
+ll mod = 998244353;
 ll inf = 1e18;
 template<typename T1, typename T2>
 std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
@@ -220,74 +220,73 @@ struct SegTree {
         tree[i]=combi(tree[2*i], tree[2*i+1]);
     }
 };
-struct TreeAlg {
-    int n;
-    vt<vt<int>> adj;
-    int root;
-    vt<int> par;
-    vt<int> subSize;
-    vt<int> depth;
-    void dfs(int node) {
-        trav(x, adj[node]) {
-            if(x==par[node]) continue;
-            par[x]=node;
-            depth[x]=depth[node]+1;
-            dfs(x);
-            subSize[node]+=subSize[x];
-        }
-    }
-    vt<vt<int>> sparse;
-    TreeAlg(vt<vt<int>> adj, int root=0): adj(adj),root(root), n(adj.size()) {
-        par.resize(n, -1);
-        subSize.resize(n, 1);
-        depth.resize(n, 0);
-        dfs(root);
-    }
-    void set_sparse() {
-        sparse.resize(n, vt<int>(20));
-        F0R(i, n) sparse[i][0]=par[i];
-        FOR(i, 1, 20) {
-            F0R(j, n) {
-                if(sparse[j][i-1]==-1) sparse[j][i]=-1;
-                else sparse[j][i]=sparse[sparse[j][i-1]][i-1];
-            }
-        }
-    }
-    int jump(int x, int steps) {
-        R0F(i, 20) {
-            if(steps&(1<<i)) {
-                x=sparse[x][i];
-            }
-        }
-        return x;
-    }
-    int lca(int x, int y) {
-        if(depth[x]>depth[y]) swap(x,y);
-        y=jump(y, depth[y]-depth[x]);
-        if(x==y) return x;
-        R0F(i, 20) {
-            if(sparse[x][i]!=sparse[y][i]) {
-                x=sparse[x][i];
-                y=sparse[y][i];
-            }
-        }
-        return par[x];
-    }
-    int dist(int x, int y) {
-        return depth[x]+depth[y]-2*depth[lca(x,y)];
-    }
-};
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    TreeAlg t({{1,2},{0},{0,3,4},{2},{2}}, 3);
-    cout << t.par << t.depth << endl;
-    t.set_sparse(); 
-    cout << t.sparse << endl;
-    F0R(i, 5) {
-        F0R(j, 5) {
-            cout << i << " " << j << " " << t.lca(i,j) << endl;
+    vt<int> p2;
+    p2.add(1);
+    F0R(i, 200050) {
+        p2.add(p2.back()*2%mod);
+    }
+    int t;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        vt<int> v(n);
+        F0R(i, n) cin >> v[i];
+        int pos = 0;
+        F0R(i, n) if(v[i]>=0) pos++;
+        if(pos==n) {
+            cout << p2[n] << endl;
+            continue;
         }
+        vt<int> pref(n+1), absPref(n+1);
+        F0R(i, n) {
+            pref[i+1]=pref[i]+v[i];
+            absPref[i+1]=abs(absPref[i]+v[i]);
+        }
+        int ans = abs(pref.back());
+        // cout << pref << absPref << endl;
+        F0R(i, n) {
+            if(v[i]<0) {
+                // cout << abs(pref[i+1]) << " " << absPref.back() << " " << absPref[i+1] << endl;
+                // cout << abs(abs(pref[i+1])+absPref.back()-absPref[i+1]) << endl;
+                ans=max(ans, abs(pref[i+1])+absPref.back()-absPref[i+1]);
+            }
+        }
+        // cout << ans << endl;
+        int count = 0;
+        vt<int> all;
+        F0R(i, n) {
+            all.add(abs(v[i]));
+        }
+        F0R(i, n+1) {
+            all.add(abs(pref[i]));
+            all.add(absPref[i]);
+        }
+        sort(begin(all),end(all));
+        map<int,int> comp;
+        int next = 0;
+        trav(x, all) {
+            if(!comp.count(x)) {
+                comp[x]=next++;
+            }
+        }
+        SegTree st(comp.size()+5);
+        // int count = 0;
+        R0F(i, n) {
+            if(v[i]<0) {
+                if(abs(pref[i+1])+absPref.back()-absPref[i+1]==ans) {
+                    int cn = st.rangeQuery(comp[abs(pref[i+1])]+1, st.n-1).value;
+                    count+=p2[cn];
+                }
+                st.pointAdd(comp[absPref[i]], 1);
+            } 
+        }
+        count*=p2[pos];
+        count%=mod;
+        cout << count << endl;
     }
     return 0;
 }
