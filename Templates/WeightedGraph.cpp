@@ -11,10 +11,9 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-// #define endl "\n"
+#define endl "\n"
 ll mod = 1000000007;
 ll inf = 1e18;
-
 template<typename T1, typename T2>
 std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
@@ -56,7 +55,7 @@ struct DSU {
     int n;
     vt<int> par;
     vt<int> sz;
-    DSU(int n): n(n), par(n, -1), sz(n, 1){}
+    DSU(int nn): n(nn), par(n, -1), sz(n, 1){}
     int find(int x) {
         if(par[x]==-1) return x;
         return par[x]=find(par[x]);
@@ -69,75 +68,75 @@ struct DSU {
         par[x]=y;
     }
 };
-struct GraphAlgs {
+struct WeightedGraph {
+    vt<vt<pair<int,int>>> adj;
+    vt<vt<pair<int,int>>> MSF;
+    vt<int> dist;
     int n;
-    vt<vt<int>> adj;
-    vt<int> timer, lowestTimer;
-    vt<bool> vis;
-    int time;
-    set<pair<int,int>> bridges;
-    vt<int> eulerPath;
-    GraphAlgs(vt<vt<int>> adj): adj(adj), n(adj.size()) {};
-    void bridge_dfs(int v, int p=-1) {
-        timer[v]=lowestTimer[v]=time++;
-        vis[v]=true;
-        trav(x, adj[v]) {
-            if(x==p) continue;
-            if(vis[x]) {
-                lowestTimer[v]=min(lowestTimer[v], timer[x]);
-            } else {
-                bridge_dfs(x, v);
-                lowestTimer[v]=min(lowestTimer[v], lowestTimer[x]);
-                if(lowestTimer[x]>timer[v]) {
-                    bridges.insert({x,v});
-                    bridges.insert({v,x});
+    WeightedGraph(vt<vt<pair<int,int>>> a): adj(a), n(adj.size()) {
+    }
+    void dijkstra(int start) {
+        dist.assign(n, inf);
+        dist[start]=0;
+        priority_queue<pair<int,int>> pq;
+        pq.push({0,start});
+        vt<bool> vis(n);
+        // vis[start]=true;
+        while(pq.size()) {
+            auto top = pq.top();
+            pq.pop();
+            if(vis[top.s]) continue; 
+            vis[top.s]=true;
+            trav(x, adj[top.s]) {
+                int newdist = x.s-top.f;
+                if(newdist<dist[x.f]) {
+                    dist[x.f]=newdist;
+                    pq.push({-newdist, x.f});
                 }
             }
         }
-    }   
-    void getBridges() {
-        time=0;
-        timer.assign(n, -1);
-        lowestTimer.assign(n, -1);
-        vis.assign(n, false);
-        bridges.clear();
-        F0R(i, n) {
-            if(!vis[i]) {
-                bridge_dfs(i, -1);
-            }
-        }
     }
-    void getEulerPath(int start) {
-        vt<set<int>> edges(n);
+    void getMSF() {
+        DSU d(n);
+        priority_queue<vt<int>> pq;
         F0R(i, n) {
             trav(x, adj[i]) {
-                edges[i].insert(x);
+                if(x.f>i) {
+                    pq.push({-x.s, i, x.f});
+                }
             }
         }
-        deque<int> dq;
-        dq.push_back(start);
-        eulerPath.clear();
-        while(dq.size()) {
-            int z = dq.front();
-            if(edges[z].size()) {
-                int next = *(edges[z].begin());
-                edges[z].erase(next);
-                edges[next].erase(z);
-                dq.push_front(next);
-            } else {
-                eulerPath.add(z);
-                dq.pop_front();
-            }
+        MSF.assign(n, vt<pair<int,int>>());
+        while(pq.size()) {
+            auto top = pq.top();
+            pq.pop();
+            if(d.find(top[1])==d.find(top[2])) continue;
+            MSF[top[1]].add({top[2], -top[0]});
+            MSF[top[2]].add({top[1], -top[0]});
+            d.unite(top[1], top[2]);
         }
     }
 };
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    GraphAlgs g({{1,2,3}, {0,4}, {0,4}, {0,4}, {1,2,3}});
-    g.getEulerPath(0);
-    // g.getBridges();
-    cout << g.bridges << endl;
-    cout << g.eulerPath << endl;
+    vt<vt<pair<int,int>>> adj(5);
+    adj[0].add({1,3});
+    adj[0].add({4,7});
+    adj[1].add({0,3});
+    adj[1].add({3,2});
+    adj[1].add({2,5});
+    adj[2].add({1,5});
+    adj[2].add({3,8});
+    adj[3].add({1,2});
+    adj[3].add({2,8});
+    adj[3].add({4,4});
+    adj[4].add({0,7});
+    adj[4].add({3,4});
+    WeightedGraph w(adj);
+    w.getMSF();
+    cout << w.MSF << endl;
+    w.dijkstra(0);
+    cout << w.dist << endl;
     return 0;
 }
