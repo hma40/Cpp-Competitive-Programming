@@ -54,7 +54,30 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    //x different components
-    //(x-1)c+
+    int MAXN = 1e6+50;
+    vt<vt<int>> fact(MAXN);
+    FOR(i, 1, MAXN) {
+        for(int j = i; j < MAXN; j+=i) {
+            fact[j].add(i);
+        }
+    }
+    // cout << fact << endl;
+    int t;
+    cin >> t;
+    while(t--) {
+        int n,x;
+        int ans = 0;
+        cin >> n >> x;
+        FOR(bc, 1, n+1) {
+            trav(b, fact[bc]) {
+                int c = bc/b;
+                // int bpc = b+c;
+                int aBound1 = (n-bc)/(b+c);
+                int aBound2 = max(0LL, x-b-c);
+                ans+=min(aBound1, aBound2);
+            }
+        }
+        cout << ans << endl;
+    }
     return 0;
 }

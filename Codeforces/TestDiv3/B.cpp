@@ -54,7 +54,20 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    //x different components
-    //(x-1)c+
+    int t;
+    cin >> t;
+    while(t--){ 
+        int n,k;
+        cin >> n >> k;
+        vt<string> v(n);
+        F0R(i, n) cin >> v[i];
+        vt<string> comp(n/k);
+        F0R(i, n/k) {
+            F0R(j, n/k) {
+                comp[i]+=v[i*k][j*k];
+            }
+        }
+        F0R(i, n/k) cout << comp[i] << endl;
+    }
     return 0;
 }

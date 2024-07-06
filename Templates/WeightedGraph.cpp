@@ -63,6 +63,7 @@ struct DSU {
     void unite(int x, int y) {
         x=find(x);
         y=find(y);
+        if(x==y) return;
         if(sz[x]>sz[y]) swap(x,y);
         sz[y]+=sz[x];
         par[x]=y;

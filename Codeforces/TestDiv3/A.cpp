@@ -54,7 +54,14 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    //x different components
-    //(x-1)c+
+    int t;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        int cows = n/4;
+        n-=cows*4;
+        cout << cows+n/2 << endl;
+    }
     return 0;
 }

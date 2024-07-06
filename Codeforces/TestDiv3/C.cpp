@@ -54,7 +54,32 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    //x different components
-    //(x-1)c+
+    int te;
+    cin >> te;
+    while(te--) {
+        int n,q;
+        cin >> n >> q;
+        string s,t;
+        cin >> s >> t;
+        vt<vt<int>> prefS(1+n, vt<int>(26)), prefT(1+n, vt<int>(26));
+        F0R(i, n) {
+            F0R(j, 26) prefS[i+1][j]=prefS[i][j];
+            prefS[i+1][s[i]-'a']++;
+        }
+        F0R(i, n) {
+            F0R(j, 26) prefT[i+1][j]=prefT[i][j];
+            prefT[i+1][t[i]-'a']++;
+        }
+        while(q--) {
+            int x,y;
+            cin >> x >> y;
+            x--;
+            int ans = 0;
+            F0R(i, 26) {
+                ans+=max(0LL, prefS[y][i]-prefS[x][i]-prefT[y][i]+prefT[x][i]);
+            }
+            cout << ans << endl;
+        }
+    }
     return 0;
 }

@@ -1,70 +1,78 @@
 #include <bits/stdc++.h>
+ 
 using namespace std;
-using ll = long long;
-#define add push_back 
-#define FOR(i,a,b) for (int i = (a); i < (b); ++i)
-#define F0R(i,a) FOR(i,0,a)
-#define ROF(i,a,b) for (int i = (b)-1; i >= (a); --i)
-#define R0F(i,a) ROF(i,0,a)
-#define f first
-#define s second
-#define trav(a,x) for (auto& a: x)
-#define int long long
-#define vt vector
-#define endl "\n"
-ll mod = 1000000007;
-ll inf = 1e18;
-template<typename T1, typename T2>
-std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
-    os << "(" << p.first << ", " << p.second << ")";
-    return os;
+ 
+const int MOD = 1000000007;
+ 
+map<pair<long long, int>, tuple<int, long long, long long>> mem;
+ 
+tuple<int, long long, long long> calc(long long n, int k){
+	if (k < 0){
+		return tuple{0, 0ll, 0ll};
+	}
+	if (n == 1){
+		return tuple{1, 1ll, 1ll};
+	}
+	int bit = 63 - __builtin_clzll(n);
+	long long mid = (1ll << bit);
+	if (mid == n){
+		mid >>= 1;
+		if (mem.count({n, k})){
+			return mem[{n, k}];
+		}
+	}
+	auto [f1, s1, e1] = calc(mid, k);
+	auto [f2, s2, e2] = calc(n - mid, k - 1);
+ 
+	int sub1 = (e1 % MOD) * ((e1 + 1) % MOD) % MOD * 500000004 % MOD;
+	f1 = (f1 * 1ll - sub1 + MOD) % MOD;
+	int sub2 = (s2 % MOD) * ((s2 + 1) % MOD) % MOD * 500000004 % MOD;
+	f2 = (f2 * 1ll - sub2 + MOD) % MOD;
+ 
+	long long p = (e1 + s2) % MOD;
+	int f_cur = (f1 * 1ll + f2 + (p * 1ll * ((p + 1) % MOD) % MOD * 500000004 % MOD)) % MOD;
+	long long s_cur = s1;
+	long long e_cur = e2;
+	if (s1 == e1 && s1 != 0){
+		s_cur = (s1 + s2);
+	}
+	if (s2 == e2 && s2 != 0){
+		e_cur = (e1 + e2);
+	}
+	if ((mid << 1) == n){
+		mem[{n, k}] = tuple{f_cur, s_cur, e_cur};
+	}
+	return tuple{f_cur, s_cur, e_cur};
+};
+ 
+void solve(){
+	long long n;
+	int k;
+	cin >> n >> k;
+	cout << get<0>(calc(n, k)) << '\n';
 }
-template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
-    os << "[ ";
-    for(const auto& elem : vec) {
-        os << elem << " ";
+ 
+int main()
+{
+#ifdef FELIX
+	auto _clock_start = chrono::high_resolution_clock::now();
+#endif
+	ios_base::sync_with_stdio(false);
+	cin.tie(0);
+	// cout.tie(0);
+    freopen("file.out", "w", stdout);
+	int tests = 1;
+	cin >> tests;
+	for (int test = 0; test < tests; test++){
+		solve();
+	}
+    for(auto x: mem) {
+        cout << "{" << x.first.first << ", " << x.first.second << "}: " << "{" << get<0>(x.second) << ", " << get<1>(x.second) << ", " << get<2>(x.second) << "}" << endl;
     }
-    os << "]";
-    return os;
-}
-template<typename T> std::ostream& operator<<(std::ostream& os, const std::set<T>& s) {
-    os << "{ ";
-    for(const auto& elem : s) {
-        os << elem << " ";
-    }
-    os << "}";
-    return os;
-}
-template<typename T> std::ostream& operator<<(std::ostream& os, const std::multiset<T>& s) {
-    os << "{ ";
-    for(const auto& elem : s) {
-        os << elem << " ";
-    }
-    os << "}";
-    return os;
-}
-template<typename K, typename V> std::ostream& operator<<(std::ostream& os, const std::map<K, V>& m) {
-    os << "{ ";
-    for(const auto& pair : m) {
-        os << pair.first << " : " << pair.second << ", ";
-    }
-    os << "}";
-    return os;
-}
-signed main() {
-    ios_base::sync_with_stdio(false); 
-    cin.tie(0);
-    freopen("out.txt", "w", stdout);
-    cout << 69 << endl;
-    return 0;
-    cout << 1 << endl << 5000 << endl;
-    vt<int> v(5001);
-    R0F(i, 5000) {
-        v[i]=v[i+1]+rand()%5000;
-    }
-    F0R(i, 5000) cout << v[i] << " ";
-    cout << endl;
-    F0R(i, 4999) cout << i+1 << " ";
-    cout << endl;
-    return 0;
+#ifdef FELIX
+	cerr << "Executed in " << chrono::duration_cast<chrono::milliseconds>(
+		chrono::high_resolution_clock::now()
+			- _clock_start).count() << "ms." << endl;
+#endif
+	return 0;
 }
