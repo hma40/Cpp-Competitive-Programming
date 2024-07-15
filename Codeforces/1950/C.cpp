@@ -52,10 +52,36 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     return os;
 }
 signed main() {
-    // ios_base::sync_with_stdio(false); 
-    // cin.tie(0);
-    freopen("sex.out", "w", stdout);
-    cout << "200" << endl;
-    F0R(i, 1400) cout << "BBBBBBB" << endl;
+    ios_base::sync_with_stdio(false); 
+    cin.tie(0);
+    int t;
+    cin >> t;
+    while(t--) {
+        string s;
+        cin >> s;
+        int hour = s[0]-'0';
+        hour*=10;
+        hour+=s[1]-'0';
+        // cout << hour << endl;
+        if(hour==0) {
+            string ss = "12:";
+            ss+=s[3];
+            ss+=s[4];
+            cout << ss << " AM" << endl;
+        } else if(hour<12) {
+            cout << s+" AM" << endl;
+        } else if(hour==12) {
+            cout << s+" PM" << endl;
+        } else {
+            hour-=12;
+            // cout << hour << endl;
+            string ss = to_string(hour);
+            if(ss.size()==1) ss='0'+ss;
+            ss+=":";
+            ss+=s[3];
+            ss+=s[4];
+            cout << ss+" PM" << endl;
+        }
+    }
     return 0;
 }

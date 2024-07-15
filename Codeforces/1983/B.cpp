@@ -52,10 +52,56 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     return os;
 }
 signed main() {
-    // ios_base::sync_with_stdio(false); 
-    // cin.tie(0);
-    freopen("sex.out", "w", stdout);
-    cout << "200" << endl;
-    F0R(i, 1400) cout << "BBBBBBB" << endl;
+    ios_base::sync_with_stdio(false); 
+    cin.tie(0);
+    int t;
+    cin >> t;
+    while(t--) {
+        int n,m;
+        cin >> n >> m;
+        // cout << n << " " << m << endl;
+        // cout.flush();
+        vt<string> a(n),b(n);
+        int asum = 0;
+        F0R(i,n) {
+            cin >> a[i];
+        }
+
+        F0R(i, n) {
+            cin >> b[i];
+        }
+        vt<vt<int>> aa(n, vt<int>(m)), bb(n, vt<int>(m));
+        F0R(i, n) {
+            F0R(j, m) {
+                aa[i][j]=a[i][j]-'0';
+                bb[i][j]=b[i][j]-'0';
+            }
+        }
+        bool fail = false;
+        F0R(i, n) {
+            F0R(j, m) {
+                int changes = bb[i][j]-aa[i][j];
+                if(changes<0) changes+=3;
+                if(i==n-1||j==m-1) {
+                    if(changes!=0) {
+                        fail=true;
+                        continue;
+                    } else {
+                        continue;
+                    }
+                }
+                aa[i][j]+=changes;
+                aa[i+1][j+1]+=changes;
+                aa[i+1][j]+=2*changes;
+                aa[i][j+1]+=2*changes;
+                aa[i][j]%=3;
+                aa[i+1][j+1]%=3;
+                aa[i+1][j]%=3;
+                aa[i][j+1]%=3;
+            }
+        }
+        if(fail) cout << "NO" << endl;
+        else cout << "YES" << endl;
+    }
     return 0;
 }

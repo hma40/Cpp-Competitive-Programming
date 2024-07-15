@@ -11,7 +11,6 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-#define endl "\n"
 ll mod = 1000000007;
 ll inf = 1e18;
 template<typename T1, typename T2>
@@ -51,103 +50,181 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
-int phi(int x, vt<int> &primes) {
-    trav(y, primes) {
-        if(x%y==0) {
-            x=x*(y-1)/y;
-        }
-    }
-    return x;
+struct TestCase {
+    
+    int n;
+    int d;
+    vt<pair<int,int>> sex;
+};
+void print_TC(TestCase tc) {
+    cout << tc.n << " " << tc.d << tc.sex << endl;
 }
-int solve(int bound, int num, vt<int> &fact, vt<int> &mobius) {
-    // cout << "SOLVE CALLED FOR " << bound << " " << num << " " << fact << " " << mobius << endl;
-    int ans = 0;
-    F0R(i, fact.size()) {
-        if(num%fact[i]==0) {
-            ans+=mobius[i]*(bound/fact[i]);
-        }
+TestCase randTC() {
+    TestCase tc;
+    tc.n=5;
+    tc.d=rand()%10+tc.n;
+    tc.sex.resize(tc.n);
+    F0R(i, tc.n) {
+        tc.sex[i].f=rand()%15+1;
+        tc.sex[i].s=rand()%20+1;
     }
-    // cout << "RETURNING " << ans << endl;
-    return ans;
+    return tc;
 }
-std::ostream&
-operator<<( std::ostream& dest, __int128_t value )
-{
-std::ostream::sentry s( dest );
-    if ( s ) {
-        __uint128_t tmp = value < 0 ? -value : value;
-        char buffer[ 128 ];
-        char* d = std::end( buffer );
-        do
-        {
-            -- d;
-            *d = "0123456789"[ tmp % 10 ];
-            tmp /= 10;
-        } while ( tmp != 0 );
-        if ( value < 0 ) {
-            -- d;
-            *d = '-';
+struct WrongSol {
+    string solve(TestCase tc) {
+        int n=tc.n,d=tc.d;
+        vt<pair<int,int>> children = tc.sex;
+        // F0R(i, n) cin >> children[i].f >> children[i].s;
+        multiset<int> firstTime;
+        F0R(i, n) {
+            firstTime.insert(children[i].f);
         }
-        int len = std::end( buffer ) - d;
-        if ( dest.rdbuf()->sputn( d, len ) != len ) {
-            dest.setstate( std::ios_base::badbit );
-        }
-    }
-    return dest;
-}
-signed main() {
-    ios_base::sync_with_stdio(false); 
-    cin.tie(0);
-    int t;
-    cin >> t;
-    while(t--) {
-        int a,b,d;
-        cin >> a >> b >> d;
-        if(a>b) swap(a,b);
-        // int ans = 0, fullCyc = 0;
-        vt<int> factors,primeFactors;
-        b-=a;
-        int bb = b;
-        for(int i = 2;i*i<=bb; i++) {
-            if(bb%i==0) {
-                primeFactors.add(i);
-                while(bb%i==0) {
-                    bb/=i;
-                }
+        int firstIndex = 0;
+        // cout << firstTime << endl;
+        priority_queue<vt<int>> pq;
+        //priority, -time, index
+        vt<vt<int>> wait(d+1);
+        int time = 1;
+        bool done = false;
+        while(time<=d) {
+            // cout << time << " " << wait << " " << firstTime << " " << firstIndex << endl;
+            trav(x, wait[time]) {
+                pq.push({children[x].f, -children[x].s, x});
             }
-        }
-        if(bb>1) primeFactors.add(bb);
-        bb=b;
-        for(int i = 1; i*i<=bb; i++) {
-            if(bb%i==0) {
-                factors.add(i);
-                if(i!=bb/i) {
-                    factors.add(bb/i);
-                }
-            }
-        }
-        vt<int> mobius;
-        trav(x, factors) {
-            int mob = 1;
-            trav(y, primeFactors) {
-                if(x%y==0) {
-                    if(x%(y*y)==0) {
-                        mob=0;
-                    } else {
-                        mob*=-1;
+            if(pq.size()) {
+                auto top = pq.top();
+                // cout << top << endl;
+                if(*(firstTime.rbegin())<top[0]) {
+                    //serve this guy instead
+                    pq.pop();
+                    if(time-top[1]+1<=d) {
+                        wait[time-top[1]+1].add(top[2]);
                     }
-                }
+                    time++;
+                    continue;
+                } 
             }
-            mobius.add(mob);
+            //serve firstTimer
+            firstTime.erase(firstTime.find(children[firstIndex].f));
+            if(time+children[firstIndex].s+1<=d) {
+                wait[time+children[firstIndex].s+1].add(firstIndex);
+            
+            }
+            firstIndex++;
+            if(firstTime.size()==0) {
+                done=true;
+                break;
+            }
+            time++;
         }
-        // cout << b << " " << factors << primeFactors << mobius << endl;
-        int ans = 0;
-        int ub = a+d, lb = a-1;
-        trav(x, factors) {
-            ans+=x*(solve(ub/x,b/x,factors,mobius)-solve(lb/x,b/x,factors,mobius));
-            ans%=mod;
+        if(done) {
+            return to_string(time);
+        } else {
+            // cout << -1 << endl;
+            return "-1";
         }
-        cout << ans << endl;
+    }
+};
+struct CorrectSol {
+    const int MAX_N = 12;
+    const int MAX_D = 30;
+
+    struct Student {
+        int k;
+        int s;
+        int tin = 0;
+
+        bool operator<(const Student& other) const {
+            if (k == other.k) {
+                if (tin == other.tin) {
+                    return s > other.s;
+                }
+                return tin > other.tin;
+            }
+            return k < other.k;
+        }
+    };
+
+    int n, D, x;
+    Student qu1[12];
+    int sufMax[12];
+    vector<Student> eat[30];
+
+    int check() {
+        int origPos = 0;
+        priority_queue<Student> qu2;
+        for (int i = 0; i < D && origPos < n; ++i) {
+            if (qu2.empty() || qu2.top().k <= sufMax[origPos]) {
+                ll nxtTime = ll(i) + ll(x) * ll(qu1[origPos].s);
+                if (nxtTime < D) {
+                    eat[nxtTime].push_back(qu1[origPos]);
+                }
+
+                ++origPos;
+                if (origPos == n) {
+                    for (int tm = 0; tm < D; ++tm) {
+                        eat[tm].clear();
+                    }
+
+                    return i + 1;
+                }
+            } else {
+                ll nxtTime = ll(i) + ll(x) * ll(qu2.top().s);
+                if (nxtTime < D) {
+                    eat[nxtTime].push_back(qu2.top());
+                }
+                qu2.pop();
+            }
+
+            for (const auto& student : eat[i]) {
+                qu2.push({student.k, student.s, i});
+            }
+        }
+
+        for (int i = 0; i < D; ++i) {
+            eat[i].clear();
+        }
+
+        return -1;
+    }
+
+    string solve(TestCase tc) {
+        n = tc.n;
+        D = tc.d;
+        // cin >> n >> D;
+        x = 1;
+        for (int i = 0; i < n; ++i) {
+            // cin >> qu1[i].k >> qu1[i].s;
+            qu1[i].k=tc.sex[i].f;
+            qu1[i].s=tc.sex[i].s;
+        }
+
+        sufMax[n - 1] = qu1[n - 1].k;
+        for (int i = n - 2; i >= 0; --i) {
+            sufMax[i] = max(qu1[i].k, sufMax[i + 1]);
+        }
+
+        // cout << check() << '\n';
+        return to_string(check());
+    }
+};
+signed main() {
+    while(true) {
+        TestCase tc = randTC();
+        // print_TC(tc);
+        // return 0;
+        WrongSol w;
+        CorrectSol c;
+        string wa = w.solve(tc);
+        string cor = c.solve(tc);
+        if(wa==cor) {
+            cout << "PASSED" << endl;
+        } else {
+            cout << "WRONG ANSWER" << endl;
+            print_TC(tc);
+            cout << wa << endl << cor << endl;
+            break;
+        }
     }
     return 0;
 }

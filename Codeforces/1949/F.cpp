@@ -1,7 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 using ll = long long;
-using pi = pair<int, int>;
 #define add push_back 
 #define FOR(i,a,b) for (int i = (a); i < (b); ++i)
 #define F0R(i,a) FOR(i,0,a)
@@ -12,6 +11,7 @@ using pi = pair<int, int>;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
+#define endl "\n"
 ll mod = 1000000007;
 ll inf = 1e18;
 template<typename T1, typename T2>
@@ -56,28 +56,38 @@ signed main() {
     cin.tie(0);
     int n,m;
     cin >> n >> m;
-    vt<vt<int>> v(n);
-    vt<pi> deez(n);
+    vt<set<int>> v(n);
     F0R(i, n) {
-        // cout << i << endl;
-        cin >> deez[i].f;
-        deez[i].s=i;
-        // cout << i << " " << deez[i] << endl;
-        F0R(j, deez[i].f) {
+        int k;
+        cin >> k;
+        while(k--) {
             int x;
             cin >> x;
-            v[i].add(x);
+            v[i].insert(x);
         }
-    } 
-    sort(begin(deez),end(deez));
-    set<int> cur;
-    F0R(i, n) {
-        trav(x, v[deez[i].s]) {
-            cur.insert(x);
+    }
+    vt<pair<int,int>> w;
+    F0R(i, n) w.add({-v[i].size(), i});
+    sort(begin(w),end(w));
+    vt<int> lastSeen(m+1, -1);
+    trav(x, w) {
+        // cout << x << lastSeen << endl;
+        set<pair<int,int>> ancestors;
+        trav(y, v[x.s]) {
+            if(lastSeen[y]==-1) ancestors.insert({-1,-1});
+            else ancestors.insert({v[lastSeen[y]].size(), lastSeen[y]});
         }
-        if(cur.size()>deez[i].f) {
-            cout << "YES" << endl << deez[i].s+1 << " " << deez[i-1].s+1 << endl;
-            return 0;
+        if(ancestors.size()>1) {
+            if((*ancestors.begin()).f==-1) {
+                ancestors.erase({-1,-1});
+                cout << "YES" << endl << x.s+1 << " " << (*ancestors.begin()).s+1 << endl;
+                return 0;
+            } else {
+                cout << "YES" << endl << x.s+1 << " " << (*ancestors.begin()).s+1 << endl;
+                return 0;
+            }
+        } else {
+            trav(y, v[x.s]) lastSeen[y]=x.s;
         }
     }
     cout << "NO" << endl;

@@ -52,10 +52,30 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     return os;
 }
 signed main() {
-    // ios_base::sync_with_stdio(false); 
-    // cin.tie(0);
-    freopen("sex.out", "w", stdout);
-    cout << "200" << endl;
-    F0R(i, 1400) cout << "BBBBBBB" << endl;
+    ios_base::sync_with_stdio(false); 
+    cin.tie(0);
+    int t;
+    cin >> t;
+    while(t--) {
+        int n,k;
+        cin >> n >> k;
+        string s;
+        cin >> s;
+        int last = -1;
+        int ans = 0;
+        F0R(i, n) {
+            if(s[i]=='B') {
+                if(last==-1) last=i;
+            }
+            if(last!=-1) {
+                if(last+k-1==i) {
+                    last=-1;
+                    ans++;
+                }
+            }
+        }
+        if(last!=-1) ans++;
+        cout << ans << endl;
+    }
     return 0;
 }

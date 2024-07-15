@@ -52,10 +52,61 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     return os;
 }
 signed main() {
-    // ios_base::sync_with_stdio(false); 
-    // cin.tie(0);
-    freopen("sex.out", "w", stdout);
-    cout << "200" << endl;
-    F0R(i, 1400) cout << "BBBBBBB" << endl;
+    ios_base::sync_with_stdio(false); 
+    cin.tie(0);
+    int t;
+    cin >> t;
+    while(t--) {
+        int n,k,m;
+        cin >> n >> k >> m;
+        set<int> v;
+        F0R(i, m) {
+            int x;cin >> x;
+            v.insert(x);
+        }
+        if((n-m)%(k-1)!=0) {
+            cout << "NO" << endl;
+            continue;
+        } 
+        int operations = (n-m)/(k-1);
+        k/=2;
+        vt<int> connected;
+        int len = 0;
+        FOR(i, 1, n+1) {
+            if(v.count(i)) {
+                if(len!=0) {
+                    connected.add(len);
+                    len=0;
+                }
+            } else {
+                len++;
+            }
+        }
+        if(len) connected.add(len);
+        // cout << connected << endl;
+        int sum = 0;
+        int left = 0, right = n-1;
+        int leftSum = 0;
+        F0R(i, connected.size()) {
+            leftSum+=connected[i];
+            if(leftSum>=k) {
+                left=i;
+                break;
+            }
+        }
+        leftSum=0;
+        R0F(i, connected.size()) {
+            leftSum+=connected[i];
+            if(leftSum>=k) {
+                right=i;
+                break;
+            }
+        }
+        if(left<right) {
+            cout << "YES" << endl;
+        } else {
+            cout << "NO" << endl;
+        }
+    }
     return 0;
 }

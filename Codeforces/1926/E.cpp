@@ -52,10 +52,31 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     return os;
 }
 signed main() {
-    // ios_base::sync_with_stdio(false); 
-    // cin.tie(0);
-    freopen("sex.out", "w", stdout);
-    cout << "200" << endl;
-    F0R(i, 1400) cout << "BBBBBBB" << endl;
+    ios_base::sync_with_stdio(false); 
+    cin.tie(0);
+    int t;
+    cin >> t;
+    while(t--) {
+        int n,k;
+        cin >> n >> k;
+        int count = 0;
+        int i = 1;
+        for(i = 1; i<1e9; i*=2) {
+            int maxMul = n/i;
+            if(maxMul%2==0) maxMul--;
+            int hereAdd = (maxMul-1)/2+1;
+            if(count+hereAdd>=k) break;
+            count+=hereAdd;
+        }
+        // cout << i << " " << count << endl;
+        int numsNeeded = k-count;
+        numsNeeded*=2;
+        numsNeeded--;
+        cout << numsNeeded*i << endl;
+    }
     return 0;
 }
+/*
+1, 3, ..., 83 (42)
+2, 6, ..., 82 (21)
+*/

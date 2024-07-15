@@ -52,10 +52,32 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     return os;
 }
 signed main() {
-    // ios_base::sync_with_stdio(false); 
-    // cin.tie(0);
-    freopen("sex.out", "w", stdout);
-    cout << "200" << endl;
-    F0R(i, 1400) cout << "BBBBBBB" << endl;
+    ios_base::sync_with_stdio(false); 
+    cin.tie(0);
+    int T;
+    cin >> T;
+    while(T--) {
+        int n,m;
+        cin >> n >> m;
+        //take min of dp+sum
+        vt<int> a(n),b(n);
+        F0R(i, n) cin >> a[i];
+        F0R(i, n) cin >> b[i];
+        vt<int> stand(n+1),skip(n+1);
+        R0F(i, n) {
+            stand[i]=a[i]+min(stand[i+1], skip[i+1]);
+            skip[i]=b[i]+min(stand[i+1], skip[i+1]);
+        }
+        // cout << stand << skip << endl;
+        int ans = inf;
+        F0R(i, m) ans=min(ans, stand[i]);
+        cout << ans << endl;
+    }
     return 0;
 }
+/*
+1
+4 2
+7 3 6 9
+4 3 8 5
+*/

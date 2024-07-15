@@ -51,11 +51,66 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+int n;
+vt<int> par;
+vt<vt<int>> child;
+vt<int> noMusic, music;
+string type;
+void reset() {
+    par.assign(n, -1);
+    child.assign(n, vt<int>());
+    noMusic.assign(n, -1);
+    music.assign(n, -1);
+    // type.assign(n, 0);
+    type.clear();
+}
+void solve(int node=0) {
+    trav(x, child[node]) {
+        solve(x);
+    }
+    if(type[node]=='S') {
+        music[node]=inf;
+        noMusic[node]=0;
+        trav(x, child[node]) {
+            noMusic[node]+=min(noMusic[x], music[x]+1);
+        }
+    } else if(type[node]=='P') {
+        noMusic[node]=inf;
+        music[node]=0;
+        trav(x, child[node]) {
+            music[node]+=min(music[x], noMusic[x]+1);   
+        }
+    } else {
+        noMusic[node]=music[node]=0;
+        trav(x, child[node]) {
+            noMusic[node]+=min(noMusic[x], music[x]+1);
+            music[node]+=min(noMusic[x]+1, music[x]);
+        }
+    }
+}
 signed main() {
-    // ios_base::sync_with_stdio(false); 
-    // cin.tie(0);
-    freopen("sex.out", "w", stdout);
-    cout << "200" << endl;
-    F0R(i, 1400) cout << "BBBBBBB" << endl;
+    ios_base::sync_with_stdio(false); 
+    cin.tie(0);
+    int t;
+    cin >> t;
+    while(t--) {
+        cin >> n;
+        reset();
+        FOR(i, 1, n) {
+            cin >> par[i];
+            par[i]--;
+            child[par[i]].add(i);
+        }
+        cin >> type;
+        solve();
+        // cout << music << noMusic << endl;
+        if(noMusic[0]==-1) {
+            cout << music[0] << endl;
+        } else if(music[0]==-1) {
+            cout << noMusic[0] << endl;
+        } else {
+            cout << min(music[0], noMusic[0]) << endl;
+        }
+    }    
     return 0;
 }

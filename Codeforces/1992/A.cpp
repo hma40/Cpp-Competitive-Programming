@@ -52,10 +52,29 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     return os;
 }
 signed main() {
-    // ios_base::sync_with_stdio(false); 
-    // cin.tie(0);
-    freopen("sex.out", "w", stdout);
-    cout << "200" << endl;
-    F0R(i, 1400) cout << "BBBBBBB" << endl;
+    ios_base::sync_with_stdio(false); 
+    cin.tie(0);
+    int t;
+    cin >> t;
+    while(t--) {
+        std::priority_queue<int, std::vector<int>, std::greater<int> > pq;
+        F0R(i, 3) {
+            int x;
+            cin >> x;
+            pq.push(x);
+        }
+        F0R(i, 5) {
+            int f = pq.top();
+            pq.pop();
+            f++;
+            pq.push(f);
+        }
+        int ans = 1;
+        while(pq.size()) {
+            ans*=pq.top();
+            pq.pop();
+        }
+        cout << ans << endl;
+    }
     return 0;
 }

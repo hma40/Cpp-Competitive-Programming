@@ -52,10 +52,43 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     return os;
 }
 signed main() {
-    // ios_base::sync_with_stdio(false); 
-    // cin.tie(0);
-    freopen("sex.out", "w", stdout);
-    cout << "200" << endl;
-    F0R(i, 1400) cout << "BBBBBBB" << endl;
+    ios_base::sync_with_stdio(false); 
+    cin.tie(0);
+    int t;
+    cin >> t;
+    while(t--) {
+        int n;
+        string s;
+        cin >> n >> s;
+        vt<int> zp(n+1),op(n+1);
+        F0R(i, n) {
+            zp[i+1]=zp[i]+(s[i]=='0');
+            // op[i+1]=op[i]+(s[i]=='1');
+        }
+        R0F(i, n) {
+            op[i]=op[i+1]+(s[i]=='1');
+        }
+        // cout << zp << op << endl;
+        int ans = -1;
+        int bestDist = inf;
+        F0R(i, n+1) {
+            int left = i;
+            left=(left+1)/2;
+            int distMid = abs(n-2*i);
+            int right = n-i;
+            right=(right+1)/2;
+            if(zp[i]>=left&&op[i]>=right) {
+                if(distMid<bestDist) {
+                    bestDist=distMid;
+                    ans=i;
+                }
+            }  
+        }
+        cout << ans << endl;
+    }
+    /*
+    0 1 2 3
+    1.5 0.5 0.5 1.5
+    */
     return 0;
 }
