@@ -11,7 +11,7 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-// #define endl "\n"
+#define endl "\n"
 ll mod = 1000000007;
 ll inf = 1e18;
 template<typename T1, typename T2>
@@ -51,33 +51,20 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
-struct BinaryTrie {
-    int next;
-    vt<int> leftChild, rightChild;
-    BinaryTrie(int maxNodes) {
-        leftChild.assign(32*maxNodes, -1);
-        rightChild.assign(32*maxNodes, -1);
-        next = 1;
-    }  
-    void insert(int x) {
-        int cur = 0;
-        R0F(i, 31) {
-            if(x&(1<<i)) {
-                if(rightChild[cur]==-1) {
-                    rightChild[cur]=next++;
-                }
-                cur=rightChild[cur];
-            } else {
-                if(leftChild[cur]==-1) {
-                    leftChild[cur]=next++;
-                }
-            }
-        }
-    }
-};
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    
+    int t;
+    cin >> t;
+    while(t--) {
+        int n,k;
+        cin >> n >> k;
+        int ans = 0;
+        while(n>1) {
+            ans++;
+            n-=k-1;
+        }
+        cout << ans << endl;
+    }
     return 0;
 }

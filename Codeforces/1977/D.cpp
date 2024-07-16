@@ -51,11 +51,11 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    std::srand(static_cast<unsigned int>(std::time(nullptr)));
     int t;
     cin >> t;
     while(t--) {
@@ -66,12 +66,8 @@ signed main() {
         vt<vt<int>> on(n, vt<int>(m, 1)), off(n, vt<int>(m, 1));
         F0R(i, n) {
             F0R(j, m) {
-                F0R(kekw, 4) {
-                    on[i][j]*=rand();
-                    on[i][j]%=mod;
-                    off[i][j]*=rand();
-                    off[i][j]%=mod;
-                }
+                on[i][j]=rnd();
+                off[i][j]=rnd();
             }
         }
         vt<int> noChange(n), change(n);
@@ -190,11 +186,27 @@ signed main() {
     return 0;
 }
 /*
-1010
-1001
-0100
+1
+20 20
+10010110110001110101
+01110001110011110000
+10100011110110111011
+00101011110110111010
+10110000100010000110
+00100101010100100110
+00111010110110100110
+00011011000001111011
+00000101010011110011
+01010101001101101010
+11101010011111001000
+01010011101110101000
+00001010000111100011
+01101100010001011011
+11100111000101101100
+00101000011001000111
+10001010110101110000
+01010010100001110000
+01011101100100010101
+00110111100000011000
 
-1010
-0110
-1011
 */

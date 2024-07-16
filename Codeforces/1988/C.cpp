@@ -11,7 +11,7 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-// #define endl "\n"
+#define endl "\n"
 ll mod = 1000000007;
 ll inf = 1e18;
 template<typename T1, typename T2>
@@ -51,33 +51,41 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
-struct BinaryTrie {
-    int next;
-    vt<int> leftChild, rightChild;
-    BinaryTrie(int maxNodes) {
-        leftChild.assign(32*maxNodes, -1);
-        rightChild.assign(32*maxNodes, -1);
-        next = 1;
-    }  
-    void insert(int x) {
-        int cur = 0;
-        R0F(i, 31) {
-            if(x&(1<<i)) {
-                if(rightChild[cur]==-1) {
-                    rightChild[cur]=next++;
-                }
-                cur=rightChild[cur];
-            } else {
-                if(leftChild[cur]==-1) {
-                    leftChild[cur]=next++;
-                }
-            }
-        }
-    }
-};
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    
+    //1110
+    //110 1010 1100 1110
+    //10111
+    //111 10011 10101 10110 10111
+    //11
+    //11 10 1
+    int t;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        if(n==1) {
+            cout << "1\n1\n";
+            continue;
+        }
+        vt<int> backwards;
+        backwards.add(n);
+        F0R(i, 62) {
+            if(n&(1LL<<i)) {
+                backwards.add(n^(1LL<<i));
+            }
+        }
+        if(backwards.back()==0) backwards.pop_back();
+        // cout << backwards << endl;
+        cout << backwards.size() << endl;
+        R0F(i, backwards.size()) {
+            cout << backwards[i] << " ";
+            if(i!=backwards.size()-1) {
+                assert((backwards[i]|backwards[i+1])==n);
+            }
+        }
+        cout << endl;
+    }
     return 0;
 }

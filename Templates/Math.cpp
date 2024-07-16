@@ -9,7 +9,7 @@ using ll = long long;
 #define f first
 #define s second
 #define trav(a,x) for (auto& a: x)
-#define int long long
+// #define int long long
 #define vt vector
 ll inf = 1e18;
 template<typename T1, typename T2>
@@ -50,22 +50,24 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     return os;
 }
 struct Math {
-    int mod;
-    vt<int> facts;
-    vt<int> invFact;
-    vt<bool> isPrime;
+    ll m;
+    vt<ll> facts;
+    vt<ll> invFact;
+    vt<int> lp;
     vt<int> primes;
-    Math(int m):mod(m) {}
-    int bexpo(int b, int e) {
-        int a = 1;
+    vt<vt<int>> allFactors;
+    Math(int md):m(md) {}
+    Math(): m(1000000007) {};
+    ll bexpo(ll b, int e) {
+        ll a = 1;
         while(e) {
             if(e%2) {
                 a*=b;
-                a%=mod;
+                a%=m;
             }
             e/=2;
             b*=b;
-            b%=mod;
+            b%=m;
         }
         return a;
     }
@@ -75,27 +77,29 @@ struct Math {
         facts[0]=invFact[0]=1;
         FOR(i, 1, bound) {
             facts[i]=facts[i-1]*i;
-            facts[i]%=mod;
-            invFact[i]=bexpo(facts[i], mod-2);
+            facts[i]%=m;
+            invFact[i]=bexpo(facts[i], m-2);
         }
     }
     void sieve(int bound) {
-        isPrime.assign(bound, true);
+        lp.assign(bound+1, 0);
         primes.clear();
-        FOR(i, 2, bound) {
-            if(isPrime[i]) {
+        for(int i = 2; i <= bound; i++) {
+            if(lp[i]==0) {
+                lp[i]=i;
                 primes.add(i);
-                for(int j = i*i; j < bound; j+=i) {
-                    isPrime[j]=false;
-                }
+            }
+            for(int j = 0;i * primes[j]<=bound; j++) {
+                lp[i*primes[j]]=primes[j];
+                if(primes[j]==lp[i]) break;
             }
         }
     }
-    int nck(int n, int k) {
+    ll nck(int n, int k) {
         if(n<k||k<0||n<0) return 0;
-        return facts[n]*invFact[k]%mod*invFact[n-k]%mod;
+        return facts[n]*invFact[k]%m*invFact[n-k]%m;
     }
-    int gcd(int a, int b) {
+    ll gcd(ll a, ll b) {
         if(a>b) swap(a,b);
         while(a!=0) {
             int t = a;
@@ -104,11 +108,11 @@ struct Math {
         }
         return b;
     }
-    int lcm(int a, int b) {
+    ll lcm(ll a, ll b) {
         return a/gcd(a,b)*b;
     }
-    int inv(int x) {
-        return bexpo(x, mod-2);
+    ll inv(ll x) {
+        return bexpo(x, m-2);
     }
     vt<int> factorize(int x) {
         vt<int> factors;
@@ -120,10 +124,20 @@ struct Math {
         }
         return factors;
     }
+    void factorAll(int bound) {
+        allFactors.assign(bound+1, vt<int>{});
+        FOR(i, 1, bound+1) {
+            for(int j = i; j <= bound; j+=i) {
+                allFactors[j].add(i);
+            }
+        }
+    }
 };  
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    
+    Math m;
+    m.sieve(100);
+    cout << m.primes << endl;
     return 0;
 }

@@ -11,6 +11,7 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
+#define endl "\n"
 ll mod = 1000000007;
 ll inf = 1e18;
 template<typename T1, typename T2>
@@ -50,30 +51,15 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
-struct TestCase {
-    int n,k;
-    string s;
-};
-void print_TC(TestCase tc) {
-    cout << tc.n << " " << tc.k << endl << tc.s << endl;
-}
-TestCase randTC() {
-    TestCase t;
-    t.n=6;
-    vt<int> factors;
-    FOR(i, 1, t.n+1) {
-        if(t.n%i==0) factors.add(i);
-    }
-    t.k = factors[rand()%factors.size()];
-    F0R(i, t.n) {
-        t.s+='0'+rand()%2;
-    }
-    return t;
-}
-struct WrongSol {
-    int solve(TestCase tc) {
-        int n = tc.n, k = tc.k;
-        string s = tc.s;
+signed main() {
+    ios_base::sync_with_stdio(false); 
+    cin.tie(0);
+    int t;
+    cin >> t;
+    while(t--) {
+        int n,k;
+        string s;
+        cin >> n >> k >> s;
         int count = 0;
         R0F(i, n) {
             if(s[i]==s[n-1]) count++;
@@ -81,7 +67,8 @@ struct WrongSol {
         }
         // cout << s << " " << count << endl;
         if(count>k) {
-            return -1;
+            cout << -1 << endl;
+            continue;
         } else if(count==k) {
             //whole string must be ok
             count = 0;
@@ -92,6 +79,7 @@ struct WrongSol {
                 if(s[i]==prev) count++;
                 else {
                     if(count==2*k&&s[i-1]!=s[n-1]) {
+                        if(found!=-1) bad=true;
                         found=i;
                     } else if(count!=k) {
                         bad=true;
@@ -100,9 +88,9 @@ struct WrongSol {
                     prev=s[i];
                 }
             }
-            if(bad) return -1;
-            else if(found==-1) return n;
-            else return found-k;
+            if(bad) cout << -1 << endl;
+            else if(found==-1) cout << n << endl;
+            else cout << found-k << endl;
         } else {
             int missing = k-count;
             count = 0;
@@ -119,6 +107,7 @@ struct WrongSol {
                     } else if(k==count) {
 
                     } else if(count==missing&&s[i-1]==s[n-1]) {
+                        if(found!=-1) bad=true;
                         found=i+k;
                     } else {
                         bad=true;
@@ -127,99 +116,20 @@ struct WrongSol {
                     prev=s[i];
                 }   
             }
-            if(bad) return -1;
-            else if(found==-1) return -1;
+            if(bad) cout << -1 << endl;
+            else if(found==-1) cout << -1 << endl;
             else {
                 F0R(i, k) {
                     found--;
                 }
-                return found;
+                cout << found << endl;
             }
         }
-    }
-};
-struct CorrectSol {
-    int n,k;
-    string s;
-
-        int get_idx()
-    {
-        int ptr1 = 1;
-        int idx = inf;
-        while(ptr1 <= n)
-        {
-            int ptr2 = ptr1;
-            while (s[ptr1] == s[ptr2]) ptr2++;
-            if (ptr2 - ptr1 < k)
-            {
-                idx = ptr2;
-                return idx;
-            }
-            else if (ptr2 - ptr1 > k)
-            {
-                idx = ptr2 - k;
-                return idx;
-            }
-            ptr1 = ptr2;
-        }
-        return idx;
-    }
- 
-    int solve(TestCase t)
-    {
-        n = t.n;
-        k = t.k;
-        s = "@" + t.s;
-        int idx = min(n,get_idx());
-        ///cout << "idx = " << idx << endl;
-        int ans = (idx == n ? n : idx-1);
-        string arr = "";
-        for (int i = idx ; i<=n ; i++)
-        {
-            arr += s[i];
-        }
-        for (int i=idx-1 ; i>=1 ; i--)
-        {
-            arr += s[i];
-        }
-    
-        ///cout << "arr = " << arr  << " -- " << arr.size() << endl;
-        for (int i=0 ; i<k ; i++)
-        {
-            if (arr[i] != arr[0])
-            {
-                return -1;
-            }
-        }
-    
-        for (int i=k ; i<n ; i++)
-        {
-            if (arr[i] == arr[i-k])
-            {
-                return -1;
-                // return;
-            }
-        }
-        return ans;
-    }
-};
-signed main() {
-    while(true) {
-        TestCase tc = randTC();
-        WrongSol w;
-        CorrectSol c;
-        int wa = w.solve(tc);
-        int cor = c.solve(tc);
-        if(wa==cor) {
-            cout << "PASSED" << endl;
-            print_TC(tc);
-            cout << wa << endl << cor << endl;
-        } else {
-            cout << "WRONG ANSWER" << endl;
-            print_TC(tc);
-            cout << wa << endl << cor << endl;
-            break;
-        }
-    }
+    }   
     return 0;
 }
+/*
+1
+6 1
+110110
+*/

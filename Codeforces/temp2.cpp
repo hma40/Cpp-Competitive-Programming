@@ -51,174 +51,241 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     return os;
 }
 struct TestCase {
-    
-    int n;
-    int d;
-    vt<pair<int,int>> sex;
+    int n,m;
+    vt<string> v;
 };
 void print_TC(TestCase tc) {
-    cout << tc.n << " " << tc.d << tc.sex << endl;
+    cout << tc.n << " " << tc.m << " " << tc.v << endl;
 }
 TestCase randTC() {
-    TestCase tc;
-    tc.n=5;
-    tc.d=rand()%10+tc.n;
-    tc.sex.resize(tc.n);
-    F0R(i, tc.n) {
-        tc.sex[i].f=rand()%15+1;
-        tc.sex[i].s=rand()%20+1;
+    TestCase t;
+    t.n=20;
+    t.m=20;
+    t.v.resize(t.n);
+    F0R(i, t.n) {
+        F0R(j, t.m) {
+            t.v[i]+='0'+rand()%2;
+        }
     }
-    return tc;
+    return t;
 }
 struct WrongSol {
-    string solve(TestCase tc) {
-        int n=tc.n,d=tc.d;
-        vt<pair<int,int>> children = tc.sex;
-        // F0R(i, n) cin >> children[i].f >> children[i].s;
-        multiset<int> firstTime;
+    pair<int,string> solve(TestCase tc) {
+        int n = tc.n, m = tc.m;
+        vt<string> v = tc.v;
+        vt<vt<int>> on(n, vt<int>(m, 1)), off(n, vt<int>(m, 1));
         F0R(i, n) {
-            firstTime.insert(children[i].f);
+            F0R(j, m) {
+                F0R(kekw, 4) {
+                    on[i][j]*=rand();
+                    on[i][j]%=mod;
+                    off[i][j]*=rand();
+                    off[i][j]%=mod;
+                }
+            }
         }
-        int firstIndex = 0;
-        // cout << firstTime << endl;
-        priority_queue<vt<int>> pq;
-        //priority, -time, index
-        vt<vt<int>> wait(d+1);
-        int time = 1;
+        vt<int> noChange(n), change(n);
+        F0R(i, n) {
+            F0R(j, m) {
+                if(v[i][j]=='0') {
+                    noChange[i]^=off[i][j];
+                    change[i]^=on[i][j];
+                } else {
+                    noChange[i]^=on[i][j];
+                    change[i]^=off[i][j];
+                }
+            }
+        }
+        map<int,int> mp;
+        F0R(i, m) {
+            //fix 0,i to be the only 1 in this col
+            int hash = 0;
+            if(v[0][i]=='1') {
+                hash^=noChange[0];
+            } else {
+                hash^=change[0];
+            }
+            FOR(j, 1, n) {
+                if(v[j][i]=='0') {
+                    hash^=noChange[j];
+                } else {
+                    hash^=change[j];
+                }
+            }
+            mp[hash]++;
+            FOR(j, 1, n) {
+                hash^=noChange[j-1];
+                hash^=change[j-1];
+                hash^=noChange[j];
+                hash^=change[j];
+                mp[hash]++;
+            }
+        }
+        // cout << mp << endl;
+        int best = 0, hVal = 0;
+        trav(x, mp) {
+            if(x.s>best) {
+                best=x.s;
+                hVal=x.f;
+            }
+        }
+        string ans = "";
         bool done = false;
-        while(time<=d) {
-            // cout << time << " " << wait << " " << firstTime << " " << firstIndex << endl;
-            trav(x, wait[time]) {
-                pq.push({children[x].f, -children[x].s, x});
+        F0R(i, m) {
+            //fix 0,i to be the only 1 in this col
+            int hash = 0;
+            if(v[0][i]=='1') {
+                hash^=noChange[0];
+            } else {
+                hash^=change[0];
             }
-            if(pq.size()) {
-                auto top = pq.top();
-                // cout << top << endl;
-                if(*(firstTime.rbegin())<top[0]) {
-                    //serve this guy instead
-                    pq.pop();
-                    if(time-top[1]+1<=d) {
-                        wait[time-top[1]+1].add(top[2]);
+            FOR(j, 1, n) {
+                if(v[j][i]=='0') {
+                    hash^=noChange[j];
+                } else {
+                    hash^=change[j];
+                }
+            }
+            if(hash==hVal) {
+                if(v[0][i]=='1') {
+                    ans+='0';
+                } else {
+                    ans+='1';
+                }
+                FOR(j, 1, n) {
+                    if(v[j][i]=='1') {
+                        ans+='1';
+                    } else {
+                        ans+='0';
                     }
-                    time++;
-                    continue;
-                } 
-            }
-            //serve firstTimer
-            firstTime.erase(firstTime.find(children[firstIndex].f));
-            if(time+children[firstIndex].s+1<=d) {
-                wait[time+children[firstIndex].s+1].add(firstIndex);
-            
-            }
-            firstIndex++;
-            if(firstTime.size()==0) {
+                }
                 done=true;
-                break;
             }
-            time++;
+            if(done) break;
+            FOR(j, 1, n) {
+                hash^=noChange[j-1];
+                hash^=change[j-1];
+                hash^=noChange[j];
+                hash^=change[j];
+                if(hash==hVal) {
+                    // cout << j << " " << i << endl;
+                    F0R(k, j) {
+                        if(v[k][i]=='0') {
+                            ans+='0';
+                        } else {
+                            ans+='1';
+                        }
+                    }
+                    if(v[j][i]=='1') {
+                        ans+='0';
+                    } else {
+                        ans+='1';
+                    }
+                    FOR(k, j+1, n) {
+                        if(v[k][i]=='0') {
+                            ans+='0';
+                        } else {
+                            ans+='1';
+                        }
+                    }
+                    done=true;
+                    break;
+                }
+            }
+            if(done) break;
         }
-        if(done) {
-            return to_string(time);
-        } else {
-            // cout << -1 << endl;
-            return "-1";
-        }
+        return {best,ans};
     }
 };
 struct CorrectSol {
-    const int MAX_N = 12;
-    const int MAX_D = 30;
-
-    struct Student {
-        int k;
-        int s;
-        int tin = 0;
-
-        bool operator<(const Student& other) const {
-            if (k == other.k) {
-                if (tin == other.tin) {
-                    return s > other.s;
-                }
-                return tin > other.tin;
-            }
-            return k < other.k;
-        }
-    };
-
-    int n, D, x;
-    Student qu1[12];
-    int sufMax[12];
-    vector<Student> eat[30];
-
-    int check() {
-        int origPos = 0;
-        priority_queue<Student> qu2;
-        for (int i = 0; i < D && origPos < n; ++i) {
-            if (qu2.empty() || qu2.top().k <= sufMax[origPos]) {
-                ll nxtTime = ll(i) + ll(x) * ll(qu1[origPos].s);
-                if (nxtTime < D) {
-                    eat[nxtTime].push_back(qu1[origPos]);
-                }
-
-                ++origPos;
-                if (origPos == n) {
-                    for (int tm = 0; tm < D; ++tm) {
-                        eat[tm].clear();
-                    }
-
-                    return i + 1;
-                }
-            } else {
-                ll nxtTime = ll(i) + ll(x) * ll(qu2.top().s);
-                if (nxtTime < D) {
-                    eat[nxtTime].push_back(qu2.top());
-                }
-                qu2.pop();
-            }
-
-            for (const auto& student : eat[i]) {
-                qu2.push({student.k, student.s, i});
-            }
-        }
-
-        for (int i = 0; i < D; ++i) {
-            eat[i].clear();
-        }
-
-        return -1;
-    }
-
-    string solve(TestCase tc) {
-        n = tc.n;
-        D = tc.d;
-        // cin >> n >> D;
-        x = 1;
+    pair<int,string> solve(TestCase tc) {
+        int n = tc.n, m = tc.m;
+        vt<vt<bool>> table(n,vt<bool>(m));
         for (int i = 0; i < n; ++i) {
-            // cin >> qu1[i].k >> qu1[i].s;
-            qu1[i].k=tc.sex[i].f;
-            qu1[i].s=tc.sex[i].s;
+        for (int j = 0; j < m; ++j) {
+            char c = tc.v[i][j];
+            table[i][j] = c - '0';
         }
-
-        sufMax[n - 1] = qu1[n - 1].k;
-        for (int i = n - 2; i >= 0; --i) {
-            sufMax[i] = max(qu1[i].k, sufMax[i + 1]);
-        }
-
-        // cout << check() << '\n';
-        return to_string(check());
     }
+    vector<long long> rands(n), rands2(n);
+    for (int i = 0; i < n; ++i) {
+        rands[i] = rand();
+        rands2[i] = rand();
+    }
+    map<pair<long long, long long>, int> ans;
+    int res = 0;
+    pair<int, int> ind_ans = {0, 0};
+    for (int j = 0; j < m; ++j) {
+        long long summ = 0, summ2 = 0;
+        for (int i = 0; i < n; ++i) {
+            if (table[i][j]) {
+                summ ^= rands[i];
+                summ2 ^= rands2[i];
+            }
+        }
+        for (int i = 0; i < n; ++i) {
+            summ ^= rands[i];
+            summ2 ^= rands2[i];
+            ans[{summ, summ2}]++;
+            if (res < ans[{summ, summ2}]) {
+                res = ans[{summ, summ2}];
+                ind_ans = {j, i};
+            }
+            summ ^= rands[i];
+            summ2 ^= rands2[i];
+        }
+    }
+    // cout << res << "\n";
+    string inds(n, '0');
+    for (int i = 0; i < n; ++i) {
+        if (table[i][ind_ans.first]) {
+            if (i != ind_ans.second) {
+                inds[i] = '1';
+            }
+        } else if (ind_ans.second == i) {
+            inds[i] = '1';
+        }
+    }
+        return {res,inds};
+    }       
 };
+bool check(pair<int,string> wa, pair<int,string> cor, TestCase t) {
+    // return false;
+    if(wa.f!=cor.f) return false;
+    auto str = t.v;
+    F0R(i, t.n) {
+        if(wa.s[i]=='0') {
+
+        } else {
+            F0R(j, t.m) {
+                if(str[i][j]=='0') str[i][j]='1';
+                else str[i][j]='0';
+            }
+        }
+    }
+    // cout << "LINE 266 " << t.v << " " << wa.s << " " << str << endl;
+    int count = 0;
+    F0R(i, t.m) {
+        int here = 0;
+        F0R(j, t.n) {
+            if(str[j][i]=='1') here++;
+        }
+        if(here==1) count++;
+    }
+    if(count==wa.f) return true;
+    return false;
+}
 signed main() {
     while(true) {
         TestCase tc = randTC();
-        // print_TC(tc);
-        // return 0;
         WrongSol w;
         CorrectSol c;
-        string wa = w.solve(tc);
-        string cor = c.solve(tc);
-        if(wa==cor) {
+        auto wa = w.solve(tc);
+        auto cor = c.solve(tc);
+        if(check(wa,cor,tc)) {
             cout << "PASSED" << endl;
+            // print_TC(tc);
+            // cout << wa << endl << cor << endl;
         } else {
             cout << "WRONG ANSWER" << endl;
             print_TC(tc);

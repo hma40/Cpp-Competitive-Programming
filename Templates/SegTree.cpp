@@ -21,20 +21,6 @@ struct SegTree {
     vt<int> addLazy; 
     //CHANGE THESE!
     int none;
-    int combi(int &f, int &s) {
-        //ALWAYS COMBINING LEFT TO RIGHT (for non-commutative operations)
-        return (f+s);
-    }
-    int addRange(int orig, int add, int range) {
-        return (orig+add*range);
-    }
-    int setRange(int set, int range) {
-        return (set*range);
-    }
-    int ad(int orig, int ad) {
-        //ALWAYS ADDING AD TO ORIG (for non-commutative operations)
-        return (ad+orig);
-    }
     SegTree(int nn): n(nn) {
         none=(inf);
         while((n&(-n))!=n) {
@@ -58,29 +44,29 @@ struct SegTree {
         if(setLazy[i]!=none) {
             setLazy[2*i]=setLazy[i];
             setLazy[2*i+1]=setLazy[i];
-            tree[2*i]=setRange(setLazy[i], end[2*i]-beg[2*i]+1);
-            tree[2*i+1]=setRange(setLazy[i], end[2*i]-beg[2*i]+1);
+            tree[2*i]=setLazy[i]*(end[2*i]-beg[2*i]+1);
+            tree[2*i+1]=setLazy[i]*(end[2*i+1]-beg[2*i+1]+1);
             addLazy[2*i]=none;
             addLazy[2*i+1]=none;
             setLazy[i]=none;
         }   
         if(addLazy[i]!=none) {
             if(setLazy[2*i]!=none) {
-                setLazy[2*i]=ad(setLazy[2*i], addLazy[i]);
+                setLazy[2*i]+=addLazy[i];
             } else if(addLazy[2*i]!=none) {
-                addLazy[2*i]=ad(addLazy[2*i], addLazy[i]);
+                addLazy[2*i]+=(addLazy[i]);
             } else {
                 addLazy[2*i]=addLazy[i];
             }
             if(setLazy[2*i+1]!=none) {
-                setLazy[2*i+1]=ad(setLazy[2*i+1], addLazy[i]);
+                setLazy[2*i+1]+=( addLazy[i]);
             } else if(addLazy[2*i+1]!=none) {
-                addLazy[2*i+1]=ad(addLazy[2*i+1], addLazy[i]);
+                addLazy[2*i+1]+=(addLazy[i]);
             } else {
                 addLazy[2*i+1]=addLazy[i];
             }
-            tree[2*i+1]=addRange(tree[2*i+1], addLazy[i], end[2*i+1]-beg[2*i+1]+1);
-            tree[2*i]=addRange(tree[2*i], addLazy[i], end[2*i+1]-beg[2*i+1]+1);
+            tree[2*i+1]+=addLazy[i]*(end[2*i]-beg[2*i]+1);
+            tree[2*i]+=addLazy[i]*(end[2*i]-beg[2*i]+1);
             addLazy[i]=none;
         }
     }
@@ -95,14 +81,14 @@ struct SegTree {
         } else {
             pointSet(2*i+1, index, val);
         }
-        tree[i]=combi(tree[2*i], tree[2*i+1]);
+        tree[i]=tree[2*i]+tree[2*i+1];
     }
     void pointSet(int index, int val) {
         pointSet(1,index,val);
     }
     void pointAdd(int i, int index, int val) {
         if(i>=n) {
-            tree[i]=ad(tree[i], val);
+            tree[i]+=val;
             return;
         }
         prop(i);
@@ -111,7 +97,7 @@ struct SegTree {
         } else {
             pointAdd(2*i+1, index, val);
         }
-        tree[i]=combi(tree[2*i], tree[2*i+1]);
+        tree[i]=(tree[2*i]+tree[2*i+1]);
     }
     void pointAdd(int index, int val) {
         pointAdd(1, index, val);
@@ -128,7 +114,7 @@ struct SegTree {
             if(ans==none) {
                 ans=r;
             } else {
-                ans=combi(ans, r);
+                ans+=r;
             }
         }
         return ans;
@@ -143,7 +129,7 @@ struct SegTree {
         if(i<n) prop(i);
         if(beg[i]==left&&end[i]==right) {
             setLazy[i]=val;
-            tree[i]=setRange(val, end[i]-beg[i]+1);
+            tree[i]=val*end[i]-beg[i]+1;
             return;
         }
         if(beg[2*i]<=right&&end[2*i]>=left) {
@@ -152,7 +138,7 @@ struct SegTree {
         if(beg[2*i+1]<=right&&end[2*i+1]>=left) {
             rangeSet(2*i+1, max(left, beg[2*i+1]), right, val);
         }
-        tree[i]=combi(tree[2*i], tree[2*i+1]);
+        tree[i]=tree[2*i]+tree[2*i+1];
     }
     void rangeAdd(int left, int right, int val) {
         rangeAdd(1, left, right, val);
@@ -161,7 +147,7 @@ struct SegTree {
         if(i<n) prop(i);
         if(beg[i]==left&&end[i]==right) {
             addLazy[i]=val;
-            tree[i]=addRange(tree[i], val, end[i]-beg[i]+1);
+            tree[i]+=val*(end[i]-beg[i]+1);
             return;
         }
         if(beg[2*i]<=right&&end[2*i]>=left) {
@@ -170,7 +156,7 @@ struct SegTree {
         if(beg[2*i+1]<=right&&end[2*i+1]>=left) {
             rangeAdd(2*i+1, max(left, beg[2*i+1]), right, val);
         }
-        tree[i]=combi(tree[2*i], tree[2*i+1]);
+        tree[i]=(tree[2*i]+ tree[2*i+1]);
     }
 };
 template<typename T1, typename T2>

@@ -11,7 +11,7 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-// #define endl "\n"
+#define endl "\n"
 ll mod = 1000000007;
 ll inf = 1e18;
 template<typename T1, typename T2>
@@ -51,33 +51,62 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
-struct BinaryTrie {
-    int next;
-    vt<int> leftChild, rightChild;
-    BinaryTrie(int maxNodes) {
-        leftChild.assign(32*maxNodes, -1);
-        rightChild.assign(32*maxNodes, -1);
-        next = 1;
-    }  
-    void insert(int x) {
-        int cur = 0;
-        R0F(i, 31) {
-            if(x&(1<<i)) {
-                if(rightChild[cur]==-1) {
-                    rightChild[cur]=next++;
-                }
-                cur=rightChild[cur];
-            } else {
-                if(leftChild[cur]==-1) {
-                    leftChild[cur]=next++;
-                }
+int n;
+vt<int> v;
+// vt<int> depth;
+vt<vt<int>> dp;
+vt<vt<int>> adj;
+void reset() {
+    v.assign(n, 0);
+    // depth.assign(n,0);
+    // dp.assign(n,0);
+    dp.assign(n,vt<int>(25));
+    adj.assign(n, vt<int>());
+}
+void calc(int node, int par) {
+    trav(x, adj[node]) {
+        if(x==par) continue;
+        calc(x, node);
+    } 
+    for(int i = 1; i < 25; i++) {
+        dp[node][i]=v[node]*i;
+    }
+    FOR(i, 1, 25) {
+        trav(x, adj[node]) {
+            if(x==par) continue;
+            int mn = inf;
+            FOR(j, 1, 25) {
+                if(i==j) continue;
+                mn=min(mn, dp[x][j]);
             }
+            // cout << x << " " << mn << endl;
+            dp[node][i]+=mn;
         }
     }
-};
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    
+    int t;
+    cin >> t;
+    while(t--) {
+        cin >> n;
+        reset();
+        F0R(i, n) cin >> v[i];
+        F0R(i, n-1) {
+            int a,b;
+            cin >> a >> b;
+            adj[--a].add(--b);
+            adj[b].add(a);
+        }
+        calc(0, -1);
+        // cout << dp << dp2 << endl;
+        // cout << ans << endl;
+        // cout << min(dp[0], dp2[0]) << endl;
+        int ans = inf;
+        // cout << dp << endl;
+        FOR(i, 1, 25) ans=min(ans, dp[0][i]);
+        cout << ans << endl;
+    }
     return 0;
 }
