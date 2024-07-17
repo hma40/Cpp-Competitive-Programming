@@ -11,7 +11,7 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-// #define endl "\n"
+#define endl "\n"
 ll mod = 1000000007;
 ll inf = 1e18;
 template<typename T1, typename T2>
@@ -51,32 +51,58 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
-struct BinaryTrie {
-    vt<int> leftChild, rightChild;
-    void insert(int x) {
-        int cur = 0;
-        R0F(i, 31) {
-            if(x&(1<<i)) {
-                if(rightChild[cur]==-1) {
-                    rightChild[cur]=rightChild.size();
-                    rightChild.add(-1);
-                    leftChild.add(-1);
-                }
-                cur=rightChild[cur];
-            } else {
-                if(leftChild[cur]==-1) {
-                    leftChild[cur]=rightChild.size();
-                    rightChild.add(-1);
-                    leftChild.add(-1);
-                }
-                cur=leftChild[cur];
-            }
-        }
-    }
-};
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    
+    int t;
+    cin >> t;
+    while(t--) {
+        int n,k;
+        cin >> n >> k;
+        vt<int> f(n),s(n);
+        F0R(i, n) cin >> f[i];
+        F0R(j, n) cin >> s[j];
+        F0R(i,n) {
+            f[i]--;
+            s[i]--;
+        }
+        vt<int> fc(n),sc(n);
+        F0R(i, n) fc[f[i]]++;
+        F0R(i, n) sc[s[i]]++;
+        vt<int> ansf,anss;
+        int more0 = 2*k, more1 = 2*k;
+        vt<int> fr,sr;
+        // cout << fc << sc << endl;
+        F0R(i, n) {
+            if(fc[i]==2&&more0>=2) {
+                more0-=2;
+                fr.add(i+1);
+                fr.add(i+1);
+            } 
+        }
+        F0R(i, n) {
+            if(fc[i]==1&&more0>=1) {
+                // cout << "LINE 83 " << i << endl;
+                more0--;
+                more1--;
+                fr.add(i+1);
+                sr.add(i+1);
+            }
+        }
+        F0R(i, n) {
+            if(sc[i]==2&&more1>=2) {
+                sr.add(i+1);
+                sr.add(i+1);
+                more1-=2;
+            }
+        }
+        F0R(i, 2*k) {
+            cout << fr[i] << " ";
+        }
+        cout << endl;
+        F0R(i, 2*k) cout << sr[i] << " ";
+        cout << endl;
+    }
     return 0;
 }

@@ -51,32 +51,58 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
-struct BinaryTrie {
-    vt<int> leftChild, rightChild;
-    void insert(int x) {
-        int cur = 0;
-        R0F(i, 31) {
-            if(x&(1<<i)) {
-                if(rightChild[cur]==-1) {
-                    rightChild[cur]=rightChild.size();
-                    rightChild.add(-1);
-                    leftChild.add(-1);
-                }
-                cur=rightChild[cur];
-            } else {
-                if(leftChild[cur]==-1) {
-                    leftChild[cur]=rightChild.size();
-                    rightChild.add(-1);
-                    leftChild.add(-1);
-                }
-                cur=leftChild[cur];
-            }
-        }
-    }
-};
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    
+    int t;
+    cin >> t;
+    while(t--) {
+        int n,k;
+        cin >> n >> k;
+        int largest = n;
+        int queriesLeft = 2*n;
+        R0F(i, n) {
+            queriesLeft--;
+            cout << "? 1 " << n*(i+1) << endl;
+            // cout.flush();
+            int x;
+            cin >> x;
+            if(x==n) {
+                largest=i+1;
+                break;
+            } else if(x==-1) {
+                return 0;
+            } 
+        }
+        // cout << largest << endl;
+        int bestAns=-1;
+        int mult = 1;
+        while(queriesLeft>0) {
+            int last = 0;
+            F0R(i, k) {
+                queriesLeft--;
+                cout << "? " << last+1 << " " << mult*largest << endl;
+                int x;
+                cin >> x;
+                if(x==-1) return 0;
+                last=x;
+                if(last==n) {
+                    if(i==k-1) {
+                        bestAns=mult*largest;
+                    }
+                } 
+                if(last>=n) {
+                    break;
+                }
+                if(queriesLeft==0) break;
+            }
+            mult++;
+        }
+        cout << "! " <<  bestAns << endl;
+        int verdict;
+        cin >> verdict;
+        if(verdict==-1) return 0;
+    }
     return 0;
 }

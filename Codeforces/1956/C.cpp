@@ -11,7 +11,7 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-// #define endl "\n"
+#define endl "\n"
 ll mod = 1000000007;
 ll inf = 1e18;
 template<typename T1, typename T2>
@@ -51,32 +51,30 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
-struct BinaryTrie {
-    vt<int> leftChild, rightChild;
-    void insert(int x) {
-        int cur = 0;
-        R0F(i, 31) {
-            if(x&(1<<i)) {
-                if(rightChild[cur]==-1) {
-                    rightChild[cur]=rightChild.size();
-                    rightChild.add(-1);
-                    leftChild.add(-1);
-                }
-                cur=rightChild[cur];
-            } else {
-                if(leftChild[cur]==-1) {
-                    leftChild[cur]=rightChild.size();
-                    rightChild.add(-1);
-                    leftChild.add(-1);
-                }
-                cur=leftChild[cur];
-            }
-        }
-    }
-};
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    
+    int t;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        int ans = 0;
+        F0R(i, n) {
+            F0R(j, n) {
+                ans+=max(i,j)+1;
+            }
+        }
+        cout << ans << " " << 2*n << endl;
+        F0R(i, n) {
+            cout << 1 << " " << n-i << " ";
+            F0R(j, n) cout << j+1 << " ";
+            cout << endl;
+            cout << 2 << " " << n-i << " ";
+            F0R(j, n) cout << j+1 << " ";
+            cout << endl;
+        }
+    }
     return 0;
 }

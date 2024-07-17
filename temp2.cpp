@@ -50,166 +50,369 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 struct TestCase {
-    int n,k;
-    string s;
+    int n;
+    vt<vt<pair<int,int>>> adj;
+    int q;
+    vt<vt<int>> queries;
 };
 void print_TC(TestCase tc) {
-    cout << tc.n << " " << tc.k << endl << tc.s << endl;
+    cout << tc.n << " " << tc.adj << " " << tc.q << " " << tc.queries << endl;
 }
 TestCase randTC() {
-    TestCase t;
-    t.n=6;
-    vt<int> factors;
-    FOR(i, 1, t.n+1) {
-        if(t.n%i==0) factors.add(i);
+    TestCase tc;
+    tc.n = 3;
+    tc.q = 1;
+    tc.adj.resize(tc.n);
+    FOR(i, 1, tc.n) {
+        int par = rnd()%i;
+        int xr = rnd()%4;
+        tc.adj[par].add({i,xr});
+        tc.adj[i].add({par,xr});
     }
-    t.k = factors[rand()%factors.size()];
-    F0R(i, t.n) {
-        t.s+='0'+rand()%2;
+    F0R(i, tc.q) {
+        if(rand()%2) {
+            tc.queries.add({0, (ll)(rnd()%4)});
+        } else {
+            tc.queries.add({1, (ll)(rnd()%tc.n), (ll)(rnd()%4)});
+        }
     }
-    return t;
+    return tc;
 }
 struct WrongSol {
-    int solve(TestCase tc) {
-        int n = tc.n, k = tc.k;
-        string s = tc.s;
-        int count = 0;
-        R0F(i, n) {
-            if(s[i]==s[n-1]) count++;
-            else break;
-        }
-        // cout << s << " " << count << endl;
-        if(count>k) {
-            return -1;
-        } else if(count==k) {
-            //whole string must be ok
-            count = 0;
-            bool bad = false;
-            char prev = s[0];
-            int found = -1;
-            F0R(i, n) {
-                if(s[i]==prev) count++;
-                else {
-                    if(count==2*k&&s[i-1]!=s[n-1]) {
-                        found=i;
-                    } else if(count!=k) {
-                        bad=true;
-                    }
-                    count=1;
-                    prev=s[i];
+    struct BinaryTrie {
+    vt<int> leftChild, rightChild;
+    vt<int> last;
+    BinaryTrie() {
+        leftChild.assign(1,-1);
+        rightChild.assign(1,-1);
+        last.assign(1,0);
+    }  
+    int maxXOR(int x, int avoid) {
+        // cout << "LINE 63 " << x <<  endl;
+        int cur = 0;
+        int val = 0;
+        if(last[0]==avoid) return 0;
+        R0F(i, 31) {
+            // cout << i << " " << val << " " << x << endl;
+            assert(leftChild[cur]!=-1||rightChild[cur]!=-1);
+            if(x&(1<<i)) {
+                if(leftChild[cur]!=-1&&last[leftChild[cur]]!=avoid) {
+                    cur=leftChild[cur];
+                } else {
+                    cur=rightChild[cur];
+                    val^=(1<<i);
+                }
+            } else {
+                if(rightChild[cur]!=-1&&last[rightChild[cur]]!=avoid) {
+                    cur=rightChild[cur];
+                    val^=(1<<i);
+                } else {
+                    cur=leftChild[cur];
                 }
             }
-            if(bad) return -1;
-            else if(found==-1) return n;
-            else return found-k;
-        } else {
-            int missing = k-count;
-            count = 0;
-            bool bad = false;
-            int found = -1;
-            char prev = s[0];
-            F0R(i, n) {
-                // cout << i << " " << found << " " << prev << " " << count << " " << missing << endl;
-                if(s[i]==prev) count++;
-                else {
-                    if(k+missing==count&&s[i-1]==s[n-1]) {
-                        if(found==-1) found=i;
-                        else bad=true;
-                    } else if(k==count) {
-
-                    } else if(count==missing&&s[i-1]==s[n-1]) {
-                        found=i+k;
-                    } else {
-                        bad=true;
-                    }
-                    count=1;
-                    prev=s[i];
-                }   
-            }
-            if(bad) return -1;
-            else if(found==-1) return -1;
-            else {
-                F0R(i, k) {
-                    found--;
+        }
+        return x^val;
+    }
+    void insert(int x, int pos) {
+        // cout << "LINE 86 " << x << endl;
+        int cur = 0;
+        if(last[0]==0) last[0]=pos;
+        else last[0]=-1;
+        R0F(i, 31) {
+            if(x&(1<<i)) {
+                if(rightChild[cur]==-1) {
+                    rightChild[cur]=rightChild.size();
+                    rightChild.add(-1);
+                    leftChild.add(-1);
+                    last.add({});
                 }
-                return found;
+                cur=rightChild[cur];
+            } else {
+                if(leftChild[cur]==-1) {
+                    // leftChild[cur]=next++;
+                    leftChild[cur]=leftChild.size();
+                    leftChild.add(-1);
+                    rightChild.add(-1);
+                    last.add({});
+                }
+                cur=leftChild[cur];
+            }
+            if(last[cur]==0) last[cur]=pos;
+            else last[cur]=-1;
+        }
+    }
+};
+struct TreeAlg {
+    int n;
+    vt<vt<pair<int,int>>> adj;
+    vt<int> xr;
+    int root;
+    vt<int> par;
+    vt<int> subSize;
+    vt<int> depth;
+    TreeAlg(vt<vt<pair<int,int>>> aj, int rt) {
+        adj=aj;
+        root=rt;
+        n=aj.size();
+        xr.assign(n,0);
+        par.resize(n, -1);
+        // subSize.resize(n, 1);
+        depth.resize(n, 0);
+        dfs(root);
+    }
+    void dfs(int node) {
+        trav(x, adj[node]) {
+            if(x.f==par[node]) continue;
+            par[x.f]=node;
+            depth[x.f]=depth[node]+1;
+            xr[x.f]=xr[node]^x.s;
+            dfs(x.f);
+            // subSize[node]+=subSize[x.f];
+        }
+    }
+    vt<vt<int>> sparse;
+    void set_sparse() {
+        sparse.resize(n, vt<int>(20));
+        F0R(i, n) sparse[i][0]=par[i];
+        FOR(i, 1, 20) {
+            F0R(j, n) {
+                if(sparse[j][i-1]==-1) sparse[j][i]=-1;
+                else sparse[j][i]=sparse[sparse[j][i-1]][i-1];
             }
         }
+    }
+    int jump(int x, int steps) {
+        R0F(i, 20) {
+            if(steps&(1<<i)) {
+                x=sparse[x][i];
+            }
+        }
+        return x;
+    }
+    int lca(int x, int y) {
+        if(depth[x]>depth[y]) swap(x,y);
+        y=jump(y, depth[y]-depth[x]);
+        if(x==y) return x;
+        R0F(i, 20) {
+            if(sparse[x][i]!=sparse[y][i]) {
+                x=sparse[x][i];
+                y=sparse[y][i];
+            }
+        }
+        return par[x];
+    }
+    int dist(int x, int y) {
+        return depth[x]+depth[y]-2*depth[lca(x,y)];
+    }
+};
+    string solve(TestCase tc) {
+        int n = tc.n, q = tc.q;
+        auto adj = tc.adj;
+        auto queries = tc.queries;
+        int od=0, ev=0;
+        TreeAlg ta(adj,0);
+        string ret;
+        F0R(i, n) if(ta.depth[i]%2) od++; else ev++;
+        BinaryTrie odd,even;
+        F0R(i, n) {
+            if(ta.depth[i]%2) {
+                odd.insert(ta.xr[i], i);
+            } else {
+                even.insert(ta.xr[i], i);
+            }
+        }
+        int oddXOR = 0;
+        F0R(qq, q) {
+            int c = queries[qq][0];
+            if(c==0) {
+                int y = queries[qq][1];
+                oddXOR^=y;
+            } else {
+                int v,x;
+                v = queries[qq][1];
+                x = queries[qq][2];
+                // cout << v << " " << x << " " << ta.xr[v] << endl;
+                if(ta.depth[v]%2) x^=oddXOR;
+                int ans = max(even.maxXOR(x^ta.xr[v], v), odd.maxXOR(x^ta.xr[v]^oddXOR, v));
+                // cout << ans << " ";
+                ret+=to_string(ans)+" ";
+            }
+        }
+        return ret;
     }
 };
 struct CorrectSol {
-    int n,k;
-    string s;
-
-        int get_idx()
-    {
-        int ptr1 = 1;
-        int idx = inf;
-        while(ptr1 <= n)
-        {
-            int ptr2 = ptr1;
-            while (s[ptr1] == s[ptr2]) ptr2++;
-            if (ptr2 - ptr1 < k)
-            {
-                idx = ptr2;
-                return idx;
+    struct BinaryTrie {
+    vt<int> leftChild, rightChild;
+    vt<set<int>> last;
+    BinaryTrie() {
+        leftChild.assign(1,-1);
+        rightChild.assign(1,-1);
+        last.assign(1,{});
+    }  
+    int maxXOR(int x, int avoid) {
+        // cout << "LINE 63 " << x <<  endl;
+        int cur = 0;
+        int val = 0;
+        if(last[0].size()==1&&*(last[0].begin())==avoid) return 0;
+        R0F(i, 31) {
+            // cout << i << " " << val << " " << x << endl;
+            assert(leftChild[cur]!=-1||rightChild[cur]!=-1);
+            if(x&(1<<i)) {
+                if(leftChild[cur]!=-1&&!(last[leftChild[cur]].size()==1&&(*last[leftChild[cur]].begin())==avoid)) {
+                    cur=leftChild[cur];
+                } else {
+                    cur=rightChild[cur];
+                    val^=(1<<i);
+                }
+            } else {
+                if(rightChild[cur]!=-1&&!(last[rightChild[cur]].size()==1&&(*last[rightChild[cur]].begin())==avoid)) {
+                    cur=rightChild[cur];
+                    val^=(1<<i);
+                } else {
+                    cur=leftChild[cur];
+                }
             }
-            else if (ptr2 - ptr1 > k)
-            {
-                idx = ptr2 - k;
-                return idx;
-            }
-            ptr1 = ptr2;
         }
-        return idx;
+        return x^val;
     }
- 
-    int solve(TestCase t)
-    {
-        n = t.n;
-        k = t.k;
-        s = "@" + t.s;
-        int idx = min(n,get_idx());
-        ///cout << "idx = " << idx << endl;
-        int ans = (idx == n ? n : idx-1);
-        string arr = "";
-        for (int i = idx ; i<=n ; i++)
-        {
-            arr += s[i];
-        }
-        for (int i=idx-1 ; i>=1 ; i--)
-        {
-            arr += s[i];
-        }
-    
-        ///cout << "arr = " << arr  << " -- " << arr.size() << endl;
-        for (int i=0 ; i<k ; i++)
-        {
-            if (arr[i] != arr[0])
-            {
-                return -1;
+    void insert(int x, int pos) {
+        // cout << "LINE 86 " << x << endl;
+        int cur = 0;
+        last[cur].insert(pos);
+        R0F(i, 31) {
+            if(x&(1<<i)) {
+                if(rightChild[cur]==-1) {
+                    rightChild[cur]=rightChild.size();
+                    rightChild.add(-1);
+                    leftChild.add(-1);
+                    last.add({});
+                }
+                cur=rightChild[cur];
+                last[cur].insert(pos);
+            } else {
+                if(leftChild[cur]==-1) {
+                    // leftChild[cur]=next++;
+                    leftChild[cur]=leftChild.size();
+                    leftChild.add(-1);
+                    rightChild.add(-1);
+                    last.add({});
+                }
+                cur=leftChild[cur];
+                last[cur].insert(pos);
             }
         }
-    
-        for (int i=k ; i<n ; i++)
-        {
-            if (arr[i] == arr[i-k])
-            {
-                return -1;
-                // return;
+    }
+};
+struct TreeAlg {
+    int n;
+    vt<vt<pair<int,int>>> adj;
+    vt<int> xr;
+    int root;
+    vt<int> par;
+    vt<int> subSize;
+    vt<int> depth;
+    TreeAlg(vt<vt<pair<int,int>>> aj, int rt) {
+        adj=aj;
+        root=rt;
+        n=aj.size();
+        xr.assign(n,0);
+        par.resize(n, -1);
+        // subSize.resize(n, 1);
+        depth.resize(n, 0);
+        dfs(root);
+    }
+    void dfs(int node) {
+        trav(x, adj[node]) {
+            if(x.f==par[node]) continue;
+            par[x.f]=node;
+            depth[x.f]=depth[node]+1;
+            xr[x.f]=xr[node]^x.s;
+            dfs(x.f);
+            // subSize[node]+=subSize[x.f];
+        }
+    }
+    vt<vt<int>> sparse;
+    void set_sparse() {
+        sparse.resize(n, vt<int>(20));
+        F0R(i, n) sparse[i][0]=par[i];
+        FOR(i, 1, 20) {
+            F0R(j, n) {
+                if(sparse[j][i-1]==-1) sparse[j][i]=-1;
+                else sparse[j][i]=sparse[sparse[j][i-1]][i-1];
             }
         }
-        return ans;
+    }
+    int jump(int x, int steps) {
+        R0F(i, 20) {
+            if(steps&(1<<i)) {
+                x=sparse[x][i];
+            }
+        }
+        return x;
+    }
+    int lca(int x, int y) {
+        if(depth[x]>depth[y]) swap(x,y);
+        y=jump(y, depth[y]-depth[x]);
+        if(x==y) return x;
+        R0F(i, 20) {
+            if(sparse[x][i]!=sparse[y][i]) {
+                x=sparse[x][i];
+                y=sparse[y][i];
+            }
+        }
+        return par[x];
+    }
+    int dist(int x, int y) {
+        return depth[x]+depth[y]-2*depth[lca(x,y)];
+    }
+};
+    string solve(TestCase tc) {
+        int n = tc.n, q = tc.q;
+        auto adj = tc.adj;
+        auto queries = tc.queries;
+        string ret = "";
+        int od=0, ev=0;
+        TreeAlg ta(adj,0);
+        F0R(i, n) if(ta.depth[i]%2) od++; else ev++;
+        BinaryTrie odd,even;
+        F0R(i, n) {
+            if(ta.depth[i]%2) {
+                odd.insert(ta.xr[i], i);
+            } else {
+                even.insert(ta.xr[i], i);
+            }
+        }
+        int oddXOR = 0;
+        F0R(qq, q) {
+            int c = queries[qq][0];
+            if(c==0) {
+                int y = queries[qq][1];
+                oddXOR^=y;
+            } else {
+                int v,x;
+                v = queries[qq][1];
+                x = queries[qq][2];
+                // cout << v << " " << x << " " << ta.xr[v] << endl;
+                if(ta.depth[v]%2) x^=oddXOR;
+                int ans = max(even.maxXOR(x^ta.xr[v], v), odd.maxXOR(x^ta.xr[v]^oddXOR, v));
+                ret+=to_string(ans)+" ";
+            }
+        }
+        return ret;
     }
 };
 signed main() {
     while(true) {
         TestCase tc = randTC();
+        print_TC(tc);
         WrongSol w;
         CorrectSol c;
-        int wa = w.solve(tc);
-        int cor = c.solve(tc);
+        string wa = w.solve(tc);
+        string cor = c.solve(tc);
         if(wa==cor) {
             cout << "PASSED" << endl;
             print_TC(tc);

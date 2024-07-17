@@ -227,6 +227,15 @@ struct TreeAlg {
     vt<int> par;
     vt<int> subSize;
     vt<int> depth;
+    TreeAlg(vt<vt<int>> aj, int rt=0) {
+        adj=aj;
+        root=rt;
+        n=aj.size();
+        par.resize(n, -1);
+        subSize.resize(n, 1);
+        depth.resize(n, 0);
+        dfs(root);
+    }
     void dfs(int node) {
         trav(x, adj[node]) {
             if(x==par[node]) continue;
@@ -237,12 +246,6 @@ struct TreeAlg {
         }
     }
     vt<vt<int>> sparse;
-    TreeAlg(vt<vt<int>> adj, int root=0): adj(adj),root(root), n(adj.size()) {
-        par.resize(n, -1);
-        subSize.resize(n, 1);
-        depth.resize(n, 0);
-        dfs(root);
-    }
     void set_sparse() {
         sparse.resize(n, vt<int>(20));
         F0R(i, n) sparse[i][0]=par[i];

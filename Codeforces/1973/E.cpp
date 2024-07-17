@@ -11,7 +11,7 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-// #define endl "\n"
+#define endl "\n"
 ll mod = 1000000007;
 ll inf = 1e18;
 template<typename T1, typename T2>
@@ -51,32 +51,64 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
-struct BinaryTrie {
-    vt<int> leftChild, rightChild;
-    void insert(int x) {
-        int cur = 0;
-        R0F(i, 31) {
-            if(x&(1<<i)) {
-                if(rightChild[cur]==-1) {
-                    rightChild[cur]=rightChild.size();
-                    rightChild.add(-1);
-                    leftChild.add(-1);
-                }
-                cur=rightChild[cur];
-            } else {
-                if(leftChild[cur]==-1) {
-                    leftChild[cur]=rightChild.size();
-                    rightChild.add(-1);
-                    leftChild.add(-1);
-                }
-                cur=leftChild[cur];
-            }
-        }
-    }
-};
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    
+    int t;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        vt<int> v(n);
+        F0R(i, n) cin >> v[i];
+        //special case
+        // F0R(i, n) v[i]--;
+        bool done = false;
+        F0R(i, n) {
+            if(v[i]!=i+1) {
+                done=true;
+            }
+        }
+        if(!done) {
+            cout << 2*n+(2*n*(2*n-1))/2 << endl;
+            continue;
+        }
+        int ans = 0;
+        int sum = -1;
+        F0R(i, n) {
+            if(v[i]!=i+1) {
+                int num = v[v[i]-1];
+                if(num!=i+1) {
+                    done=false;
+                }
+                int sumHere = i+1+v[i];
+                if(sum!=-1&&sum!=sumHere) {
+                    done=false;
+                }
+                sum=sumHere;
+            } 
+        }
+        if(done) ans=1;
+        int first=-1,last;
+        F0R(i, n) {
+            if(v[i]!=i+1) {
+                if(first==-1) first=i;
+                last=i;
+            }
+        }
+        // cout << first << " " << last << endl;
+        first++;
+        last++;
+        first+=n;
+        last++;
+        // cout << first << " " << last << endl;
+        for(int i = 1; i <= min(2*n,first); i++) {
+            int minJ = max(i+1, last);
+            int maxJ = 2*n;
+            ans+=(maxJ-minJ+1);
+        }
+        cout << ans << endl;
+    }
     return 0;
 }

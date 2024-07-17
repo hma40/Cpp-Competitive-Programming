@@ -11,7 +11,7 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-// #define endl "\n"
+#define endl "\n"
 ll mod = 1000000007;
 ll inf = 1e18;
 template<typename T1, typename T2>
@@ -51,32 +51,45 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
-struct BinaryTrie {
-    vt<int> leftChild, rightChild;
-    void insert(int x) {
-        int cur = 0;
-        R0F(i, 31) {
-            if(x&(1<<i)) {
-                if(rightChild[cur]==-1) {
-                    rightChild[cur]=rightChild.size();
-                    rightChild.add(-1);
-                    leftChild.add(-1);
-                }
-                cur=rightChild[cur];
-            } else {
-                if(leftChild[cur]==-1) {
-                    leftChild[cur]=rightChild.size();
-                    rightChild.add(-1);
-                    leftChild.add(-1);
-                }
-                cur=leftChild[cur];
-            }
-        }
-    }
-};
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    
+    int n;
+    cin >> n;
+    vt<int> a(n);
+    int mxx = 0;
+    F0R(i, n) cin >> a[i];
+    int MAXA = 2e5;
+    F0R(i, n) mxx=max(mxx, a[i]);
+    vt<int> mult(n);
+    mult[0]=1;
+    F0R(i, n-1) {
+        if(a[i]<a[i+1]) {
+            mult[i]--;
+            mult[i+1]++;
+        } 
+    }
+    // cout << mult << endl;
+    vt<int> totalMult(MAXA);
+    // assert(false);
+    F0R(i, n) totalMult[a[i]]+=mult[i];
+    // assert(false);
+    vt<int> pref(MAXA+2);
+    F0R(i, MAXA-1) pref[i+1]=pref[i]+totalMult[i];
+    // assert(false);
+    // cout << totalMult << endl;
+    // cout << pref << endl;
+    vt<int> ans(mxx+1);
+    FOR(i, 1, mxx+1) {
+        for(int j = i; j<mxx+i; j+=i) {
+            int beg = j-i+1, end = j;
+            ans[i]+=j/i*(pref[end+1]-pref[beg]);
+            // cout << i << " " << j << " " << ans[i] << endl;
+        }
+    }
+    // cout << ans << endl;
+    F0R(i, mxx) cout << ans[i+1] << " ";
+    cout << endl;
     return 0;
 }
