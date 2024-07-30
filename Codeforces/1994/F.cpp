@@ -11,10 +11,9 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-// #define endl "\n"
+#define endl "\n"
 ll mod = 1000000007;
 ll inf = 1e18;
-
 template<typename T1, typename T2>
 std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
@@ -52,23 +51,6 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
-struct DSU {
-    int n;
-    vt<int> par;
-    vt<int> sz;
-    DSU(int n): n(n), par(n, -1), sz(n, 1){}
-    int find(int x) {
-        if(par[x]==-1) return x;
-        return par[x]=find(par[x]);
-    }
-    void unite(int x, int y) {
-        x=find(x);
-        y=find(y);
-        if(sz[x]>sz[y]) swap(x,y);
-        sz[y]+=sz[x];
-        par[x]=y;
-    }
-};
 struct GraphAlgs {
     int n;
     vt<vt<int>> adj;
@@ -78,23 +60,55 @@ struct GraphAlgs {
     set<pair<int,int>> bridges;
     vt<vt<int>> dfs_tree_edges;
     vt<int> eulerPath;
+    vt<pair<int,int>> weNeed;
+    vt<int> deg;
     GraphAlgs(vt<vt<int>> aj) {
         adj=aj;
         n=aj.size();
     }
     void dfs(int node, int par) {   
+        // cout << node << endl;
+        // int ans = deg[node];
         vis[node]=true;
+        // if(par==-1&&adj[node].size()) ans++;
         trav(x, adj[node]) {
             if(x==par) continue;
             if(vis[x]) continue;
             dfs_tree_edges[node].add(x);
             dfs_tree_edges[x].add(node);
+            deg[node]++;
+            deg[x]++;
             dfs(x,node);
+        }
+        // return ans;
+    }
+    int dfs3(int node, int par) {
+        int ans = deg[node];
+        trav(x, dfs_tree_edges[node]) {
+            if(x==par) continue;
+            ans+=dfs3(x, node);
+        }
+        return ans;
+    }
+    void dfs2(int node, int par) {
+        // cout << "LINE 85 " << node << " " << par << endl;
+        trav(x, dfs_tree_edges[node]) {
+            // cout << node << " " << x << endl;
+            if(x==par) continue;
+            dfs2(x,node);
+        }
+        // cout << "LINE 91 " << node << " " << par << endl;
+        if(par==-1) return;
+        if(deg[node]%2==0) {
+            weNeed.add({node,par});
+        } else {
+            deg[node]--;
+            deg[par]--;
         }
     }
     void getDFSTree(int node) {
         vis.assign(n, false);
-        dfs_tree_edges.assign(n,vt<int>());
+        dfs_tree_edges.assign(n, vt<int>());
         dfs(node,-1);
     }
     void bridge_dfs(int v, int p=-1) {
@@ -127,7 +141,7 @@ struct GraphAlgs {
         }
     }
     void getEulerPath(int start) {
-        vt<set<int>> edges(n);
+        vt<multiset<int>> edges(n);
         F0R(i, n) {
             trav(x, adj[i]) {
                 edges[i].insert(x);
@@ -140,8 +154,8 @@ struct GraphAlgs {
             int z = dq.front();
             if(edges[z].size()) {
                 int next = *(edges[z].begin());
-                edges[z].erase(next);
-                edges[next].erase(z);
+                edges[z].erase(edges[z].find(next));
+                edges[next].erase(edges[next].find(z));
                 dq.push_front(next);
             } else {
                 eulerPath.add(z);
@@ -150,13 +164,79 @@ struct GraphAlgs {
         }
     }
 };
+// mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    GraphAlgs g({{1,2,3}, {0,4}, {0,4}, {0,4}, {1,2,3}});
-    g.getEulerPath(0);
-    // g.getBridges();
-    cout << g.bridges << endl;
-    cout << g.eulerPath << endl;
+    int t;
+    cin >> t;
+    while(t--) {
+        int n,m;
+        cin >> n >> m;
+        vt<int> deg(n);
+        int edges = 0;
+        vt<vt<int>> npc(n),adj(n);
+        F0R(i, m) {
+            int u,v,x;
+            cin >> u >> v >> x;
+            u--;
+            v--;
+            // cout << u << " " <<endl;
+            if(x==0) {
+                adj[u].add(v);
+                adj[v].add(u);
+            } else {
+                edges++;
+                deg[u]++;
+                deg[v]++;
+                npc[u].add(v);
+                npc[v].add(u);
+            }
+        }
+        GraphAlgs g(adj);
+        g.dfs_tree_edges.assign(n, vt<int>());
+        // cout << g.adj << endl;
+        g.vis.assign(n,false);
+        g.deg=deg;
+        bool fail = false;
+        F0R(i, n) {
+            if(!g.vis[i]) {
+                g.dfs(i,-1);
+                int sum = g.dfs3(i,-1);
+                // cout << i << " " << sum << endl;
+                if(sum%2) {
+                    fail=true;
+                    break;
+                }
+                g.dfs2(i,-1);
+                // cout << g.weNeed << endl;
+                trav(x, g.weNeed) {
+                    npc[x.f].add(x.s);
+                    npc[x.s].add(x.f);
+                    edges++;
+                }
+                g.weNeed.clear();
+            }
+        }
+        // assert(edges<=m);
+        if(fail) cout << "NO" << endl;
+        else {
+            g.adj=npc;
+            g.getEulerPath(0);
+            // cout << g.eulerPath << endl;
+            cout << "YES" << endl << g.eulerPath.size()-1 << endl;
+            trav(x, g.eulerPath) cout << x+1 << " ";
+            cout << endl;
+        }
+    }
     return 0;
 }
+/*
+1
+3 5
+3 1 1
+2 1 0
+2 1 1
+1 2 1
+2 3 1
+*/

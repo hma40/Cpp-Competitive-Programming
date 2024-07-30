@@ -11,7 +11,7 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-// #define endl "\n"
+#define endl "\n"
 ll mod = 1000000007;
 ll inf = 1e18;
 template<typename T1, typename T2>
@@ -67,24 +67,44 @@ struct RMQ {
             F0R(j, (int)v.size()-(1LL<<i)+1) {
                 // cout << (int)v.size()-(1LL<<i)+1 << endl;
                 // cout << i << " " << j << endl;
-                sparse[j][i]=min(sparse[j][i-1], sparse[j+(1<<(i-1))][i-1]);
+                sparse[j][i]=max(sparse[j][i-1], sparse[j+(1<<(i-1))][i-1]);
             }
         }
     }
     int getMin(int lo, int hi) {
         int log = lg[hi-lo+1];
-        return min(sparse[lo][log], sparse[hi-(1<<log)+1][log]);
+        return max(sparse[lo][log], sparse[hi-(1<<log)+1][log]);
     }
 };
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    RMQ r({1,2,3,4,5,6,7,8}, 5);
-    cout << r.sparse << endl;
-    F0R(i, 8) {
-        FOR(j, i, 8) {
-            cout << i << " " << j << " " << r.getMin(i,j) << endl;
+    int t;
+    cin >> t;
+    while(t--) {
+        int n,k;
+        cin >> n >> k;
+        vt<int> v(n+1);
+        F0R(i, n) cin >> v[i+1];
+        F0R(i, n) v[i+1]+=v[i];
+        RMQ r(v,20);
+        int maxSum = 0;
+        F0R(i, n) {
+            int mx = r.getMin(i+1,n);
+            maxSum=max(maxSum,mx-v[i]);
         }
+        int ans = v.back();
+        F0R(i, k) {
+            ans+=maxSum;
+            maxSum*=2;
+            ans%=mod;
+            maxSum%=mod;
+        }
+        ans%=mod;
+        ans+=mod;
+        ans%=mod;
+        cout << ans << endl;
     }
     return 0;
 }

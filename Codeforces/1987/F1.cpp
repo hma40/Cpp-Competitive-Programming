@@ -9,7 +9,7 @@ using ll = long long;
 #define f first
 #define s second
 #define trav(a,x) for (auto& a: x)
-#define int long long
+// #define int long long
 #define vt vector
 #define endl "\n"
 ll mod = 1000000007;
@@ -62,27 +62,68 @@ signed main() {
         vt<int> v(n);
         F0R(i, n) cin >> v[i];
         F0R(i, n) v[i]--;
-        vt<vt<vt<int>>> dp(n, vt<vt<int>>(n, vt<int>(n)));//dp[a][b][c]: from a to b, shifted to left c times, max operations
-        for(int i = 0; i < n-1; i++) {
-            if(v[i]>=i) {
-                dp[i][i+1][v[i]-i]=1;
+        vt<vt<int>> dp(n, vt<int>(n, 1e9));//min moves to delete
+        vt<vt<int>> dp2(n, vt<int>(n, 1e9));//min elements remain
+        F0R(i, n) {
+            FOR(j, i, n) {
+                dp2[i][j]=j-i+1;
             }
         }
-        for(int range = 2; range < n; range++) {
-            for(int left = 0; left < n-range; left++) {
-                int right = left+range;
-                for(int shifts = 0; shifts <= left; shifts++) {
-                    dp[left][right][shifts]=dp[left+1][right][shifts];
+        for(int end = 1; end < n; end++) {
+            for(int beg = end-1; beg >= 0; beg--) {
+                bool poss = true;
+                poss&=(end%2)!=(beg%2);
+                poss&=(beg>=v[beg]);
+                poss&=(beg%2)==(v[beg]%2);
+                // cout << beg << " " << end << " " << poss << endl;
+                if(beg!=0) {
+                    poss&=(dp2[0][beg-1]<=v[beg]);
                 }
-                if(v[left]>=left) {
-                    int shifts = v[left]-left;
-                    for(int mid = left+1; mid <= right; mid++) {
-                        int diff = mid-left-1;
-                        // if(dp[left+1][mid-1][shifts])
+                if(end!=beg+1) {
+                    poss&=v[beg]<v[beg+1];
+                    int moves = (beg-v[beg])/2;
+                    poss&=dp[beg+1][end-1]!=1e9;
+                    poss&=dp[beg+1][end-1]<=moves;
+                }
+                if(poss) {
+                    dp[beg][end]=(beg-v[beg])/2;
+                    dp2[beg][end]=0;
+                    continue;
+                }
+                // dp[beg][end]=poss;
+                dp2[beg][end]=dp2[beg+1][end]+1;
+                // cout << beg << " " << end << " " << dp2[beg][end] << endl;
+                for(int mid = beg+1; mid < end; mid++) {
+                    if(dp[beg][mid]!=1e9) {
+                        dp2[beg][end]=min(dp2[beg][end], dp2[mid+1][end]);
+                        if(dp2[mid+1][end]==0) {
+                            dp[beg][end]=min(dp[beg][end], max(dp[beg][mid], dp[mid+1][end]-(mid-beg+1)/2));
+                        }
                     }
                 }
+                // if(dp[beg][end]) dp2[beg][end]=0;
             }
         }
+        // F0R(i, n) {
+        //     F0R(j, n) {
+        //         if(dp[i][j]!=1e9) {
+        //             // cout << i << " " << j << " " << dp[i][j] << endl;
+        //         }
+        //     }
+        // }
+        // cout << dp2 << endl;
+        cout << (n-dp2[0][n-1])/2 << endl;
     }
     return 0;
 }
+/*
+
+1
+8
+1 2 2 2 4 7 8 3
+*/
+/*
+1
+8
+2 1 3 4 5 6 7 8
+*/

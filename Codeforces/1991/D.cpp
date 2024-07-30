@@ -11,7 +11,7 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-// #define endl "\n"
+#define endl "\n"
 ll mod = 1000000007;
 ll inf = 1e18;
 template<typename T1, typename T2>
@@ -51,39 +51,49 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
-struct RMQ {
-    vt<vt<int>> sparse;
-    vt<int> lg;
-    RMQ(vt<int> v, int log) {
-        lg.resize(v.size()+5);
-        FOR(i, 2, lg.size()) {
-            lg[i]=lg[i/2]+1;
-        }
-        sparse.resize(v.size(), vt<int>(log, -1));
-        F0R(i, v.size()) {
-            sparse[i][0]=v[i];
-        }
-        FOR(i, 1, log) {
-            F0R(j, (int)v.size()-(1LL<<i)+1) {
-                // cout << (int)v.size()-(1LL<<i)+1 << endl;
-                // cout << i << " " << j << endl;
-                sparse[j][i]=min(sparse[j][i-1], sparse[j+(1<<(i-1))][i-1]);
-            }
-        }
-    }
-    int getMin(int lo, int hi) {
-        int log = lg[hi-lo+1];
-        return min(sparse[lo][log], sparse[hi-(1<<log)+1][log]);
-    }
-};
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    RMQ r({1,2,3,4,5,6,7,8}, 5);
-    cout << r.sparse << endl;
-    F0R(i, 8) {
-        FOR(j, i, 8) {
-            cout << i << " " << j << " " << r.getMin(i,j) << endl;
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        if(n==1) {
+            cout << 1 << endl << 1 << endl;
+            continue;
+        } else if(n==2) {
+            cout << 2 << endl << "1 2" << endl;
+        } else if(n==3) {
+            cout << 2 << endl << "1 2 2" << endl;
+        } else if(n==4) {
+            cout << 3 << endl << "1 2 2 3" << endl;
+        } else if(n==5) {
+            cout << 3 << endl << "1 2 2 3 3" << endl;
+        } else {
+            cout << 4 << endl;
+            vt<int> colors(n+1);
+            FOR(i, 1, n+1) {
+                int av = i^2;
+                if(av>i) {
+                    if(i%2==0) {
+                        colors[i]=1;
+                    } else {
+                        colors[i]=3;
+                    }
+                    continue;
+                }
+                if(i%2==0) {
+                    if(colors[av]==1) colors[i]=2;
+                    else colors[i]=1;
+                } else {
+                    if(colors[av]==3) colors[i]=4;
+                    else colors[i]=3;
+                }
+            }
+            FOR(i, 1, n+1) cout << colors[i] << " ";
+            cout << endl;
         }
     }
     return 0;

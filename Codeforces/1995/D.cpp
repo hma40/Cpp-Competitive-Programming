@@ -11,6 +11,7 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
+#define endl "\n"
 ll mod = 1000000007;
 ll inf = 1e18;
 template<typename T1, typename T2>
@@ -50,59 +51,59 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
-
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-struct TestCase {
-    int n;
-
-};
-void fill_rand(vt<int> &v, int lo, int hi) {
-    for(auto &x: v) {
-        x=rnd()%(hi-lo+1)+lo;
-    }
-}
-void rand_tree(vt<vt<int>> &adj) {
-    for(int i = 1; i < adj.size(); i++) {
-        int par = rnd()%i;
-        adj[par].add(i);
-        adj[i].add(par);
-    }
-}
-void print_TC(TestCase tc) {
-
-}
-TestCase randTC() {
-    TestCase tc;
-
-    return tc;
-}
-struct WrongSol {
-    string solve(TestCase tc) {
-
-    }
-};
-struct CorrectSol {
-    string solve(TestCase tc) {
-
-    }
-};
 signed main() {
-    while(true) {
-        TestCase tc = randTC();
-        WrongSol w;
-        CorrectSol c;
-        auto wa = w.solve(tc);
-        auto cor = c.solve(tc);
-        if(wa==cor) {
-            cout << "PASSED" << endl;
-            print_TC(tc);
-            cout << wa << endl << cor << endl;
-        } else {
-            cout << "WRONG ANSWER" << endl;
-            print_TC(tc);
-            cout << wa << endl << cor << endl;
-            break;
+    ios_base::sync_with_stdio(false); 
+    cin.tie(0);
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n,c,k;
+        cin >> n >> c >> k;
+        string s;
+        cin >> s;
+        multiset<int> window;
+        F0R(i, k) {
+            window.insert(s[i]-'A');
         }
+        // cout << window << endl;
+        vt<bool> poss(1<<c, true);
+        int mask = (1<<c)-1;
+        F0R(i, c) {
+            // cout << i << " " << window.count(i) << endl;
+            if(window.count(i)) mask^=(1<<i);
+        }
+        // cout << mask << endl;
+        poss[mask]=false;
+        FOR(i, k, n) {
+            // cout << window << endl;
+            // cout << s[i-k]-'A' << endl;
+            window.erase(window.find(s[i-k]-'A'));
+            window.insert(s[i]-'A');
+            mask=(1<<c)-1;
+            F0R(j, c) {
+                if(window.count(j)) mask^=(1<<j);
+            }
+            // cout << mask << endl;
+            poss[mask]=false;
+        }
+        // cout << poss << endl;
+        vt<pair<int,int>> v;
+        F0R(i, 1<<c) v.add({__builtin_popcount(i), i});
+        sort(begin(v),end(v));
+        // cout << poss.size() << endl;
+        R0F(i, v.size()) {
+            F0R(j, c) {
+                poss[v[i].s]=poss[v[i].s]&&poss[v[i].s|(1<<j)];
+            }
+        }
+        // cout << poss << endl;
+        int ans = inf;
+        F0R(i, 1<<c) {
+            if(!poss[i]) continue;
+            ans=min(ans, (int)__builtin_popcount(i|(1<<(s[n-1]-'A'))));
+        }
+        cout << ans << endl;
     }
     return 0;
 }

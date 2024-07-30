@@ -11,7 +11,7 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-// #define endl "\n"
+#define endl "\n"
 ll mod = 1000000007;
 ll inf = 1e18;
 template<typename T1, typename T2>
@@ -51,39 +51,62 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
-struct RMQ {
-    vt<vt<int>> sparse;
-    vt<int> lg;
-    RMQ(vt<int> v, int log) {
-        lg.resize(v.size()+5);
-        FOR(i, 2, lg.size()) {
-            lg[i]=lg[i/2]+1;
-        }
-        sparse.resize(v.size(), vt<int>(log, -1));
-        F0R(i, v.size()) {
-            sparse[i][0]=v[i];
-        }
-        FOR(i, 1, log) {
-            F0R(j, (int)v.size()-(1LL<<i)+1) {
-                // cout << (int)v.size()-(1LL<<i)+1 << endl;
-                // cout << i << " " << j << endl;
-                sparse[j][i]=min(sparse[j][i-1], sparse[j+(1<<(i-1))][i-1]);
+int n,q;
+vt<int> v;
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+bool solve(int l, int r) {
+    vt<int> here;
+    FOR(i, l, r+1) {
+        here.add(v[i]);
+    }
+    sort(begin(here),end(here));
+    int sz = here.size();
+    vt<int> her(3),notHer(3);
+    //6 in a row
+    FOR(end, 6, sz+1) {
+        F0R(bruh, 64) {
+            if(__builtin_popcount(bruh)!=3) continue;
+            int nx = 0, nx2 = 0;
+            R0F(i, 6) {
+                if(bruh&(1<<i)) her[nx++]=here[end-1-i];
+                else notHer[nx2++]=(here[end-1-i]);
             }
+            if(her[0]+her[1]>her[2]&&notHer[0]+notHer[1]>notHer[2]) return true;
         }
     }
-    int getMin(int lo, int hi) {
-        int log = lg[hi-lo+1];
-        return min(sparse[lo][log], sparse[hi-(1<<log)+1][log]);
+    FOR(end, 5, sz) {
+        FOR(begin, 2, end-2) {
+            // vt<int> her,notHer;
+            her[0]=here[begin-2];
+            her[1]=here[begin-1];
+            her[2]=here[begin];
+            notHer[0]=here[end-2];
+            notHer[1]=here[end-1];
+            notHer[2]=here[end];
+            if(her[0]+her[1]>her[2]&&notHer[0]+notHer[1]>notHer[2]) return true;
+        }
     }
-};
+    return false;
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    RMQ r({1,2,3,4,5,6,7,8}, 5);
-    cout << r.sparse << endl;
-    F0R(i, 8) {
-        FOR(j, i, 8) {
-            cout << i << " " << j << " " << r.getMin(i,j) << endl;
+    // int n,q;
+    cin >> n >> q;
+    // vt<int> v(n);
+    v.assign(n,0);
+    F0R(i, n) cin >> v[i];
+    while(q--) {
+        int a,b;
+        cin >> a >> b;
+        a--;
+        b--;
+        if(b-a>48) {
+            cout << "YES" << endl;
+        } else if(solve(a,b)) {
+            cout << "YES" << endl;
+        } else {
+            cout << "NO" << endl;
         }
     }
     return 0;

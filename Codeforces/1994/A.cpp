@@ -11,7 +11,7 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-// #define endl "\n"
+#define endl "\n"
 ll mod = 1000000007;
 ll inf = 1e18;
 template<typename T1, typename T2>
@@ -51,39 +51,46 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
-struct RMQ {
-    vt<vt<int>> sparse;
-    vt<int> lg;
-    RMQ(vt<int> v, int log) {
-        lg.resize(v.size()+5);
-        FOR(i, 2, lg.size()) {
-            lg[i]=lg[i/2]+1;
-        }
-        sparse.resize(v.size(), vt<int>(log, -1));
-        F0R(i, v.size()) {
-            sparse[i][0]=v[i];
-        }
-        FOR(i, 1, log) {
-            F0R(j, (int)v.size()-(1LL<<i)+1) {
-                // cout << (int)v.size()-(1LL<<i)+1 << endl;
-                // cout << i << " " << j << endl;
-                sparse[j][i]=min(sparse[j][i-1], sparse[j+(1<<(i-1))][i-1]);
-            }
-        }
-    }
-    int getMin(int lo, int hi) {
-        int log = lg[hi-lo+1];
-        return min(sparse[lo][log], sparse[hi-(1<<log)+1][log]);
-    }
-};
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    RMQ r({1,2,3,4,5,6,7,8}, 5);
-    cout << r.sparse << endl;
-    F0R(i, 8) {
-        FOR(j, i, 8) {
-            cout << i << " " << j << " " << r.getMin(i,j) << endl;
+    int t;
+    cin >> t;
+    while(t--) {
+        int n,m;
+        cin >> n >> m;
+        vt<vt<int>> v(n,vt<int>(m));
+        F0R(i,n){
+            F0R(j,m) cin >> v[i][j];
+        }
+        if(n*m==1) cout << -1 << endl;
+        else {
+            if(m!=1) {
+            F0R(i, n) {
+                int x = v[i][0];
+                F0R(j, m-1) {
+                    v[i][j]=v[i][j+1];
+                }
+                v[i].back()=x;
+            }
+            F0R(i, n) {
+                F0R(j, m) cout << v[i][j] << " ";
+                cout << endl;
+            }
+            } else {
+                F0R(i, m) {
+                    int x = v[0][i];
+                    F0R(j, n-1) {
+                        v[j][i]=v[j+1][i];
+                    }
+                    v.back()[i]=x;
+                }
+                F0R(i, n) {
+                    F0R(j, m) cout << v[i][j] << " ";
+                    cout << endl;
+                } 
+            }
         }
     }
     return 0;

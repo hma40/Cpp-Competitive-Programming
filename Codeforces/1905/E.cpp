@@ -9,8 +9,10 @@ using ll = long long;
 #define f first
 #define s second
 #define trav(a,x) for (auto& a: x)
-// #define int long long
+#define int long long
 #define vt vector
+#define endl "\n"
+ll mod = 998244353;
 ll inf = 1e18;
 template<typename T1, typename T2>
 std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
@@ -58,7 +60,7 @@ struct Math {
     vt<vt<int>> allFactors;
     Math(int md):m(md) {}
     Math(): m(1000000007) {};
-    ll bexpo(ll b, ll e) {
+    ll bexpo(ll b, int e) {
         ll a = 1;
         while(e) {
             if(e%2) {
@@ -133,19 +135,59 @@ struct Math {
         }
     }
 };  
+Math m(mod);
+map<int,pair<int,int>> fuck;
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+void get_data(int count) {
+    // cout << count << endl;
+    int left = (count+1)/2, right = count/2;
+    if(!fuck.count(left)) get_data(left);
+    if(!fuck.count(right)) get_data(right);
+    int fuck0=0,fuck1=0;
+    fuck0+=2*fuck[left].f;
+    fuck0+=2*fuck[right].f;
+    int choiceLeft = m.bexpo(2, left);
+    choiceLeft--;
+    choiceLeft+=mod;
+    choiceLeft%=mod;
+    int choiceRight = m.bexpo(2,right);
+    choiceRight--;
+    choiceRight+=mod;
+    choiceRight%=mod;
+    choiceLeft*=choiceRight;
+    choiceLeft%=mod;
+    fuck0+=choiceLeft;
+    fuck0%=mod;
+    fuck1+=fuck[left].s;
+    fuck1+=fuck[right].s;
+    fuck1+=fuck[right].f;
+    fuck1%=mod;
+    fuck[count]={fuck0,fuck1};
+}
+int solve(int root, int count) {
+    if(!fuck.count(count)) {
+        get_data(count);
+    }
+    return (root%mod*fuck[count].f%mod+fuck[count].s)%mod;
+}
+
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    // int x;
-    // cin >> x;
-    Math m(167772161);
-    ll order = 1;
-    ll cur = 2;
-    while(cur!=1) {
-        cur*=cur;
-        cur%=167772161;
-        order++;
-        cout << order << " " << cur << endl;
-    } 
+    fuck[1]={1,0};
+    //fuck[2]={}
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        cout << solve(1,n) << endl;
+    }
     return 0;
 }
+/*
+n
+2n 2n+1
+
+2n+2n+1+n=5n+1
+*/

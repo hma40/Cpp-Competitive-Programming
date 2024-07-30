@@ -11,7 +11,7 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-// #define endl "\n"
+#define endl "\n"
 ll mod = 1000000007;
 ll inf = 1e18;
 template<typename T1, typename T2>
@@ -51,40 +51,43 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
-struct RMQ {
-    vt<vt<int>> sparse;
-    vt<int> lg;
-    RMQ(vt<int> v, int log) {
-        lg.resize(v.size()+5);
-        FOR(i, 2, lg.size()) {
-            lg[i]=lg[i/2]+1;
-        }
-        sparse.resize(v.size(), vt<int>(log, -1));
-        F0R(i, v.size()) {
-            sparse[i][0]=v[i];
-        }
-        FOR(i, 1, log) {
-            F0R(j, (int)v.size()-(1LL<<i)+1) {
-                // cout << (int)v.size()-(1LL<<i)+1 << endl;
-                // cout << i << " " << j << endl;
-                sparse[j][i]=min(sparse[j][i-1], sparse[j+(1<<(i-1))][i-1]);
-            }
-        }
-    }
-    int getMin(int lo, int hi) {
-        int log = lg[hi-lo+1];
-        return min(sparse[lo][log], sparse[hi-(1<<log)+1][log]);
-    }
-};
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    RMQ r({1,2,3,4,5,6,7,8}, 5);
-    cout << r.sparse << endl;
-    F0R(i, 8) {
-        FOR(j, i, 8) {
-            cout << i << " " << j << " " << r.getMin(i,j) << endl;
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n,m;
+        cin >> n >> m;
+        map<int,int> count;
+        F0R(i, n) {
+            int x;
+            cin >> x;
+            count[x]++;
         }
+        int ans = 0;
+        trav(x, count) {
+            int ct = x.s;
+            int ct2 = 0;
+            if(count.count(x.f+1)) {
+                 ct2 = count[x.f+1];
+            }
+            F0R(i, ct+1) {
+                int mxt = (m-i*x.f)/(x.f+1);
+                if(m-i*x.f<0) continue;
+                mxt=min(mxt,ct2);
+                ans=max(ans, x.f*i+(x.f+1)*mxt);
+            }
+        }
+        assert(ans<=m);
+        cout << ans << endl;
     }
     return 0;
 }
+/*
+1 
+5 26
+32 40 42 43 60
+42 20 36 94 20
+*/

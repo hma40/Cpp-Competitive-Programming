@@ -51,80 +51,135 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
-struct RMQ {
-    vt<vt<int>> sparse;
-    vt<int> lg;
-    RMQ(vt<int> v, int log) {
-        lg.resize(v.size()+5);
-        FOR(i, 2, lg.size()) {
-            lg[i]=lg[i/2]+1;
-        }
-        sparse.resize(v.size(), vt<int>(log, -1));
-        F0R(i, v.size()) {
-            sparse[i][0]=v[i];
-        }
-        FOR(i, 1, log) {
-            F0R(j, (int)v.size()-(1LL<<i)+1) {
-                // cout << (int)v.size()-(1LL<<i)+1 << endl;
-                cout << i << " " << j << endl;
-                sparse[j][i]=min(sparse[j][i-1], sparse[j+(1<<(i-1))][i-1]);
-            }
-        }
+template<typename T> std::ostream& operator<<(std::ostream& os, std::queue<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.front() << " ";
+        q.pop();
     }
-    int getMin(int lo, int hi) {
-        int log = lg[hi-lo+1];
-        return min(sparse[lo][log], sparse[hi-(1<<log)+1][log]);
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
+template<typename T> std::ostream& operator<<(std::ostream& os, std::deque<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.front() << " ";
+        q.pop();
     }
-};
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
+template<typename T> std::ostream& operator<<(std::ostream& os, std::stack<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.top() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
+template<typename T> std::ostream& operator<<(std::ostream& os, std::priority_queue<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.top() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+vt<int> l,r;
+vt<int> LE,RI;
+vt<int> order;
+void dfs(int nd) {
+    if(LE[nd]!=-1) {
+        dfs(LE[nd]);
+    } else {
+        order.add(l[nd]);
+    }
+    if(RI[nd]!=-1) {
+        dfs(RI[nd]);
+    } else {
+        order.add(r[nd]);
+    }
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     int n,q;
     cin >> n >> q;
-    int ans = 1;
-    set<int> notSeen;
-    set<int> seen;
-    F0R(i, n) notSeen.insert(i);
-    vt<pair<int,int>> constraints(q);
+    // vt<int> l(q),r(q);
+    l.resize(q);
+    r.resize(q);
+    F0R(i, q) cin >> l[i];
+    F0R(i, q) cin >> r[i];
     F0R(i, q) {
-        cin >> constraints[i].f;
+        l[i]--;
+        r[i]--;
     }
-    F0R(i, q) cin >> constraints[i].s;
-    F0R(i, q) {
-        constraints[i].f--;
-        constraints[i].s--;
-        notSeen.erase(constraints[i].f);
-        notSeen.erase(constraints[i].s);
-    }
-    cout << constraints << endl;
-    vt<int> lastSeen(n, -1), par(q, -1), which(q, 0);
-    lastSeen[constraints[0].f]=lastSeen[constraints[0].s]=0;
-    vt<vt<int>> child(q);
+    vt<int> par(q, -1), lastSeen(n, -1);
+    LE.resize(q, -1);
+    RI.resize(q, -1);
+    lastSeen[l[0]]=0;
+    lastSeen[r[0]]=0;
     FOR(i, 1, q) {
-        if(lastSeen[constraints[i].f]==-1) {
-            par[i]=lastSeen[constraints[i].s];
-            which[i]=1;
-            child[]
+        if(lastSeen[l[i]]!=-1) {
+            if(l[lastSeen[l[i]]]==l[i]) {
+                LE[lastSeen[l[i]]]=i;
+            } else {
+                RI[lastSeen[l[i]]]=i;
+            }
         } else {
-            par[i]=lastSeen[constraints[i].f];
+            if(l[lastSeen[r[i]]]==r[i]) {
+                LE[lastSeen[r[i]]]=i;
+            } else {
+                RI[lastSeen[r[i]]]=i;
+            }
         }
-        lastSeen[constraints[i].f]=lastSeen[constraints[i].s]=i;
+        lastSeen[l[i]]=lastSeen[r[i]]=i;
     }
-    cout << par << lastSeen << endl;
+    // cout << LE << RI << endl;
+    dfs(0);
+    // cout << order << endl;
+    priority_queue<int> unseen;
+    int ans = 1;
+    priority_queue<int> spots;
+    spots.push(order[0]);
+    FOR(i, 1, order.size()) {
+        spots.push(max(order[i-1], order[i]));
+    }
+    spots.push(order.back());
+    // cout << spots << endl;
+    int places = 0;
+    // priority_queue<int> unseen;
+    F0R(i, n) {
+        if(lastSeen[i]==-1) unseen.push(i);
+    }
+    while(unseen.size()) {
+        int f = unseen.top();
+        unseen.pop();
+        while(spots.size()&&spots.top()>f) {
+            places++;
+            spots.pop();
+        }
+        ans*=places;
+        places++;
+        ans%=mod;
+    }
+    cout << ans << endl;
     return 0;
 }
 /*   
-  
-  
-     ?
-    / \
-    6 5
-   /\ /\
-   6 15 4
+5 3 3
+4 4 1
 
-
-
-6 5 6  
-5 4 1
+5 3 1 4
 */

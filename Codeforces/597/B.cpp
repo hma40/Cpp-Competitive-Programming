@@ -102,10 +102,18 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    int n;cin >> n;
+    vt<pair<int,int>> v(n);
+    F0R(i, n) cin >> v[i].s >> v[i].f;
+    sort(begin(v),end(v));
+    int end = -inf;
+    int ans = 0;
+    FOR(i, 0, n) {
+        if(v[i].s>end) {
+            end=v[i].f;
+            ans++;
+        }
     }
+    cout << ans << endl;
     return 0;
 }

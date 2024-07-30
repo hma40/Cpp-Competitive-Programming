@@ -11,7 +11,7 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-// #define endl "\n"
+#define endl "\n"
 ll mod = 1000000007;
 ll inf = 1e18;
 template<typename T1, typename T2>
@@ -51,40 +51,42 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
-struct RMQ {
-    vt<vt<int>> sparse;
-    vt<int> lg;
-    RMQ(vt<int> v, int log) {
-        lg.resize(v.size()+5);
-        FOR(i, 2, lg.size()) {
-            lg[i]=lg[i/2]+1;
-        }
-        sparse.resize(v.size(), vt<int>(log, -1));
-        F0R(i, v.size()) {
-            sparse[i][0]=v[i];
-        }
-        FOR(i, 1, log) {
-            F0R(j, (int)v.size()-(1LL<<i)+1) {
-                // cout << (int)v.size()-(1LL<<i)+1 << endl;
-                // cout << i << " " << j << endl;
-                sparse[j][i]=min(sparse[j][i-1], sparse[j+(1<<(i-1))][i-1]);
-            }
-        }
-    }
-    int getMin(int lo, int hi) {
-        int log = lg[hi-lo+1];
-        return min(sparse[lo][log], sparse[hi-(1<<log)+1][log]);
-    }
-};
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    RMQ r({1,2,3,4,5,6,7,8}, 5);
-    cout << r.sparse << endl;
-    F0R(i, 8) {
-        FOR(j, i, 8) {
-            cout << i << " " << j << " " << r.getMin(i,j) << endl;
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        vt<int> v(2*n);
+        F0R(i, 2*n) cin >> v[i];
+        if(n%2==0) {
+            vt<int> noSwap(n),swap(n);
+            F0R(i, n) {
+                noSwap[i]=v[2*i]+v[2*i+1];
+                swap[i]=v[2*i]+v[(2*i+1+n)%(2*n)];
+            }
+            // cout << swap << noSwap << endl;
+            int mx = 0, mn = inf;
+            FOR(i, n/2, n) {
+                if(min(swap[i-n/2], swap[i])<min(noSwap[i-n/2], noSwap[i])) {
+                    //use noswap
+                    mx=max(mx,max(noSwap[i-n/2], noSwap[i]));
+                    mn=min(mn, min(noSwap[i-n/2], noSwap[i]));
+                } else {
+                    mx=max(mx,max(swap[i-n/2], swap[i]));
+                    mn=min(mn, min(swap[i-n/2], swap[i]));
+                }
+            }
+            cout << mx-mn << endl;
+        } else {
+
         }
     }
     return 0;
 }
+/*
+1 2 3 4 5 6 7 8
+*/

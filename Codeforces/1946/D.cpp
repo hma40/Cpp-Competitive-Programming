@@ -11,7 +11,7 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-// #define endl "\n"
+#define endl "\n"
 ll mod = 1000000007;
 ll inf = 1e18;
 template<typename T1, typename T2>
@@ -51,40 +51,50 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
-struct RMQ {
-    vt<vt<int>> sparse;
-    vt<int> lg;
-    RMQ(vt<int> v, int log) {
-        lg.resize(v.size()+5);
-        FOR(i, 2, lg.size()) {
-            lg[i]=lg[i/2]+1;
-        }
-        sparse.resize(v.size(), vt<int>(log, -1));
-        F0R(i, v.size()) {
-            sparse[i][0]=v[i];
-        }
-        FOR(i, 1, log) {
-            F0R(j, (int)v.size()-(1LL<<i)+1) {
-                // cout << (int)v.size()-(1LL<<i)+1 << endl;
-                // cout << i << " " << j << endl;
-                sparse[j][i]=min(sparse[j][i-1], sparse[j+(1<<(i-1))][i-1]);
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+vt<int> v;
+int solve(vt<int> reqs) {
+    int ans = 0;
+    int curX = 0;
+    R0F(i, v.size()) {
+        curX^=v[i];
+        bool good = true;
+        trav(x, reqs) {
+            if(curX&(1<<x)) {
+                good=false;
             }
         }
+        if(good) {
+            ans++;
+            curX=0;
+        }
     }
-    int getMin(int lo, int hi) {
-        int log = lg[hi-lo+1];
-        return min(sparse[lo][log], sparse[hi-(1<<log)+1][log]);
-    }
-};
+    if(curX==0) return ans;
+    else return -1;
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    RMQ r({1,2,3,4,5,6,7,8}, 5);
-    cout << r.sparse << endl;
-    F0R(i, 8) {
-        FOR(j, i, 8) {
-            cout << i << " " << j << " " << r.getMin(i,j) << endl;
+    int t;
+    cin >> t;
+    while(t--) {
+        int n,x;
+        cin >> n >> x;
+        v.assign(n,0);
+        F0R(i, n) cin >>v[i];
+        vt<int> reqs;
+        int ans = -1;
+        R0F(i, 31) {
+            if(x&(1<<i)) {
+                reqs.add(i);
+                ans=max(ans, solve(reqs));
+                reqs.pop_back();
+            } else {
+                reqs.add(i);
+            }
         }
+        ans=max(ans, solve(reqs));
+        cout << ans << endl;
     }
     return 0;
 }

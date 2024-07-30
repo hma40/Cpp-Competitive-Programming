@@ -96,16 +96,70 @@ using ll = long long;
 #define double long double
 ll mod = 1000000007;
 ll inf = 1e18;
+struct SegTree {
+    int n;
+    vt<int> tree;
+    SegTree(int nn) {
+        int np = 1;
+        while(np<nn) np*=2;
+        tree.resize(2*np);
+        n=np;
+    }
+    void build(vt<int> &arr) {
+        for(int i = 0; i < arr.size(); i++) {
+            tree[i+n]=arr[i];
+        }
+        for(int i = n-1; i > 0; i--) {
+            //CHANGE HERE
+            tree[i]=tree[2*i]+tree[2*i+1];
+        }
+    }
+    void set(int pos, int x) {
+        pos+=n;
+        tree[pos]=x;
+        for(pos/=2; pos; pos/=2) {
+            //CHANGE HERE
+            tree[pos]=tree[2*pos]+tree[2*pos+1];
+        }
+    }
+    void add(int pos, int x) {
+        pos+=n;
+        tree[pos]+=x;
+        for(pos/=2; pos; pos/=2) {
+            tree[pos]=tree[2*pos]+tree[2*pos+1];
+        }
+    }
+    int rangeQuery(int a, int b) {
+        a+=n;
+        int ans = 0;
+        b+=n;
+        while(a<=b) {
+            if(a%2==1) ans+=tree[a++];
+            if(b%2==0) ans+=tree[b--];
+            a/=2;
+            b/=2;
+        }
+        return ans;
+    }
+};
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    int n,k;
+    cin >> n >> k;
+    vt<int> v(n);
+    F0R(i,n) cin >> v[i];
+    vt<SegTree> dp(k+2, SegTree(n+1));
+    dp[0].set(0,1);
+    F0R(i, n) {
+        ROF(j, 1, k+2) {
+            dp[j].set(v[i], dp[j-1].rangeQuery(0, v[i]-1));
+        }
+        // trav(x, dp) cout << i << " " << x.tree << endl;
     }
+    cout << dp.back().rangeQuery(0, n) << endl;
     return 0;
 }

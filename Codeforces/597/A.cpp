@@ -102,10 +102,13 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
-    }
+    int k,a,b;
+    cin >> k >> a >> b;
+    int first = a/k*k;
+    if(first<a) first+=k;
+    int last = b/k*k;
+    if(last>b) last-=k;
+    // cout << first << " " << last << endl;
+    cout << (last-first)/k+1 << endl;
     return 0;
 }

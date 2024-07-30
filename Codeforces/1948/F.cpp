@@ -9,8 +9,10 @@ using ll = long long;
 #define f first
 #define s second
 #define trav(a,x) for (auto& a: x)
-// #define int long long
+#define int long long
 #define vt vector
+#define endl "\n"
+ll mod = 998244353;
 ll inf = 1e18;
 template<typename T1, typename T2>
 std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
@@ -58,7 +60,7 @@ struct Math {
     vt<vt<int>> allFactors;
     Math(int md):m(md) {}
     Math(): m(1000000007) {};
-    ll bexpo(ll b, ll e) {
+    ll bexpo(ll b, int e) {
         ll a = 1;
         while(e) {
             if(e%2) {
@@ -133,19 +135,64 @@ struct Math {
         }
     }
 };  
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    // int x;
-    // cin >> x;
-    Math m(167772161);
-    ll order = 1;
-    ll cur = 2;
-    while(cur!=1) {
-        cur*=cur;
-        cur%=167772161;
-        order++;
-        cout << order << " " << cur << endl;
-    } 
+    int n,q;
+    cin >> n >> q;
+    Math m(mod);
+    m.fact(1e6+5);
+    vt<int> a(n+1),b(n+1);
+    F0R(i,n) cin >> a[i+1];
+    F0R(i, n) cin >> b[i+1];
+    int silver = 0;
+    F0R(i, n+1) silver+=b[i];
+    vt<int> pref(silver+2);
+    F0R(i, silver+1) {
+        pref[i+1]=pref[i]+m.nck(silver,i);
+        pref[i+1]%=mod;
+    }
+    int gold = 0;
+    F0R(i, n+1) gold+=a[i];
+    // cout << gold << endl;
+    F0R(i, n) {
+        a[i+1]+=a[i];
+        b[i+1]+=b[i];
+    }
+    // cout << a << b << endl;
+    int inv = m.inv(m.bexpo(2,silver));
+    while(q--) {
+        int l,r;
+        cin >> l >> r;
+        int silvHere = b[r]-b[l-1];
+        int silvOut = silver-silvHere;
+        int goldHere = a[r]-a[l-1];
+        // cout << gold << " " << goldHere << " " << gold-goldHere << endl;
+        int goldOut = gold-goldHere;
+        int moreOut = goldOut-goldHere;
+        // cout << silvHere << " " << silvOut << " " << goldHere << " " << goldOut << " " << moreOut << endl;
+        
+        //diff=moreOut+1: (silvHere choose 0)(silvOut choose moreOut+1) = (silver choose silvOut-moreOut-1)
+        int beg = silvOut+moreOut+1;
+        if(beg>silver) {
+            cout << 0 << " ";
+            continue;
+        }
+        if(beg<0) {
+            cout << 1 << " ";
+            continue;
+        }
+        int ans = pref.back()-pref[beg];
+        ans%=mod;
+        ans+=mod;
+        ans%=mod;
+        // cout << ans << endl;
+        ans*=inv;
+        ans%=mod;
+        cout << ans << " ";
+    }
+    cout << endl;
+    // cout << pref << endl;
     return 0;
 }

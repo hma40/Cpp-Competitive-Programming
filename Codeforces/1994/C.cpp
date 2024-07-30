@@ -11,7 +11,7 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-// #define endl "\n"
+#define endl "\n"
 ll mod = 1000000007;
 ll inf = 1e18;
 template<typename T1, typename T2>
@@ -51,40 +51,57 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
-struct RMQ {
-    vt<vt<int>> sparse;
-    vt<int> lg;
-    RMQ(vt<int> v, int log) {
-        lg.resize(v.size()+5);
-        FOR(i, 2, lg.size()) {
-            lg[i]=lg[i/2]+1;
-        }
-        sparse.resize(v.size(), vt<int>(log, -1));
-        F0R(i, v.size()) {
-            sparse[i][0]=v[i];
-        }
-        FOR(i, 1, log) {
-            F0R(j, (int)v.size()-(1LL<<i)+1) {
-                // cout << (int)v.size()-(1LL<<i)+1 << endl;
-                // cout << i << " " << j << endl;
-                sparse[j][i]=min(sparse[j][i-1], sparse[j+(1<<(i-1))][i-1]);
-            }
-        }
-    }
-    int getMin(int lo, int hi) {
-        int log = lg[hi-lo+1];
-        return min(sparse[lo][log], sparse[hi-(1<<log)+1][log]);
-    }
-};
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    RMQ r({1,2,3,4,5,6,7,8}, 5);
-    cout << r.sparse << endl;
-    F0R(i, 8) {
-        FOR(j, i, 8) {
-            cout << i << " " << j << " " << r.getMin(i,j) << endl;
+    int t;
+    cin >> t;
+    while(t--) {
+        int n,x;
+        cin >> n >> x;
+        vt<int> v(n);
+        F0R(i, n) cin >> v[i];
+        v.add(inf);
+        vt<int> lasts(n, -1);
+        int right = 0;
+        int sum = v[0];
+        F0R(left, n) {
+            while(sum<=x) {
+                // cout << left << " " << right << " " << sum << endl;
+                right++;
+                sum+=v[right];
+            }
+            lasts[left]=right;
+            sum-=v[left];
         }
+        // cout << lasts << endl;
+        int ans = 0;
+        vt<int> bad(n+1);
+        vt<int> ad(n+1);
+        // bad.back()=1;
+        R0F(i, n) {
+            int adHere = n-i;
+            if(lasts[i]==i) {
+                ad[i]=ad[i+1];
+                bad[i]=adHere-ad[i];
+            } else if(lasts[i]<n) {
+                ad[i]=lasts[i]-i+ad[lasts[i]+1];
+                bad[i]=adHere-ad[i];
+            } else {
+                // ans+=adHere;
+                bad[i]=0;
+                ad[i]=adHere;
+            }
+            ans+=ad[i];
+        }
+        cout << ans << endl;
+        // cout << ans << lasts << ad << bad << endl;
     }
     return 0;
 }
+/*
+1
+5 2
+9 1 2 1 3
+*/

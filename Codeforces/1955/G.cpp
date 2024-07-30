@@ -9,8 +9,10 @@ using ll = long long;
 #define f first
 #define s second
 #define trav(a,x) for (auto& a: x)
-// #define int long long
+#define int long long
 #define vt vector
+#define endl "\n"
+ll mod = 1000000007;
 ll inf = 1e18;
 template<typename T1, typename T2>
 std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
@@ -49,6 +51,8 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+int n,m;
+vt<vt<int>> v;
 struct Math {
     ll m;
     vt<ll> facts;
@@ -58,7 +62,7 @@ struct Math {
     vt<vt<int>> allFactors;
     Math(int md):m(md) {}
     Math(): m(1000000007) {};
-    ll bexpo(ll b, ll e) {
+    ll bexpo(ll b, int e) {
         ll a = 1;
         while(e) {
             if(e%2) {
@@ -95,10 +99,6 @@ struct Math {
             }
         }
     }
-    ll nck(int n, int k) {
-        if(n<k||k<0||n<0) return 0;
-        return facts[n]*invFact[k]%m*invFact[n-k]%m;
-    }
     ll gcd(ll a, ll b) {
         if(a>b) swap(a,b);
         while(a!=0) {
@@ -133,19 +133,65 @@ struct Math {
         }
     }
 };  
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    // int x;
-    // cin >> x;
-    Math m(167772161);
-    ll order = 1;
-    ll cur = 2;
-    while(cur!=1) {
-        cur*=cur;
-        cur%=167772161;
-        order++;
-        cout << order << " " << cur << endl;
-    } 
+    int t = 1;
+    Math math(3);
+    cin >> t;
+    while(t--) {
+        // int n,m;
+        cin >> n >> m;
+        v.assign(n,vt<int>(m,0));
+        F0R(i, n) {
+            F0R(j, m) cin >> v[i][j];
+        }
+        int g = math.gcd(v[0][0], v.back().back());
+        vt<int> fact;
+        for(int i = 1; i*i<=g; i++) {
+            if(g%i==0) {
+                fact.add(i);
+                fact.add(g/i);
+            }
+        }
+        int ans = 1;
+        vt<vt<bool>> dp(n, vt<bool>(m));
+        trav(x, fact) {
+            dp[0][0]=true;
+            FOR(i, 1, n) {
+                if(v[i][0]%x==0) {
+                    dp[i][0]=dp[i-1][0];
+                } else {
+                    dp[i][0]=false;
+                }
+            }
+            FOR(i, 1, m) {
+                if(v[0][i]%x==0) {
+                    dp[0][i]=dp[0][i-1];
+                } else {
+                    dp[0][i]=false;
+                }
+            }
+            FOR(i, 1, n) {
+                FOR(j, 1, m) {
+                    if(v[i][j]%x==0) {
+                        dp[i][j]=dp[i-1][j]||dp[i][j-1];
+                    } else {
+                        dp[i][j]=false;
+                    }
+                }
+            }
+            if(dp[n-1][m-1]) ans=max(ans,x);
+        }
+        cout << ans << endl;
+    }
     return 0;
 }
+/*
+1
+3 5
+8 18 10 3 20
+19 1 18 4 8
+8 2 5 13 10
+*/
