@@ -138,10 +138,18 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    int n;
+    cin >> n;
+    vt<int> ans;
+    while(n!=1) {
+        ans.add(n);
+        if(n%2) n=n*3+1;
+        else n/=2;
     }
+    ans.add(1);
+    // cout << ans << endl;
+    cout << ans[0];
+    FOR(i, 1, ans.size()) cout << " " << ans[i];
+    cout << endl;
     return 0;
 }

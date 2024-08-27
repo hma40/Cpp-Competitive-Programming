@@ -138,10 +138,28 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    map<char,int> mp;
+    string s;
+    cin >> s;
+    trav(x, s) mp[x]++;
+    int odCount = 0;
+    trav(x, mp) {
+        if(x.s%2) odCount++;
+    }
+    if(odCount>1) {
+        cout << "NO SOLUTION" << endl;
+    } else {
+        int cur = 0;
+        trav(x, mp) {
+            if(x.s%2) {
+                s[s.size()/2]=x.f;
+            }
+            F0R(i, x.s/2) {
+                s[cur]=s[s.size()-cur-1]=x.f;
+                cur++;
+            }
+        }
+        cout << s << endl;
     }
     return 0;
 }

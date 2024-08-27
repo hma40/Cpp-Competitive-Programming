@@ -141,7 +141,32 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n;
+        cin >> n;
+        vt<pair<int,int>> v(n);
+        F0R(i, n) cin >> v[i].f;
+        F0R(i, n) v[i].s=i;
+        sort(begin(v),end(v));
+        vt<int> ans(n);
+        int sum = 0;
+        stack<int> lol;
+        F0R(i, n) {
+            if(sum<v[i].f) {
+                while(lol.size()) {
+                    ans[lol.top()]=i-1;
+                    lol.pop();
+                }
+            }
+            sum+=v[i].f;
+            lol.push(v[i].s);
+        }
+        while(lol.size()) {
+            ans[lol.top()]=n-1;
+            lol.pop();
+        }
+        // cout << ans << endl;
+        trav(x, ans) cout << x << " ";
+        cout << endl;
     }
     return 0;
 }

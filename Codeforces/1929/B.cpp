@@ -141,7 +141,22 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n,k;
+        cin >> n >> k;
+        int timestwo = n+n-2;
+        if(timestwo*2>=k) {
+            cout << (k+1)/2 << endl;
+        } else {
+            k-=timestwo*2;
+            cout << k+timestwo << endl;
+        }
     }
     return 0;
 }
+/*
+.....
+.....
+.....
+.....
+.....
+*/

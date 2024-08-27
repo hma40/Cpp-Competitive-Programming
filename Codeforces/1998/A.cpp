@@ -141,7 +141,20 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int x,y,k;
+        cin >> x >> y >> k;
+        if(k%2) {
+            cout << x << " " << y << endl;
+            F0R(i, k/2) {
+                cout << x-i-1 << " " << y << endl;
+                cout << x+i+1 << " " << y << endl;
+            } 
+        } else {
+            F0R(i, k/2) {
+                cout << x-i-1 << " " << y << endl;
+                cout << x+i+1 << " " << y << endl;
+            }
+        }
     }
     return 0;
 }

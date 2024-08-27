@@ -141,7 +141,37 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int l,r,ll,rr;
+        cin >> l >> r >> ll >> rr;
+        if(r==rr) {
+            if(l<ll) {
+                cout << r-ll+1 << endl;
+            } else if(l>ll) {
+                cout << r-l+1 << endl;
+            } else {
+                cout << r-l << endl;
+            }
+            continue;
+        } 
+        if(r>rr) {
+            swap(r,rr);
+            swap(l,ll);
+        }
+        if(r<ll) {
+            cout << 1 << endl;
+            continue;
+        }
+        if(l==ll) {
+            cout << r-ll+1 << endl;
+            continue;
+        }   
+        if(l>ll) {
+            cout << r-l+2 << endl;
+            continue;
+        }
+        cout << r-ll+2 << endl;
+        //1 5
+        //3 7
     }
     return 0;
 }

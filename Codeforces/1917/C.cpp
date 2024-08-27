@@ -26,18 +26,6 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
     return os;
 }
-template <typename T, std::size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
-    os << "[";
-    for (std::size_t i = 0; i < N; ++i) {
-        os << arr[i];
-        if (i < N - 1) {
-            os << ", ";
-        }
-    }
-    os << "]";
-    return os;
-}
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::set<T>& s) {
     os << "{ ";
     for(const auto& elem : s) {
@@ -99,7 +87,6 @@ template<typename T> std::ostream& operator<<(std::ostream& os, std::priority_qu
     // Print a newline at the end
     return os;
 }
-
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
     os << "[ ";
     for(const auto& elem : vec) {
@@ -141,7 +128,45 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n,k,d;
+        cin >> n >> k >> d;
+        vt<int> a(n);
+        F0R(i, n) cin >> a[i];
+        F0R(i, n) a[i]--;
+        vt<int> v(k);
+        F0R(i, k) cin >> v[i];
+        int last = min(2*n+5,d);
+        vt<int> start(last),end(last);
+        int ans = 0;
+        F0R(i, n) {
+            if(a[i]==i) start[0]++;
+        }
+        F0R(i, n) {
+            int val = a[i];
+            // if(val==i) stage=1;
+            F0R(j, last-1) {
+                if(v[j%k]>i) {
+                    val++;
+                    if(val==i) {
+                        // stage=1;
+                        start[j+1]++;
+                    } 
+                    if(val==i+1) {
+                        // stage=2;
+                        end[j+1]++;
+                    }
+                }
+            }   
+        }
+        int cur = 0;
+        // cout << start << end << endl;
+        F0R(i, last) {
+            cur+=start[i];
+            cur-=end[i];
+            int movesLeft = d-i-1;
+            ans=max(ans, cur+movesLeft/2);
+        }
+        cout << ans << endl;
     }
     return 0;
 }

@@ -26,18 +26,6 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
     return os;
 }
-template <typename T, std::size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
-    os << "[";
-    for (std::size_t i = 0; i < N; ++i) {
-        os << arr[i];
-        if (i < N - 1) {
-            os << ", ";
-        }
-    }
-    os << "]";
-    return os;
-}
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::set<T>& s) {
     os << "{ ";
     for(const auto& elem : s) {
@@ -99,7 +87,6 @@ template<typename T> std::ostream& operator<<(std::ostream& os, std::priority_qu
     // Print a newline at the end
     return os;
 }
-
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
     os << "[ ";
     for(const auto& elem : vec) {
@@ -130,7 +117,7 @@ using ll = long long;
 #define vt vector
 #define endl "\n"
 #define double long double
-ll mod = 1000000007;
+ll mod = 998244353;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
@@ -138,10 +125,44 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    int n;
+    cin >> n;
+    vt<int> order(n);
+    F0R(i, n) cin >> order[i];
+    // vt<int> dp(n),pref(n+1, 1);
+    // dp[0]=1;
+    vt<int> pref(n+1,1);
+    vt<int> pow2(5001);
+    pow2[0]=1;
+    pref[0]=0;
+    FOR(i, 1, 5001) {
+        pow2[i]=pow2[i-1]*2%mod;
     }
+    // pref[1]=1;
+    FOR(i, 2, n) {
+        vt<int> prefHere(n+1);
+        // vt<int> dpHere(n),prefHere(n+1);
+        F0R(parent, i) {
+            if(order[i]<order[i-1]) {
+                prefHere[parent+1]=prefHere[parent]+pref[parent]*pow2[i-parent-1];
+            } else {
+                prefHere[parent+1]=prefHere[parent]+pref[parent+1]*pow2[i-parent-1];
+            }
+            prefHere[parent+1]%=mod;
+        }
+        prefHere[i+1]=prefHere[i];
+        // cout << i << prefHere << endl;
+        swap(pref,prefHere);
+    }
+    // cout << pref.back() << endl;
+    // cout << pref << endl;
+    cout << pref[n-1] << endl;
     return 0;
 }
+/*
+5
+1 3 2 4 5
+at 2: 1 way that 3 is the parent of 2
+at 4: 
+- 3 is the parent: 
+*/

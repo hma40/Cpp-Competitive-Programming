@@ -133,6 +133,14 @@ using ll = long long;
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+int mex(set<int> &s) {
+    F0R(i, s.size()+5) {
+        if(s.count(i)==0) {
+            return i;
+        }
+    }
+    return 69420;
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
@@ -141,7 +149,83 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n,m;
+        cin >> n >> m;
+        vt<set<int>> v(n);
+        vt<int> l(n);
+        vt<int> ex(n);
+        vt<int> mmex(n);
+        F0R(i, n) {
+            cin >> l[i];
+            F0R(j, l[i]) {
+                int x;
+                cin >> x;
+                v[i].insert(x);
+            }
+        }
+        int sum_l = 0;
+        F0R(i, n) sum_l+=l[i];
+        F0R(i, n) {
+            ex[i]=mex(v[i]);
+            v[i].insert(ex[i]);
+            mmex[i]=mex(v[i]);
+        }
+        vt<vt<int>> adj(sum_l+5);
+        // vt<int> oneJump(sum_l+5), twoJump(sum_l+5);
+        F0R(i, n) {
+            adj[ex[i]].add(mmex[i]);
+        }
+        //dp[i] = min sequences used to get to i, or -1 if impossible
+        vt<int> dp(sum_l+5);
+        // cout << adj << endl;
+        vt<bool> general(sum_l+5);
+        F0R(i, sum_l+5) {
+            if(adj[i].size()==0) continue;   
+            sort(begin(adj[i]), end(adj[i]));
+            if(general[i]||adj[i].size()>1) {
+                general[i]=true;
+                trav(x, adj[i]) {
+                    general[x]=true;
+                }
+            }
+            if(adj[i].size()) general[i]=true;
+        }
+        int max_gen = 0;
+        F0R(i, sum_l+5) {
+            if(general[i]) max_gen=i;
+        }
+        vt<int> special(sum_l+5);
+        R0F(i, sum_l+5) {
+            special[i]=i;
+            trav(x, adj[i]) {
+                special[i]=max(special[i], x);
+                special[i]=max(special[i], special[x]);
+            }
+        }
+        int ans = 0;
+        if(sum_l+5>m) {
+            F0R(i, m+1) {
+                ans+=max(max_gen, special[i]);
+            }
+        } else {    
+            F0R(i, sum_l+5) {
+                ans+=max(max_gen, special[i]);
+            }
+            ans+=(sum_l+5+m)*(m-sum_l-4)/2;
+        }
+        cout << ans << endl;
     }
     return 0;
 }
+/*
+5 1919810
+1 2
+2 324003 0
+3 1416324 2 1460728
+4 1312631 2 0 1415195
+5 1223554 192248 2 1492515 725556
+
+mex: [0,1,0,1,0]
+mmex: [1,2,1,3,1]
+
+*/

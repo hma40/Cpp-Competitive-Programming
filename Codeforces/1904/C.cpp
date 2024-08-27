@@ -141,7 +141,44 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n,k;
+        cin >> n >> k;
+        vt<int> v(n);
+        F0R(i, n) cin >> v[i];
+        int ans = inf;
+        F0R(i, n) {
+            ans=min(ans, v[i]);
+        }
+        if(k>=3) {
+            cout << 0 << endl;
+            continue;
+        }
+
+        vt<int> poss;
+        set<int> exist;
+        F0R(i, n) exist.insert(v[i]);
+        exist.insert(0);
+        exist.insert(2*inf);
+        F0R(i, n) {
+            FOR(j, i+1, n) {
+                // cout << i << " " << j << " " << abs(v[i]-v[j]) << endl;
+                ans=min(ans, abs(v[i]-v[j]));
+                poss.add(abs(v[i]-v[j]));
+            }
+        }
+        if(k==1) {
+            cout << ans << endl;
+            continue;
+        }
+        // cout << exist << endl;
+        trav(x, poss) {
+            auto bruh = exist.lower_bound(x);
+            // cout << x << " " << *bruh << endl;
+            ans=min(ans, abs((*bruh)-x));
+            bruh--;
+            ans=min(ans, abs((*bruh)-x));
+        }
+        cout << ans << endl;
     }
     return 0;
 }

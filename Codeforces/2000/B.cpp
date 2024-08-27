@@ -141,7 +141,29 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n;
+        cin >> n;
+        vt<bool> taken(n);
+        vt<int> order(n);
+        F0R(i, n) cin >> order[i];
+        F0R(i, n) order[i]--;
+        taken[order[0]]=true;
+        bool good = true;
+        FOR(i, 1, n) {
+            if(order[i]>=1&&taken[order[i]-1]) {
+                // good=false;
+            } else if(order[i]<n-1&&taken[order[i]+1]) {
+
+            } else {
+                good=false;
+            } 
+            taken[order[i]]=true;
+        }
+        if(good) {
+            cout << "YES" << endl;
+        } else {
+            cout << "NO" << endl;
+        }
     }
     return 0;
 }

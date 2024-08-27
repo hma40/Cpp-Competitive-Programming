@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 using ll = long long;
+using pi = pair<int, int>;
 #define add push_back 
 #define FOR(i,a,b) for (int i = (a); i < (b); ++i)
 #define F0R(i,a) FOR(i,0,a)
@@ -9,16 +10,8 @@ using ll = long long;
 #define f first
 #define s second
 #define trav(a,x) for (auto& a: x)
-#define int long long
-#define vt vector
-#define endl "\n"
 ll mod = 1000000007;
-ll inf = 1e18;
-template<typename T1, typename T2>
-std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
-    os << "(" << p.first << ", " << p.second << ")";
-    return os;
-}
+ll inf = 1e15;
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
     os << "[ ";
     for(const auto& elem : vec) {
@@ -28,14 +21,6 @@ template<typename T> std::ostream& operator<<(std::ostream& os, const std::vecto
     return os;
 }
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::set<T>& s) {
-    os << "{ ";
-    for(const auto& elem : s) {
-        os << elem << " ";
-    }
-    os << "}";
-    return os;
-}
-template<typename T> std::ostream& operator<<(std::ostream& os, const std::multiset<T>& s) {
     os << "{ ";
     for(const auto& elem : s) {
         os << elem << " ";
@@ -54,23 +39,34 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    int n;
-    cin >> n;
-    vt<pair<int,int>> v(n);
-    F0R(i, n) cin >> v[i].f >> v[i].s;
-    sort(begin(v),end(v));
-    priority_queue<int> pq;
-    int ans = 0;
-    F0R(i, n) {
-        while(pq.size()&&-pq.top()<v[i].f) {
-            pq.pop();
+    //freopen("file.in", "r", stdin);
+    //freopen("file.out", "w", stdout);
+    //debug=false; //ENABLE before submitting code to disable printArrays
+    int t;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        vector<int> a(n);
+        F0R(i, n) cin >> a[i];
+        set<int> unused;
+        F0R(i, n) unused.insert(i);
+        vector<int> orig(n);
+        F0R(i, n-1) {
+            int start = *unused.begin();
+            int second = *(++unused.begin());
+            if(a[i]<0) {
+                orig[i]=start-a[i];
+                unused.erase(orig[i]);
+            } else {
+                orig[i]=start;
+                unused.erase(start);
+            }
         }
-        ans+=pq.size();
-        pq.push(-v[i].s);
-        while(pq.size()&&-pq.top()<=v[i].f) {
-            pq.pop();
-        }
+        orig.back()=*unused.begin();
+        cout << orig[0];
+        FOR(i, 1, n) cout << " " << orig[i];
+        cout << endl;
     }
-    cout << ans << endl;
     return 0;
 }

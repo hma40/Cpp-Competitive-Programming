@@ -141,7 +141,31 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        string s;
+        cin >> s;
+        bool good = true;
+        if(s[0]=='1'&&s[1]=='0') {
+
+        } else {
+            cout << "NO" << endl;
+            continue;
+        }
+        if(s.size()==2) {
+            cout << "NO" << endl;
+            continue;
+        } else if(s.size()==3) {
+            if(s[2]=='1'||s[2]=='0') {
+                cout << "NO" << endl;
+            } else {
+                cout << "YES" << endl;
+            }
+        } else {
+            if(s[2]=='0') {
+                cout << "NO" << endl;
+            } else {
+                cout << "YES" << endl;
+            }
+        }
     }
     return 0;
 }

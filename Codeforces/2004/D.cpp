@@ -138,10 +138,80 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
+    vt<vt<bool>> adj(6, vt<bool>(6, true));
+    adj[0][5]=adj[5][0]=false;
+    adj[1][4]=adj[4][1]=false;
+    adj[2][3]=adj[3][2]=false;
+    // adj[0][0]=adj[0][1]=adj[1][0]=adj[0][2]=adj[2][0]=
     int t = 1;
     cin >> t;
     while(t--) {
+        int n,q;
+        cin >> n >> q;
+        vt<int> type(n);
+        vt<vt<int>> firstNext(n, vt<int>(6, inf));
+        vt<vt<int>> firstPrev(n, vt<int>(6, -inf));
+        F0R(i, n) {
+            string s;
+            cin >> s;
+            if(s=="BG") {
+                type[i]=0;
+            } else if(s=="BR") {
+                type[i]=1;
+            } else if(s=="BY") {
+                type[i]=2;
+            } else if(s=="GR") {
+                type[i]=3;
+            } else if(s=="GY") {
+                type[i]=4;
+            } else {
+                type[i]=5;
+            }
+        }
+        // set<int> bind(6),aind(6);
+        vt<int> last(6,-inf);
+        F0R(i, n) {
+            F0R(j, 6) {
+                // if(bind[j].size()==0) continue;
+                firstPrev[i][j]=last[j];
+            }
+            last[type[i]]=i;
+        }
+        last.assign(6, inf);
+        R0F(i, n) {
+            F0R(j, 6) {
+                firstNext[i][j]=last[j];
+            }
+            last[type[i]]=i;
+        }
+        // cout << firstPrev << firstNext << endl;
         
+        while(q--) {
+            int x,y;
+            cin >> x >> y;
+            x--;
+            y--;
+            if(adj[type[x]][type[y]]) {
+                cout << abs(y-x) << endl;
+            } else {
+                int ans = inf;
+                F0R(i, 6) {
+                    if(adj[type[x]][i]&&adj[i][type[y]]) {
+                        ans=min(ans, abs(x-firstPrev[x][i])+abs(y-firstPrev[x][i]));
+                        ans=min(ans, abs(firstNext[x][i]-x)+abs(firstNext[x][i]-y));
+                    }
+                }
+                if(ans>=1e6) {
+                    cout << -1 << endl;
+                } else {
+                    cout << ans << endl;
+                }
+            }
+        }
     }
     return 0;
 }
+/*
+if two cities are connected,obviously use that
+otherwise, 
+*/

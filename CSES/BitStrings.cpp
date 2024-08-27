@@ -138,10 +138,12 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    int n;
+    cin >> n;
+    int ans = 1;
+    FOR(i, 0, n) {
+        ans=ans*2%mod;
     }
+    cout << ans << endl;
     return 0;
 }

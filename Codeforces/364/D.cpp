@@ -1,50 +1,7 @@
 #include <bits/stdc++.h>
-using namespace std;
-using ll = long long;
-#define add push_back 
-#define FOR(i,a,b) for (int i = (a); i < (b); ++i)
-#define F0R(i,a) FOR(i,0,a)
-#define ROF(i,a,b) for (int i = (b)-1; i >= (a); --i)
-#define R0F(i,a) ROF(i,0,a)
-#define f first
-#define s second
-#define trav(a,x) for (auto& a: x)
-// #define int long long
-#define vt vector
-ll inf = 1e18;
-std::string to_string(__int128_t value) {
-    if (value == 0) return "0";
-    
-    std::string result;
-    bool negative = (value < 0);
-    if (negative) value = -value;
-    
-    while (value > 0) {
-        result += '0' + (value % 10);
-        value /= 10;
-    }
-    
-    if (negative) result += '-';
-    
-    std::reverse(result.begin(), result.end());
-    return result;
-}
-
-// Overload << operator for __int128
-std::ostream& operator<<(std::ostream& os, __int128_t value) {
-    return os << to_string(value);
-}
 template<typename T1, typename T2>
 std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
-    return os;
-}
-template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
-    os << "[ ";
-    for(const auto& elem : vec) {
-        os << elem << " ";
-    }
-    os << "]";
     return os;
 }
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::set<T>& s) {
@@ -63,6 +20,59 @@ template<typename T> std::ostream& operator<<(std::ostream& os, const std::multi
     os << "}";
     return os;
 }
+
+template<typename T> std::ostream& operator<<(std::ostream& os, std::queue<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.front() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
+template<typename T> std::ostream& operator<<(std::ostream& os, std::deque<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.front() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
+template<typename T> std::ostream& operator<<(std::ostream& os, std::stack<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.top() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
+template<typename T> std::ostream& operator<<(std::ostream& os, std::priority_queue<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.top() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
+template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
+    os << "[ ";
+    for(const auto& elem : vec) {
+        os << elem << " ";
+    }
+    os << "]";
+    return os;
+}
 template<typename K, typename V> std::ostream& operator<<(std::ostream& os, const std::map<K, V>& m) {
     os << "{ ";
     for(const auto& pair : m) {
@@ -71,6 +81,22 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+using namespace std;
+using ll = long long;
+#define add push_back 
+#define FOR(i,a,b) for (int i = (a); i < (b); ++i)
+#define F0R(i,a) FOR(i,0,a)
+#define ROF(i,a,b) for (int i = (b)-1; i >= (a); --i)
+#define R0F(i,a) ROF(i,0,a)
+#define f first
+#define s second
+#define trav(a,x) for (auto& a: x)
+#define int long long
+#define vt vector
+#define endl "\n"
+#define double long double
+ll mod = 1000000007;
+ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 struct Math {
     ll m;
@@ -81,24 +107,8 @@ struct Math {
     vt<int> lp;
     vt<int> primes;
     vt<vt<int>> allFactors;
-    vt<int> mobius;
     Math(int md):m(md) {}
     Math(): m(1000000007) {};
-    void mob(int n) {
-        mobius.assign(n+1,-1);
-        vt<int> p(n+1, 1);
-        mobius[0] = 0, mobius[1] = 1;
-        for (int i = 2; i <= n; i++) {
-            if (p[i]) {
-                for (int j = 2; j*i <= n; j++) {
-                    // cout << "LINE 142 " << i << " " << j << endl;
-                    if (j%i) mobius[i*j] = mobius[i]*mobius[j];
-                    else mobius[i*j] = 0;
-                    p[i*j] = 0;
-                }
-            }
-        }
-    }
     ll bexpo(ll b, ll e) {
         ll a = 1;
         while(e) {
@@ -182,7 +192,7 @@ struct Math {
             if (!f) return false;
         }
         return true;
-    }   
+    }
  
 // returns a sorted list of all prime factors of n in O(min(n^(1/2), n^(1/4)+log^3(n)+10^5)) time.
 // works for n <= 10^18
@@ -222,7 +232,6 @@ struct Math {
         for (ll x : primefactors(n)){
             p[x]++;
         }
-        // cout << p << endl;
         vector<ll> out = {1};
         for (auto& [q, f] : p) {
             vector<ll> tmp;
@@ -249,9 +258,52 @@ struct Math {
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    // int x;
-    // cin >> x;
+    // freopen("input.txt" , "r" , stdin);
+    // freopen("output.txt" , "w", stdout);
+    int n;
     Math m;
-    cout << m.primefactors(8) << endl;
+    cin >> n;
+    vt<int> v(n);
+    F0R(i, n) cin >> v[i];
+    int ans = 1;
+    // vt<int> divisors(n);
+    for(int fuck = 0; fuck < 7; fuck++) {
+        int r = rnd()%n;
+        // F0R(i, n) {
+            // divisors[i]=gcd(v[i], v[r]);
+        // }
+        auto bru = m.divisors(v[r]);
+        // map<int,vt<int>> mult;
+        vt<vt<int>> multi(bru.size());
+        F0R(i, bru.size()) {
+            F0R(j, i+1) {
+                if(bru[i]%bru[j]==0) {
+                    multi[i].add(j);
+                }
+            }
+        }
+        // cout << bru << multi << endl;
+        map<int,int> mp;
+        F0R(i, bru.size()) {
+            mp[bru[i]]=i;
+        }
+        map<int,int> bruh;
+        F0R(i, n) {
+            bruh[mp[gcd(v[i], v[r])]]++;
+        }
+        // cout << mult << endl;
+        // map<int,int> another;
+        vt<int> ano(bru.size());
+        trav(x, bruh) {
+            trav(y, multi[x.f]) ano[y]+=x.s;
+        }
+        F0R(i, ano.size()) {
+            if(ano[i]*2>=n) {
+                ans=max(ans, bru[i]);
+            }
+        }
+        // cout << r << " " << v[r] << " " << another << endl;
+    }
+    cout << ans << endl;
     return 0;
 }

@@ -141,7 +141,29 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n;
+        cin >> n;
+        vt<int> v(n);
+        string s;
+        F0R(i, n) cin >> v[i];
+        cin >> s;
+        vt<int> pref(n+1);
+        F0R(i, n) pref[i+1]=pref[i]+v[i];
+        int ans = 0;
+        set<int> left,right;
+        F0R(i, n) {
+            if(s[i]=='L') left.insert(i);
+            else right.insert(i);
+        }
+        while(left.size()&&right.size()) {
+            int firstL = *(left.begin());
+            int lastR = *(right.rbegin());
+            if(firstL>lastR) break;
+            ans+=pref[lastR+1]-pref[firstL];
+            right.erase(lastR);
+            left.erase(firstL);
+        }
+        cout << ans << endl;
     }
     return 0;
 }

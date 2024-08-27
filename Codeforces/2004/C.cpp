@@ -141,7 +141,46 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n,k;
+        cin >> n >>k;
+        vt<int> v(n);
+        F0R(i, n) cin >> v[i];
+        sort(begin(v),end(v));
+        if(n%2) {
+            int ans = 0;
+            F0R(i, n) {
+                if(i%2) {
+                    ans-=v[i];
+                } else {
+                    ans+=v[i];
+                }
+            }
+            ans-=min(ans, k);
+            ans=max(ans, v[0]);
+            cout << ans << endl;
+        } else {
+            int ans = 0;
+            F0R(i, n) {
+                if(i%2) {
+                    ans-=v[i];
+                } else {
+                    ans+=v[i];
+                }
+            }
+            ans=abs(ans);
+            ans-=min(ans, k);
+            cout << ans << endl;
+        }
     }
     return 0;
 }
+/*
+if only 2 items: Bob will try to make prices as similar as possible
+if 3 items
+a b c
+if Alice takes c, Bob takes b, and Alice takes a
+answer is c+a-b
+if 4 items
+a b c d
+Alice takes d+
+*/

@@ -138,10 +138,55 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    int n;
+    cin >> n;
+    priority_queue<int> pq;
+    FOR(i, 1, n+1) pq.push(i);
+    if(n*(n+1)%4==0) {
+        cout << "YES" << endl;
+        int each = n*(n+1)/4;
+        int sum = 0;
+        vt<int> left;
+        while(pq.top()+sum<=each) {
+            sum+=pq.top();
+            // pq.pop();
+            left.add(pq.top());
+            pq.pop();
+        }
+        int no = -1;
+        if(each-sum!=0) {
+            left.add(each-sum);
+            no=each-sum;
+        }
+        cout << left.size() << endl;;
+        cout << left[0];
+        FOR(i, 1, left.size()) cout << " " << left[i];
+        cout << endl;
+        if(no==-1) {
+            cout << pq.size() << endl;
+            cout << pq.top();
+            pq.pop();
+            while(pq.size()) {
+                cout << " " << pq.top();
+                pq.pop();
+            }
+            cout << endl;
+        } else {
+            vt<int> right;
+            while(pq.size()) {
+                if(pq.top()!=no) {
+                    right.add(pq.top());
+                }
+                pq.pop();
+            }
+            cout << right.size() << endl << right[0];
+            FOR(i, 1, right.size()) {
+                cout << " " << right[i];
+            }
+            cout << endl;
+        }
+    } else {
+        cout << "NO" << endl;
     }
     return 0;
 }

@@ -1,41 +1,7 @@
 #include <bits/stdc++.h>
-std::string to_string(__int128_t value) {
-    if (value == 0) return "0";
-    
-    std::string result;
-    bool negative = (value < 0);
-    if (negative) value = -value;
-    
-    while (value > 0) {
-        result += '0' + (value % 10);
-        value /= 10;
-    }
-    
-    if (negative) result += '-';
-    
-    std::reverse(result.begin(), result.end());
-    return result;
-}
-
-// Overload << operator for __int128
-std::ostream& operator<<(std::ostream& os, __int128_t value) {
-    return os << to_string(value);
-}
 template<typename T1, typename T2>
 std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
-    return os;
-}
-template <typename T, std::size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
-    os << "[";
-    for (std::size_t i = 0; i < N; ++i) {
-        os << arr[i];
-        if (i < N - 1) {
-            os << ", ";
-        }
-    }
-    os << "]";
     return os;
 }
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::set<T>& s) {
@@ -54,7 +20,14 @@ template<typename T> std::ostream& operator<<(std::ostream& os, const std::multi
     os << "}";
     return os;
 }
-
+template<typename K, typename V> std::ostream& operator<<(std::ostream& os, const std::map<K, V>& m) {
+    os << "{ ";
+    for(const auto& pair : m) {
+        os << pair.first << " : " << pair.second << ", ";
+    }
+    os << "}";
+    return os;
+}
 template<typename T> std::ostream& operator<<(std::ostream& os, std::queue<T> q) {
     // Print each element in the queue
     os << "{ ";
@@ -99,21 +72,12 @@ template<typename T> std::ostream& operator<<(std::ostream& os, std::priority_qu
     // Print a newline at the end
     return os;
 }
-
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
     os << "[ ";
     for(const auto& elem : vec) {
         os << elem << " ";
     }
     os << "]";
-    return os;
-}
-template<typename K, typename V> std::ostream& operator<<(std::ostream& os, const std::map<K, V>& m) {
-    os << "{ ";
-    for(const auto& pair : m) {
-        os << pair.first << " : " << pair.second << ", ";
-    }
-    os << "}";
     return os;
 }
 using namespace std;
@@ -141,7 +105,40 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n;
+        cin >> n;
+        string a,b;
+        cin >> a >> b;
+        int start=0, end = n-1;
+        F0R(i, n) {
+            start=i;
+            if(a[i]=='.'||b[i]=='.') {
+
+                break;
+            }
+        }
+        R0F(i, n) {
+            end=i;
+            if(a[i]=='.'||b[i]=='.') {
+
+                break;
+            }
+        }
+        // cout << start << " " << end << endl;
+        if(start>end) {
+            cout << 0 << endl;
+            continue;
+        }
+        int ans = 0;
+        FOR(i, start+1, end) {
+            if(a[i-1]=='x'&&a[i+1]=='x'&&a[i]!='x') {
+                ans++;
+            }
+            if(b[i-1]=='x'&&b[i+1]=='x'&&b[i]!='x') {
+                ans++;
+            }
+        }
+        cout << ans << endl;
     }
     return 0;
 }

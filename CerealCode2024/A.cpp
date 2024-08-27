@@ -138,10 +138,28 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    int n,k;
+    cin >> n >> k;
+    vt<vt<int>> ans(n, vt<int>(n));
+    F0R(i, n) {
+        F0R(j, n) {
+            if(k) {
+                k--;
+                ans[i][j]=1;
+            }
+        }
+    }
+    F0R(i, n) {
+        F0R(j, n) {
+            cout << ans[i][j];
+        }
+        cout << endl;
     }
     return 0;
 }
+/*
+1111
+1111
+1110
+0000
+*/

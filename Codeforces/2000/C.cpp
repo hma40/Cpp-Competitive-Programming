@@ -141,7 +141,41 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n;
+        cin >> n;
+        vt<int> v(n);
+        F0R(i, n) cin >> v[i];
+        int q;
+        cin >> q;
+        while(q--) {
+            string s;
+            cin >> s;
+            if(s.size()!=v.size()) {
+                cout << "NO" << endl;
+                continue;
+            }
+            bool good = true;
+            map<char,int> mp;
+            set<int> seen;
+            F0R(i, s.size()) {
+                if(mp.count(s[i])) {
+                    if(mp[s[i]]==v[i]) {
+
+                    } else {
+                        good=false;
+                    }
+                } else {
+                    mp[s[i]]=v[i];
+                    seen.insert(v[i]);
+                }
+            }
+            if(mp.size()==seen.size()&&good) {
+                cout << "YES" << endl;
+            } else {
+                cout << "NO" << endl;
+            }
+
+        }
     }
     return 0;
 }

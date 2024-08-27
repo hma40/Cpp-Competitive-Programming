@@ -138,10 +138,13 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    int n;
+    cin >> n;
+    int ans = 0;
+    while(n) {
+        ans+=n/5;
+        n/=5;
     }
+    cout << ans << endl;
     return 0;
 }

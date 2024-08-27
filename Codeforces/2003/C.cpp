@@ -141,7 +141,50 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n;
+        string s;
+        cin >> n >> s;
+        vt<pair<int,int>> freq(26);
+        F0R(i, n) {
+            freq[s[i]-'a'].f++;
+        }
+        F0R(i, 26) {
+            freq[i].s=i;
+        }
+        sort(begin(freq),end(freq));
+        // cout << freq << endl;
+        string ret = "";
+        ret+=(char)(freq.back().s+'a');
+        freq.back().f--;
+        FOR(i, 1, n) {
+            sort(begin(freq),end(freq));
+            // cout << i << freq << ret << endl;
+            int here = -1;
+            if(freq.back().s==ret.back()-'a') {
+                if(freq[24].f==0) {
+                    here=freq[25].s;
+                    freq[25].f--;
+                } else {
+                    here=freq[24].s;
+                    freq[24].f--;
+                }
+            } else {
+                here=freq.back().s;
+                freq[25].f--;
+            }
+            ret+=(char)('a'+here);
+        }
+        cout << ret << endl;
     }
     return 0;
 }
+/*
+a1 c1
+a2 c2
+...
+an cn
+
+(c2+...+cn)+(c3+...+cn)+(c4+...+cn)+...+cn+a1(a1-1)/2+a2(a2-1)/2+...+an(an-1)/2
+(n-1)cn+(n-2)cn-1+(n-3)cn-3+...
+
+*/

@@ -132,7 +132,11 @@ using ll = long long;
 #define double long double
 ll mod = 1000000007;
 ll inf = 1e18;
+int a,b,xk,yk,xq,yq;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+bool fork(int x, int y) {
+    return (abs(xk-x)==a && abs(yk-y)==b) || (abs(xk-x)==b && abs(yk-y)==a);
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
@@ -141,7 +145,19 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+
+        cin >> a >> b >> xk >> yk >> xq >> yq;
+        int ans = 0;
+        if(fork(xq+a,yq+b)) ans++;
+        if(fork(xq+b,yq+a)) ans++;
+        if(fork(xq-a,yq+b)) ans++;
+        if(fork(xq-b,yq+a)) ans++;
+        if(fork(xq+a,yq-b)) ans++;
+        if(fork(xq+b,yq-a)) ans++;
+        if(fork(xq-a,yq-b)) ans++;
+        if(fork(xq-b,yq-a)) ans++;
+        if(a==b) ans/=2;
+        cout << ans << endl;
     }
     return 0;
 }

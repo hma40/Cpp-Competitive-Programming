@@ -26,18 +26,6 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
     return os;
 }
-template <typename T, std::size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
-    os << "[";
-    for (std::size_t i = 0; i < N; ++i) {
-        os << arr[i];
-        if (i < N - 1) {
-            os << ", ";
-        }
-    }
-    os << "]";
-    return os;
-}
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::set<T>& s) {
     os << "{ ";
     for(const auto& elem : s) {
@@ -99,7 +87,6 @@ template<typename T> std::ostream& operator<<(std::ostream& os, std::priority_qu
     // Print a newline at the end
     return os;
 }
-
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
     os << "[ ";
     for(const auto& elem : vec) {
@@ -141,7 +128,21 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n;
+        string s;
+        cin >> n >> s;
+        vt<int> next(n);
+        vt<int> last(26, n);
+        R0F(i, n) {
+            next[i]=last[s[i]-'a'];
+            last[s[i]-'a']=i;
+        }
+        int ans = 0;
+        F0R(i, n) {
+            ans+=next[i]-i;
+        }
+        cout << ans << endl;
+        // cout << next << last << endl;
     }
     return 0;
 }

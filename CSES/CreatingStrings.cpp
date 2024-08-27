@@ -138,10 +138,41 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    string s;
+    cin >> s;
+    vt<vt<int>> all;
+    all.add({});
+    vt<bool> count(s.size());
+    F0R(i, s.size()) {
+        vt<vt<int>> here;
+        trav(x, all) {
+            F0R(y, s.size()) count[y]=false;
+            trav(y, x) count[y]=true;
+            F0R(y, s.size()) {
+                if(!count[y]) {
+                    auto bruh = x;
+                    bruh.add(y);
+                    here.add(bruh);
+                }
+            }
+        }
+        swap(here,all);
     }
+    // cout << all << endl;
+    set<string> allStr;
+    trav(x, all) {
+        string here = "";
+        trav(y, x) {
+            here+=s[y];
+        }
+        allStr.insert(here);
+    }
+    cout << allStr.size() << endl;
+    while(allStr.size()) {
+        auto f = *(allStr.begin());
+        allStr.erase(f);
+        cout << f << endl;
+    }
+
     return 0;
 }

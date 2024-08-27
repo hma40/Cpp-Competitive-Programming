@@ -138,10 +138,15 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    int n;
+    cin >> n;
+    set<int> need;
+    FOR(i, 1, n+1) need.insert(i);
+    F0R(i, n-1) {
+        int x;
+        cin >> x;
+        need.erase(x);
     }
+    cout << (*need.begin()) << endl;
     return 0;
 }

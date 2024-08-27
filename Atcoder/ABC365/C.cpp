@@ -138,10 +138,31 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    int n,m;
+    cin >> n >> m;
+    vt<int> v(n);
+    F0R(i, n) cin >> v[i];
+    int sum = 0;
+    F0R(i, n) {
+        sum+=v[i];
     }
+    if(sum<=m) {
+        cout << "infinite" << endl;
+        return 0;
+    }
+    int lo = 1, hi = 1e9+5;
+    while(lo+1<hi) {
+        int mid = (lo+hi)/2;
+        sum=0;
+        F0R(i, n) {
+            sum+=min(mid,v[i]);
+        }
+        if(sum>m) {
+            hi=mid;
+        } else {
+            lo=mid;
+        }
+    }
+    cout << lo << endl;
     return 0;
 }

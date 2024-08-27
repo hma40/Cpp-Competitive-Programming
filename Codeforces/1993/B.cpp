@@ -26,18 +26,6 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
     return os;
 }
-template <typename T, std::size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
-    os << "[";
-    for (std::size_t i = 0; i < N; ++i) {
-        os << arr[i];
-        if (i < N - 1) {
-            os << ", ";
-        }
-    }
-    os << "]";
-    return os;
-}
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::set<T>& s) {
     os << "{ ";
     for(const auto& elem : s) {
@@ -99,7 +87,6 @@ template<typename T> std::ostream& operator<<(std::ostream& os, std::priority_qu
     // Print a newline at the end
     return os;
 }
-
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
     os << "[ ";
     for(const auto& elem : vec) {
@@ -141,7 +128,40 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n;
+        cin >> n;
+        vt<int> v(n);
+        F0R(i, n) cin >> v[i];
+        bool done = true;
+        FOR(i, 1, n) if(v[i]%2!=v[0]%2) done=false;
+        if(done) {
+            cout << "0" << endl;
+            continue;
+        }
+        int largest = 0;
+        sort(begin(v),end(v));
+        int ev = 0;
+        F0R(i, n) {
+            if(v[i]%2) {
+                largest=v[i];
+            } else {
+                ev=v[i];
+            }
+        }
+        int ans = 0;
+        F0R(i, n) {
+            if(v[i]%2==0) {
+                ans++;
+                if(largest>v[i]) {
+                    largest=v[i]+largest;
+                } else {
+                    ans++;
+                    // largest=v[i]+largest;
+                    largest=v[i]+ev;
+                }
+            }
+        }
+        cout << ans << endl;
     }
     return 0;
 }

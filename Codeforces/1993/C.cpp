@@ -26,18 +26,6 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
     return os;
 }
-template <typename T, std::size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
-    os << "[";
-    for (std::size_t i = 0; i < N; ++i) {
-        os << arr[i];
-        if (i < N - 1) {
-            os << ", ";
-        }
-    }
-    os << "]";
-    return os;
-}
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::set<T>& s) {
     os << "{ ";
     for(const auto& elem : s) {
@@ -99,7 +87,6 @@ template<typename T> std::ostream& operator<<(std::ostream& os, std::priority_qu
     // Print a newline at the end
     return os;
 }
-
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
     os << "[ ";
     for(const auto& elem : vec) {
@@ -141,7 +128,36 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n,k;
+        cin >> n >> k;
+        vt<int> v(n);
+        F0R(i, n) cin >> v[i];
+        if(n==1) {
+            cout << v[0] << endl;
+            continue;
+        }
+        sort(begin(v),end(v));
+        int larg = v.back();
+        // int finalTime = larg+k-1;
+        int latest = inf, earliest = -1;
+        F0R(i, n) {
+            int times = (larg-v[i])/k;
+            int tt = v[i]+times*k;
+            tt+=k;
+            if(times%2) {
+                earliest=max(earliest, tt);
+            } else {
+                latest=min(latest, tt-1);
+            }
+        }
+        // cout << latest << " " << earliest << endl;
+        if(latest<earliest&&earliest!=-1) {
+            cout << -1 << endl;
+        } else if(earliest!=-1) {
+            cout << earliest << endl;
+        } else {
+            cout << v.back() << endl;
+        }
     }
     return 0;
 }

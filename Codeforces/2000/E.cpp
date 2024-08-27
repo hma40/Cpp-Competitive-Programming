@@ -141,7 +141,50 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n,m,k;
+        cin >> n >> m >> k;
+        priority_queue<int> times;
+        // vt<vt<int>> multi(n, vt<int>(m));
+        /*
+        x+y=0
+        x+y=5
+        x-y=2
+        y-x=3
+        */
+        F0R(i, n) {
+            F0R(j, m) {
+                int leftbound = i-k+1;
+                leftbound=max(leftbound, 0LL);
+                int rightbound = i;
+                rightbound=min(rightbound, n-k);
+                int upbound = j-k+1;
+                upbound=max(upbound, 0LL);
+                int downbound = j;
+                downbound=min(downbound, m-k);
+                // cout << i << " " << j << " " << leftbound << " " << rightbound << " " << downbound << " " << upbound << endl;
+                times.push((rightbound-leftbound+1)*(downbound-upbound+1));
+                // cout << times << endl;
+            }
+        }
+        priority_queue<int> heights;
+        int w;
+        cin >> w;
+        F0R(i, w) {
+            int x;
+            cin >> x;
+            heights.push(x);
+        }
+        int ans = 0;
+        // cout << times << heights << endl;
+        while(heights.size()) {
+            int j = heights.top();
+            heights.pop();
+            int kq = times.top();
+            times.pop();
+            ans+=j*kq;
+        }
+        cout << ans << endl;
+        // cout << times << endl;
     }
     return 0;
 }

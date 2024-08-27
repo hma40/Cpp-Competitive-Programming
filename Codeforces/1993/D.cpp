@@ -26,18 +26,6 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
     return os;
 }
-template <typename T, std::size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
-    os << "[";
-    for (std::size_t i = 0; i < N; ++i) {
-        os << arr[i];
-        if (i < N - 1) {
-            os << ", ";
-        }
-    }
-    os << "]";
-    return os;
-}
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::set<T>& s) {
     os << "{ ";
     for(const auto& elem : s) {
@@ -99,7 +87,6 @@ template<typename T> std::ostream& operator<<(std::ostream& os, std::priority_qu
     // Print a newline at the end
     return os;
 }
-
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
     os << "[ ";
     for(const auto& elem : vec) {
@@ -133,6 +120,47 @@ using ll = long long;
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+vt<int> pref;
+vt<int> a;
+int n,k;
+vt<vt<int>> dp;
+vt<vt<int>> something;
+bool poss(int tr) {
+    F0R(i, n) {
+        pref[i+1]=pref[i]+(a[i]>=tr);
+    }
+    F0R(i, dp[0].size()) {
+        dp[0][i]=pref[i];
+        if(dp.size()!=1) {
+            something[0][i]=dp[0][i]-pref[i+k];
+        }
+    }
+    //recurrence: dp[i][j]=dp[i-1][j]+constant-pref[something]
+    //precalc dp[i-1][j]-pref[something]
+    //what is something? 
+    // cout << tr << dp[0] << something[0] << pref << endl;
+    FOR(i, 1, dp.size()) {
+        int mx = 0;
+        dp[i][0]=pref[i*k]-pref[i*k];
+        //dp[1][0]=0
+        //dp[1][1]=max(dp[0][0]+pref[4]-pref[3], dp[0][1]+pref[4]-pref[4])
+        mx=something[i-1][0];
+        FOR(j, 1, dp[i].size()) { 
+            mx=max(mx, something[i-1][j]);         
+            dp[i][j]=pref[i*k+j]+mx;
+
+        }
+        if(i!=dp.size()-1) {
+            F0R(j, dp[i].size()) {
+                something[i][j]=dp[i][j]-pref[i*k+j+k];
+            }
+        }
+    }
+    // cout << tr << dp << endl;
+    // cout << tr << " " << dp[1] << endl;
+    return dp.back().back()*2>(dp[0].size()-1);
+    // return false;
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
@@ -141,7 +169,41 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        // int n,k;
+        cin >> n >> k;
+        // vt<int> a(n);
+        a.assign(n, 0);
+        pref.assign(n+1, 0);
+        if(n%k==0) {
+            dp.assign((n+k-1)/k, vt<int>(k+1, 0));
+        } else {
+            dp.assign((n+k-1)/k, vt<int>(n%k+1, 0));
+        }
+        something.assign(dp.size(), vt<int>(dp[0].size()));
+        //dp[i][j]: first i groups, j selected = max score
+        // cout << dp << endl;
+        F0R(i, n) cin >> a[i];
+        int lo = 1, hi = 1e9+1;
+        while(lo+1<hi) {
+            int mid = (lo+hi)/2;
+            if(poss(mid)) {
+                lo=mid;
+            } else {
+                hi=mid;
+            }
+        }
+        cout << lo << endl;
+        // poss(3);
+        // poss(4);
+        // poss(5);
+        // poss(6);
+        // poss(7);
     }
     return 0;
 }
+/*
+dp[i][j] = max(dp[i-1][j-x]+(how many in this group works from j-x to j))
+dp[i][j]=dp[i-1][j]+pref[something]-pref[]
+first i groups of k selected
+j numbers selected already
+*/

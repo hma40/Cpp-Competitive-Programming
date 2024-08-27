@@ -138,10 +138,54 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    int n;
+    cin >> n;
+    vt<int> v(n);
+    F0R(i, n) cin >> v[i];
+    int ans = 0;
+    R0F(bit, 31) {
+        vt<int> off(n+1), on(n+1);
+        int ti = 0;
+        vt<int> pref(n+1);
+        off[0]=1;
+        F0R(i, n) {
+            off[i+1]=off[i];
+            on[i+1]=on[i];
+            if(v[i]&(1<<bit)) ti++;
+            if(ti%2) {
+                on[i+1]++;
+                pref[i+1]=1;
+            } else {
+                off[i+1]++;
+                pref[i+1]=0;
+            }
+        }
+        R0F(i, n) {
+            // cout << i << " " << (v[i]&(1<<bit)) << " " << off[i] << " " << on[i] << endl;
+            if(v[i]&(1<<bit)) {
+                if(pref[i]) {
+                    // cout << "LOOKING FOR ON LINE 166" << endl;
+                    ans+=on[i]*(1<<bit);
+                } else {
+                    // cout << "LOOKING FOR OFF LINE 169" << endl;
+                    ans+=off[i]*(1<<bit);
+                }
+            } else {
+                if(pref[i]) {
+                    // cout << "LOOKING FOR OFF" << endl;
+                    ans+=off[i]*(1<<bit);
+                } else {
+                    // cout << "LOOKING FOR ON" << endl;
+                    ans+=on[i]*(1<<bit);
+                }
+            }
+            // cout << "LINE 177 " << i << " " << ans << endl;
+        }
+        // cout << bit << off << on << ans << pref << endl;
     }
+    F0R(i, n) {
+        ans-=v[i];
+    }
+    cout << ans << endl;
     return 0;
 }

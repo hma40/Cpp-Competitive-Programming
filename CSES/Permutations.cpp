@@ -138,10 +138,20 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    int n;
+    cin >> n;
+    if(n==2||n==3) cout << "NO SOLUTION" << endl;
+    else if(n!=4) {
+        cout << 1;
+        for(int i = 3; i <= n; i+=2) {
+            cout << " " << i;
+        }
+        for(int i = 2; i <= n; i+=2) {
+            cout << " " << i;
+        }
+        cout << endl;
+    } else {
+        cout << "2 4 1 3" << endl;
     }
     return 0;
 }

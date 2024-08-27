@@ -133,6 +133,39 @@ using ll = long long;
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+struct RMQ {
+    vt<vt<int>> sparse;
+    vt<int> lg;
+    vt<vt<int>> sparse2;
+    RMQ(vt<int> v, int log) {
+        lg.resize(v.size()+5);
+        FOR(i, 2, lg.size()) {
+            lg[i]=lg[i/2]+1;
+        }
+        sparse2.resize(v.size(), vt<int>(log, -1));
+        sparse.resize(v.size(), vt<int>(log, -1));
+        F0R(i, v.size()) {
+            sparse2[i][0]=v[i];
+            sparse[i][0]=v[i];
+        }
+        FOR(i, 1, log) {
+            F0R(j, (int)v.size()-(1LL<<i)+1) {
+                // cout << (int)v.size()-(1LL<<i)+1 << endl;
+                // cout << i << " " << j << endl;
+                sparse[j][i]=max(sparse[j][i-1], sparse[j+(1<<(i-1))][i-1]);
+                sparse2[j][i]=min(sparse2[j][i-1], sparse2[j+(1<<(i-1))][i-1]);
+            }
+        }
+    }
+    int getMax(int lo, int hi) {
+        int log = lg[hi-lo+1];
+        return max(sparse[lo][log], sparse[hi-(1<<log)+1][log]);
+    }
+    int getMin(int lo, int hi) {
+        int log = lg[hi-lo+1];
+        return min(sparse2[lo][log], sparse2[hi-(1<<log)+1][log]);
+    }
+};
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
@@ -141,7 +174,60 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n;
+        cin >> n;
+        vt<int> a(n),b(n);
+        F0R(i, n) cin >> a[i];
+        F0R(i, n) cin >> b[i];
+        RMQ ar(a,20);
+        RMQ br(b,20);
+        vt<set<int>> v(n+1);
+        F0R(i, n) {
+            v[a[i]].insert(i);
+        }
+        F0R(i, n+1) {
+            v[i].insert(-1);
+            v[i].insert(inf);
+        }
+        vt<int> bef(n),aft(n);
+        F0R(i, n) {
+            auto bruh = v[b[i]].lower_bound(i);
+            aft[i]=*bruh;
+            bruh--;
+            bef[i]=*bruh;
+        }
+        bool good = true;
+        priority_queue<pair<int,int>> pq;
+        F0R(i, n) {
+            pq.push({-b[i], i});
+        }
+
+        // cout << bef << aft << endl;
+        while(pq.size()) {
+            good=false;
+            auto f = pq.top();
+            pq.pop();
+            if(aft[f.s]!=inf) {
+                if(aft[f.s]==f.s) {
+                    good=true;
+                    continue;
+                }
+                if(ar.getMax(f.s, aft[f.s])==b[f.s]&&br.getMin(f.s+1, aft[f.s])>=b[f.s]) {
+                    // cout << "LINE 202 " << f << aft[f.s] << endl;
+                    good=true;
+                }
+            }
+            if(bef[f.s]!=-1) {
+                // cout << "LINE 221 " << f << bef[f.s] << " " << br.getMin(bef[f.s], f.s-1) << " " << ar.getMax(bef[f.s], f.s) << endl;
+                if(ar.getMax(bef[f.s], f.s)==b[f.s]&&br.getMin(bef[f.s], f.s-1)>=b[f.s]) {
+                    // cout << "LINE 208 " << f << bef[f.s] << endl;
+                    good=true;
+                }
+            }
+            if(!good) break;
+        }
+        if(good) cout << "YES" << endl;
+        else cout << "NO" << endl;
     }
     return 0;
 }

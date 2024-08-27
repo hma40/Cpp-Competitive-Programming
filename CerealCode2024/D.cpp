@@ -138,10 +138,83 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    int n;
+    string s,t;
+    cin >> n >> s >> t;
+    vt<int> sNum(n),tNum(n);
+    F0R(i, n) sNum[i]=s[i]-'a';
+    F0R(i, n) tNum[i]=t[i]-'a';
+    /*
+    type 1: x->x
+    type 2: x->25-x
+    type 3: x->13+x
+    type 4: x->12-x
+    x==25-x (mod 26) -> no sol
+    x==13+x (mod 26) -> no sol
+    x==12-x (mod 26) -> x==6 (uh oh)
+    25-x==13+x (mod 26) x==6
+    25-x==12-x -> no sol
+    13+x==12-x -> no sol
+    */
+    vt<int> operations(n);//1-4, 5=6->19
+    F0R(i, n) {
+        if((sNum[i]==6&&tNum[i]==19)||(tNum[i]==19&&sNum[i]==6)) {
+            operations[i]=5;
+        } else {
+            if(sNum[i]==tNum[i]) operations[i]=1;
+            if(sNum[i]==25-tNum[i]) operations[i]=2;
+            if(tNum[i]==(13+sNum[i])%26) operations[i]=3;
+            if(tNum[i]==(38-sNum[i])%26) operations[i]=4;
+        }
     }
+    F0R(i, n) {
+        if(operations[i]==0) {
+            cout << -1 << endl;
+            return 0;
+        }
+    }
+    /*
+    
+    */
+    vt<vt<int>> dp(n, vt<int>(5, inf));
+    if(operations[0]==1) {
+        dp[0][1]=0;
+        dp[0][2]=2;
+        dp[0][3]=2;
+        dp[0][4]=4;
+    } else if(operations[0]==2) {
+        dp[0][2]=1;
+        dp[0][4]=3;
+    } else if(operations[0]==3) {
+        dp[0][3]=1;
+        dp[0][4]=3;
+    } else if(operations[0]==4) {
+        dp[0][4]=2;
+    } else {
+        dp[0][2]=dp[0][3]=1;
+        dp[0][4]=3;
+    }
+    for(int i = 1; i < n; i++) {
+        if(operations[i]==1) {
+            dp[i][1]=min({dp[i-1][1], dp[i-1][2], dp[i-1][3], dp[i-1][4]});
+            dp[i][2]=min({dp[i-1][1]+2, dp[i-1][2]+1, dp[i-1][3]+2, dp[i-1][4]+1});
+            dp[i][3]=min({dp[i-1][1]+2, dp[i-1][2]+2, dp[i-1][3]+1, dp[i-1][4]+1});
+            dp[i][4]=min({dp[i-1][1]+4, dp[i-1][2]+3, dp[i-1][3]+3, dp[i-1][4]+2});
+        } else if(operations[i]==2) {
+            dp[i][2]=min({dp[i-1][1]+1, dp[i-1][2], dp[i-1][3]+1, dp[i-1][4]});
+            dp[i][4]=min({dp[i-1][1]+3, dp[i-1][2]+2, dp[i-1][3]+2, dp[i-1][4]+1});
+        } else if(operations[i]==3) {
+            dp[i][3]=min({dp[i-1][1]+1, dp[i-1][2]+1, dp[i-1][3], dp[i-1][4]});
+            dp[i][4]=min({dp[i-1][1]+3, dp[i-1][2]+2, dp[i-1][3]+2, dp[i-1][4]+1});
+        } else if(operations[i]==4) {
+            dp[i][4]=min({dp[i-1][1]+2, dp[i-1][2]+1, dp[i-1][3]+1, dp[i-1][4]});
+        } else {
+            dp[i][2]=min({dp[i-1][1]+1, dp[i-1][2], dp[i-1][3]+1, dp[i-1][4]});
+            dp[i][3]=min({dp[i-1][1]+1, dp[i-1][2]+1, dp[i-1][3], dp[i-1][4]});
+            dp[i][4]=min({dp[i-1][1]+3, dp[i-1][2]+2, dp[i-1][3]+2, dp[i-1][4]+1});
+        }
+    }
+    // cout << dp.back() << endl;
+    cout << min({dp.back()[1], dp.back()[2], dp.back()[3], dp.back()[4]}) << endl;
     return 0;
 }

@@ -138,10 +138,16 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    int n;
+    cin >> n;
+    if(n%400==0) {
+        cout << 366<< endl;
+    } else if(n%100==0) {
+        cout << 365 << endl;
+    } else if(n%4==0) {
+        cout << 366 << endl;
+    } else {
+        cout << 365 << endl;
     }
     return 0;
 }

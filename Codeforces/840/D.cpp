@@ -26,18 +26,6 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
     return os;
 }
-template <typename T, std::size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
-    os << "[";
-    for (std::size_t i = 0; i < N; ++i) {
-        os << arr[i];
-        if (i < N - 1) {
-            os << ", ";
-        }
-    }
-    os << "]";
-    return os;
-}
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::set<T>& s) {
     os << "{ ";
     for(const auto& elem : s) {
@@ -99,7 +87,6 @@ template<typename T> std::ostream& operator<<(std::ostream& os, std::priority_qu
     // Print a newline at the end
     return os;
 }
-
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
     os << "[ ";
     for(const auto& elem : vec) {
@@ -133,15 +120,40 @@ using ll = long long;
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+int n,q;
+vt<int> arr;
+vt<vt<int>> queries;
+vt<int> ans;
+vt<array<int,5>> dp;
+void part(int mid, int ql, int qr) {
+
+}
+void solve(int l, int r, int ql, int qr) {
+    int mid = (l+r)/2;
+    dp[]
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    // int n,q;
+    cin >> n >> q;
+    arr.assign(n,0);
+    queries.assign(q,vt<int>(4));
+    F0R(i,n) cin >> arr[i];
+    ans.assign(q,0);
+    dp.resize(n);
+    F0R(i, q) {
+        F0R(j, 3) cin >> queries[i][j];
+        queries[i][3]=i;
+        queries[i][1]--;
+        queries[i][0]--;
+        if(queries[i][0]==queries[i][1]) {
+            ans[i]=arr[queries[i][0]]; 
+        }
     }
+    solve(0,n-1,0,q-1);
     return 0;
+
 }

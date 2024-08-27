@@ -133,15 +133,29 @@ using ll = long long;
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+void moveFrom(int n, int start, int end) {
+    if(n==1) {
+        cout << start << " " << end << endl;
+        return;
+    }
+    int other = 1;
+    FOR(i, 1, 4) {
+        if(i!=start&&i!=end) {
+            other=i;
+        }
+    }
+    moveFrom(n-1, start, other);
+    cout << start << " " << end << endl;
+    moveFrom(n-1, other, end);
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
-    }
+    int n;
+    cin >> n;
+    cout << (1<<n)-1 << endl;
+    moveFrom(n, 1, 3);
     return 0;
 }

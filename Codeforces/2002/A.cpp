@@ -141,7 +141,9 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n,m,k;
+        cin >> n >> m >> k;
+        cout << min(n,k)*min(m,k) << endl;
     }
     return 0;
 }

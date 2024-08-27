@@ -131,7 +131,7 @@ using ll = long long;
 #define endl "\n"
 #define double long double
 ll mod = 1000000007;
-ll inf = 1e18;
+ll inf = 1e12;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
     ios_base::sync_with_stdio(false); 
@@ -141,7 +141,26 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int k,x,a;
+        cin >> k >> x >> a;
+        int lostAlr = 0;
+        for(int loss = 0; loss <= x; loss++) {
+            int minBet = lostAlr/(k-1)+1;
+            // int minBet;//minBet*k>minBet+lostAlr->minBet>lostAlr/(k-1)
+            lostAlr+=minBet;
+            lostAlr=min(lostAlr, inf);
+        }
+        if(a>=lostAlr) {
+            cout << "YES" << endl;
+        } else {
+            cout << "NO" << endl;
+        }
     }
     return 0;
 }
+/*
+3 3 6
+First time: bet 1
+Second time: bet 1
+Third time: bet 1
+*/

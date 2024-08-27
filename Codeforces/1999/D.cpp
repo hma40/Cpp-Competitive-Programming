@@ -26,18 +26,6 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
     return os;
 }
-template <typename T, std::size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
-    os << "[";
-    for (std::size_t i = 0; i < N; ++i) {
-        os << arr[i];
-        if (i < N - 1) {
-            os << ", ";
-        }
-    }
-    os << "]";
-    return os;
-}
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::set<T>& s) {
     os << "{ ";
     for(const auto& elem : s) {
@@ -99,7 +87,6 @@ template<typename T> std::ostream& operator<<(std::ostream& os, std::priority_qu
     // Print a newline at the end
     return os;
 }
-
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
     os << "[ ";
     for(const auto& elem : vec) {
@@ -141,7 +128,26 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        string ss,tt;
+        cin >> ss >> tt;
+        // cout << ss << tt << endl;
+        int curT = 0;
+        F0R(i, ss.size()) {
+            if(ss[i]==tt[curT]||ss[i]=='?') {
+
+                ss[i]=tt[curT];    
+                curT++;
+                if(curT==tt.size()) break;
+            }
+            // cout << i << ss << endl;
+        }
+        F0R(i, ss.size()) if(ss[i]=='?') ss[i]='a';
+        if(curT==tt.size()) {
+            cout << "YES" << endl;
+            cout << ss << endl;
+        } else {
+            cout << "NO" << endl;
+        }
     }
     return 0;
 }

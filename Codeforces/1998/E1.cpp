@@ -133,6 +133,31 @@ using ll = long long;
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+struct RMQ {
+    vt<vt<int>> sparse;
+    vt<int> lg;
+    RMQ(vt<int> v, int log) {
+        lg.resize(v.size()+5);
+        FOR(i, 2, lg.size()) {
+            lg[i]=lg[i/2]+1;
+        }
+        sparse.resize(v.size(), vt<int>(log, -1));
+        F0R(i, v.size()) {
+            sparse[i][0]=v[i];
+        }
+        FOR(i, 1, log) {
+            F0R(j, (int)v.size()-(1LL<<i)+1) {
+                // cout << (int)v.size()-(1LL<<i)+1 << endl;
+                // cout << i << " " << j << endl;
+                sparse[j][i]=min(sparse[j][i-1], sparse[j+(1<<(i-1))][i-1]);
+            }
+        }
+    }
+    int getMin(int lo, int hi) {
+        int log = lg[hi-lo+1];
+        return min(sparse[lo][log], sparse[hi-(1<<log)+1][log]);
+    }
+};
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
@@ -141,6 +166,15 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
+        int n,x;
+        cin >> n >> x;
+        vt<int> v(n);
+        F0R(i, n) cin >> v[i];
+        vt<int> pref(n+1);
+        F0R(i, n) {
+            pref[i+1]=pref[i]+v[i];
+        }
+        vt<int> leftWall(n), rightWall(n);
         
     }
     return 0;

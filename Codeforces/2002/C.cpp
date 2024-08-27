@@ -141,7 +141,29 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n;
+        cin >> n;
+        vt<pair<int,int>> centers(n);
+        F0R(i, n) cin >> centers[i].f >> centers[i].s;
+        pair<int,int> start,end;
+        cin >> start.f >> start.s >> end.f >> end.s;
+        //square of the time taken
+        int time = (end.f-start.f)*(end.f-start.f)+(end.s-start.s)*(end.s-start.s);
+        //for each circle, see if square ofdistance to end point is strictly less than square of time
+        bool good = true;
+        // cout << time << endl;
+        trav(x, centers) {
+            int distsq = (x.f-end.f)*(x.f-end.f)+(x.s-end.s)*(x.s-end.s);
+            // cout << x << distsq << endl;
+            if(distsq<=time) {
+                good=false;
+            }
+        }
+        if(good) {
+            cout << "YES" << endl;
+        } else {
+            cout << "NO" << endl;
+        }
     }
     return 0;
 }

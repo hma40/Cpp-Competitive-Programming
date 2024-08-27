@@ -128,7 +128,8 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-#define endl "\n"
+#define endl "\n" 
+int leastPoints[101][101][201];
 #define double long double
 ll mod = 1000000007;
 ll inf = 1e18;
@@ -138,10 +139,67 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
+
+    // F0R(i, 101) {
+    //     F0R(j, i) {
+    //         leastPoints[1][i][j]=j;
+    //         leastPoints[i][1][j]=j;
+    //     }
+    //     leastPoints[1][i][i]=leastPoints[1][i][i+1]=i;
+    // }
+    FOR(smaller, 1, 101) {
+        leastPoints[smaller][smaller][0]=0;
+        leastPoints[smaller][smaller][1]=smaller;
+        leastPoints[smaller][smaller][2]=smaller+smaller-1;
+        FOR(points, 3, smaller+smaller+1) {
+            leastPoints[smaller][smaller][points]=leastPoints[smaller][smaller][2]+leastPoints[smaller-1][smaller-1][points-2];
+        }
+        FOR(larger, smaller+1, 101) {
+            leastPoints[smaller][larger][0]=0;
+            leastPoints[larger][smaller][0]=0;
+            F0R(points, larger-smaller) {
+                leastPoints[smaller][larger][points+1]=leastPoints[smaller][larger][points]+smaller;
+                leastPoints[larger][smaller][points+1]=leastPoints[smaller][larger][points]+smaller;
+            }
+            FOR(points, larger-smaller+1, larger+smaller+1) {
+                leastPoints[smaller][larger][points]=leastPoints[smaller][larger][larger-smaller]+leastPoints[smaller][smaller][points-larger+smaller];
+                leastPoints[larger][smaller][points]=leastPoints[smaller][larger][larger-smaller]+leastPoints[smaller][smaller][points-larger+smaller];
+            }
+        }
+    }
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        //dp[i][j]=first x rectangles, y points, min operations
+        int n,k;
+        cin >> n >> k;
+        // priority_queue<array<int,4>>
+        vt<pair<int,int>> rect(n);
+        F0R(i, n) cin >> rect[i].f >> rect[i].s;
+        vt<vt<int>> dp(n+1, vt<int>(k+1, inf));
+        dp[0][0]=0;
+        F0R(i, n) {
+            F0R(j, k+1) {
+                int maxGained = k-j;
+                maxGained=min(maxGained, rect[i].f+rect[i].s);
+                F0R(gain, maxGained+1) {
+                    dp[i+1][j+gain]=min(dp[i+1][j+gain], dp[i][j]+leastPoints[rect[i].f][rect[i].s][gain]);
+                }
+            }
+        }
+        if(dp[n][k]>=inf) {
+            cout << -1 << endl;
+        } else {
+            cout << dp[n][k] << endl;
+        }
     }
     return 0;
 }
+/*
+1 15
+vs
+2 7
+15 for 16
+vs
+14 for 9
+*/

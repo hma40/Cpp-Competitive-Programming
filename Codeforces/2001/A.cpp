@@ -141,7 +141,19 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n;
+        cin >> n;
+        map<int,int> mp;
+        F0R(i, n) {
+            int x;
+            cin >> x;
+            mp[x]++;
+        }
+        int ans = inf;
+        trav(x,mp) {
+            ans=min(ans, n-x.s);
+        }
+        cout << ans << endl;
     }
     return 0;
 }

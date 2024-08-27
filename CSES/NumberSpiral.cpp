@@ -141,7 +141,22 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int x,y;
+        cin >> x >> y;
+        int mx=max(x,y);
+        if(mx%2) {
+            if(y==mx) {
+                cout << mx*mx-x+1 << endl;
+            } else {
+                cout << (mx-1)*(mx-1)+y << endl;
+            }
+        } else {
+            if(x==mx) {
+                cout << mx*mx-y+1 << endl;
+            } else {
+                cout << (mx-1)*(mx-1)+x << endl;
+            }
+        }
     }
     return 0;
 }

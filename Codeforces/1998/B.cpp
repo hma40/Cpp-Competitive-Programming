@@ -141,7 +141,16 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n;
+        cin >> n;
+        vt<int> perm(n);
+        F0R(i, n) cin >> perm[i];
+        F0R(i, n) {
+            perm[i]++;
+            if(perm[i]==n+1) perm[i]=1;
+        }
+        trav(x, perm) cout << x << " ";
+        cout << endl;
     }
     return 0;
 }

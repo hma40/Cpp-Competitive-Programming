@@ -141,7 +141,21 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n;
+        cin >> n;
+        vt<int> a(n),b(n);
+        F0R(i, n) cin >> a[i];
+        F0R(i, n) cin >> b[i];
+        if(a==b) {
+            cout << "Bob" << endl;
+            continue;
+        } 
+        reverse(begin(b),end(b));
+        if(a==b) {
+            cout << "Bob" << endl;
+            continue;
+        }
+        cout << "Alice" << endl;
     }
     return 0;
 }

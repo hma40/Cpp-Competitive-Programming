@@ -133,6 +133,10 @@ using ll = long long;
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+vt<int> extras;
+int ans = 0;
+int n,x,y;
+vt<int> v;
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
@@ -141,7 +145,68 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        // int n,x,y;
+        cin >> n >> x >> y;
+        // vt<int> v(x);
+        v.assign(x,0);
+        F0R(i, x) cin >> v[i];
+        sort(begin(v),end(v));
+        ans = x-2;
+        priority_queue<int> oddGaps,evenGaps;
+        F0R(i, x-1) {
+            int gap = v[i+1]-v[i];
+            if(gap%2) {
+                evenGaps.push(1-gap);
+            } else {
+                oddGaps.push(1-gap);
+            }
+            if(gap==2) {
+                ans++;
+            }
+        }   
+        int fuck = n+v[0]-v.back();
+        if(fuck==2) ans++;
+        if(fuck%2) {
+            evenGaps.push(1-fuck);
+        } else {
+            oddGaps.push(1-fuck);
+        }
+        /*
+        none in between: none
+        1 in between: none
+        2 in between: +2 x1
+        3 in between: +3 x1
+        4 in between: +2 x2
+        5 in between: +2 x1 followed by +3 x1
+        6 in between: 
+        */
+        while(oddGaps.size()) {
+            auto top = -oddGaps.top();
+            oddGaps.pop();
+            if(top==1) continue;
+            int moves = top/2;
+            if(y>=moves) {
+                y-=moves;
+                ans+=2*(moves-1)+3;
+            } else {
+                ans+=2*y;
+                y=0;
+            }
+        }
+        while(evenGaps.size()) {
+            auto top = -evenGaps.top();
+            evenGaps.pop();
+            int moves = top/2;
+            if(y>=moves) {
+                y-=moves;
+                ans+=2*moves;
+            } else {
+                ans+=2*y;
+                y=0;
+            }            
+        }
+        cout << ans << endl;
     }
+
     return 0;
 }

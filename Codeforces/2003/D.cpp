@@ -133,6 +133,14 @@ using ll = long long;
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+int mex(set<int> &s) {
+    F0R(i, s.size()+5) {
+        if(s.count(i)==0) {
+            return i;
+        }
+    }
+    return 69420;
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
@@ -141,7 +149,35 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n,m;
+        cin >> n >> m;
+        vt<set<int>> v(n);
+        vt<int> l(n);
+        vt<int> mmex(n);
+        F0R(i, n) {
+            cin >> l[i];
+            F0R(j, l[i]) {
+                int x;
+                cin >> x;
+                v[i].insert(x);
+            }
+        }
+        F0R(i, n) {
+            int mx = mex(v[i]);
+            v[i].insert(mx);
+            mmex[i]=mex(v[i]);
+        }
+        sort(begin(mmex),end(mmex));
+        // int ans = 0;
+        int mmex_max = mmex.back();
+        //0-mmex_max: mmex max
+        //mmex_max+1 thru M:
+        if(mmex_max>m) {
+            cout << mmex_max*(m+1) << endl;
+        } else {
+            //mmex_max thru m
+            cout << mmex_max*mmex_max+(mmex_max+m)*(m-mmex_max+1)/2 << endl;
+        }
     }
     return 0;
 }

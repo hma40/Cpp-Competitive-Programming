@@ -1,4 +1,121 @@
 #include <bits/stdc++.h>
+std::string to_string(__int128_t value) {
+    if (value == 0) return "0";
+    
+    std::string result;
+    bool negative = (value < 0);
+    if (negative) value = -value;
+    
+    while (value > 0) {
+        result += '0' + (value % 10);
+        value /= 10;
+    }
+    
+    if (negative) result += '-';
+    
+    std::reverse(result.begin(), result.end());
+    return result;
+}
+
+// Overload << operator for __int128
+std::ostream& operator<<(std::ostream& os, __int128_t value) {
+    return os << to_string(value);
+}
+template<typename T1, typename T2>
+std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
+    os << "(" << p.first << ", " << p.second << ")";
+    return os;
+}
+template <typename T, std::size_t N>
+std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
+    os << "[";
+    for (std::size_t i = 0; i < N; ++i) {
+        os << arr[i];
+        if (i < N - 1) {
+            os << ", ";
+        }
+    }
+    os << "]";
+    return os;
+}
+template<typename T> std::ostream& operator<<(std::ostream& os, const std::set<T>& s) {
+    os << "{ ";
+    for(const auto& elem : s) {
+        os << elem << " ";
+    }
+    os << "}";
+    return os;
+}
+template<typename T> std::ostream& operator<<(std::ostream& os, const std::multiset<T>& s) {
+    os << "{ ";
+    for(const auto& elem : s) {
+        os << elem << " ";
+    }
+    os << "}";
+    return os;
+}
+
+template<typename T> std::ostream& operator<<(std::ostream& os, std::queue<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.front() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
+template<typename T> std::ostream& operator<<(std::ostream& os, std::deque<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.front() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
+template<typename T> std::ostream& operator<<(std::ostream& os, std::stack<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.top() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
+template<typename T> std::ostream& operator<<(std::ostream& os, std::priority_queue<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.top() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
+
+template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
+    os << "[ ";
+    for(const auto& elem : vec) {
+        os << elem << " ";
+    }
+    os << "]";
+    return os;
+}
+template<typename K, typename V> std::ostream& operator<<(std::ostream& os, const std::map<K, V>& m) {
+    os << "{ ";
+    for(const auto& pair : m) {
+        os << pair.first << " : " << pair.second << ", ";
+    }
+    os << "}";
+    return os;
+}
 using namespace std;
 using ll = long long;
 #define add push_back 
@@ -11,8 +128,11 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
+#define endl "\n"
+#define double long double
 ll mod = 1000000007;
 ll inf = 1e18;
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 struct SegTree {
     int n;
     vt<int> beg,end;
@@ -22,7 +142,7 @@ struct SegTree {
     //CHANGE THESE!
     int none;
     SegTree(int nn): n(nn) {
-        none=(-6969420);
+        none=(inf);
         while((n&(-n))!=n) {
             n++;
         }
@@ -159,58 +279,72 @@ struct SegTree {
         tree[i]=(tree[2*i]+ tree[2*i+1]);
     }
 };
-template<typename T1, typename T2>
-std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
-    os << "(" << p.first << ", " << p.second << ")";
-    return os;
-}
-template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
-    os << "[ ";
-    for(const auto& elem : vec) {
-        os << elem << " ";
-    }
-    os << "]";
-    return os;
-}
-template<typename T> std::ostream& operator<<(std::ostream& os, const std::set<T>& s) {
-    os << "{ ";
-    for(const auto& elem : s) {
-        os << elem << " ";
-    }
-    os << "}";
-    return os;
-}
-template<typename T> std::ostream& operator<<(std::ostream& os, const std::multiset<T>& s) {
-    os << "{ ";
-    for(const auto& elem : s) {
-        os << elem << " ";
-    }
-    os << "}";
-    return os;
-}
-template<typename K, typename V> std::ostream& operator<<(std::ostream& os, const std::map<K, V>& m) {
-    os << "{ ";
-    for(const auto& pair : m) {
-        os << pair.first << " : " << pair.second << ", ";
-    }
-    os << "}";
-    return os;
-}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    SegTree st(5);
-    // cout << st.beg << st.end << endl;
-    st.pointSet(0,2);
-    st.pointSet(1,3);
-    st.pointSet(2,5);
-    st.pointSet(3,1);
-    st.pointSet(4,69);
-    st.rangeSet(2,4,3);
-    st.rangeAdd(1,3,5);
-    // F0R(i, st.tree.size()) {
-    //     cout << i << " " << st.beg[i] << " " << st.end[i] << " " << st.tree[i].value << " " << st.setLazy[i].value << " " << st.addLazy[i].value << endl;
-    // }
-    cout << st.rangeQuery(0,4) << endl;
+    // freopen("input.txt" , "r" , stdin);
+    // freopen("output.txt" , "w", stdout);
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n,m;
+        cin >> n >> m;
+        vt<vt<int>> invadj(n);
+        vt<pair<int,int>> fast;
+        F0R(i, m) {
+            int a,b;
+            cin >> a >> b;
+            a--;
+            b--;
+            invadj[b].add(a);
+            fast.add({a,b});
+        }
+        vt<int> dist(n);
+        dist[0]=0;
+        FOR(i, 1, n) {
+            dist[i]=dist[i-1]+1;
+            trav(x, invadj[i]) {
+                dist[i]=min(dist[i], dist[x]+1);
+            }
+        }
+        // SegTree st(n);
+        // cout << dist << endl;
+        vt<int> diffArr(n+1);
+        trav(x, fast) {
+            // cout << x << endl;
+            //start: a+1
+            //end: b-dist-1
+            // cout << x << x.f+1 << " " << x.s-dist[x.s]-1 << endl;
+            if(x.f+1>x.s-(1+dist[x.f])) continue;
+            diffArr[x.f+1]++;
+            diffArr[x.s-(1+dist[x.f])]--;
+        }
+        // cout << diffArr << endl;
+        FOR(i, 1, n) diffArr[i]+=diffArr[i-1];
+        // cout << diffArr << endl;
+        F0R(i, n-1) {
+            int x = diffArr[i];
+            if(x) cout << 0;
+            else cout << 1;
+        }
+        cout << endl;
+    }   
     return 0;
 }
+/*
+For each bridge [a,b]:
+    if Bessie starts before a and gets to a faster than elsie, then it does not work
+    if Bessie starts before a and gets to a slower than Elsie, it should already be calculated before
+    Elsie will cause Bessie to lose if 
+        1. Bessie gets to a slower
+        2. Bessie gets to b slower
+*/
+/*
+1
+10 5
+2 3
+1 3
+7 10
+1 7
+5 10
+*/

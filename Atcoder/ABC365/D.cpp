@@ -138,10 +138,38 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    int n;
+    string s;
+    cin >> n >> s;
+    vt<array<int,3>> dp(n);//RPS
+    if(s[0]=='R') {
+        dp[0][0]=0;
+        dp[0][1]=1;
+        dp[0][2]=-inf;
+    } else if(s[0]=='P') {
+        dp[0][0]=-inf;
+        dp[0][1]=0;
+        dp[0][2]=1;
+    } else {
+        dp[0][0]=1;
+        dp[0][1]=-inf;
+        dp[0][2]=0;
     }
+    FOR(i, 1, n) {
+        if(s[i]=='R') {
+            dp[i][2]=-inf;
+            dp[i][0]=max(dp[i-1][1], dp[i-1][2]);
+            dp[i][1]=1+max(dp[i-1][0], dp[i-1][2]);
+        } else if(s[i]=='P') {
+            dp[i][1]=max(dp[i-1][0], dp[i-1][2]);
+            dp[i][0]=-inf;
+            dp[i][2]=1+max(dp[i-1][0], dp[i-1][1]);
+        } else {
+            dp[i][1]=-inf;
+            dp[i][0]=1+max(dp[i-1][1], dp[i-1][2]);
+            dp[i][2]=max(dp[i-1][1], dp[i-1][0]);
+        }
+    }
+    cout << max({dp.back()[0], dp.back()[1], dp.back()[2]}) << endl;
     return 0;
 }

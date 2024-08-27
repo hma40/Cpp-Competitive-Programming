@@ -138,10 +138,22 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    int n;
+    cin >> n;
+    vt<int> w(n);
+    F0R(i, n) cin >> w[i];
+    int ans = inf;
+    F0R(mask, (1<<n)) {
+        int left=0,right=0;
+        F0R(j, n) {
+            if(mask&(1<<j)) {
+                left+=w[j];
+            } else {
+                right+=w[j];
+            }
+        }
+        ans=min(ans, abs(left-right));
     }
+    cout << ans << endl;
     return 0;
 }

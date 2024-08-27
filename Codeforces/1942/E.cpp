@@ -1,17 +1,4 @@
 #include <bits/stdc++.h>
-using namespace std;
-using ll = long long;
-#define add push_back 
-#define FOR(i,a,b) for (int i = (a); i < (b); ++i)
-#define F0R(i,a) FOR(i,0,a)
-#define ROF(i,a,b) for (int i = (b)-1; i >= (a); --i)
-#define R0F(i,a) ROF(i,0,a)
-#define f first
-#define s second
-#define trav(a,x) for (auto& a: x)
-// #define int long long
-#define vt vector
-ll inf = 1e18;
 std::string to_string(__int128_t value) {
     if (value == 0) return "0";
     
@@ -39,10 +26,14 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
     return os;
 }
-template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
-    os << "[ ";
-    for(const auto& elem : vec) {
-        os << elem << " ";
+template <typename T, std::size_t N>
+std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
+    os << "[";
+    for (std::size_t i = 0; i < N; ++i) {
+        os << arr[i];
+        if (i < N - 1) {
+            os << ", ";
+        }
     }
     os << "]";
     return os;
@@ -63,6 +54,60 @@ template<typename T> std::ostream& operator<<(std::ostream& os, const std::multi
     os << "}";
     return os;
 }
+
+template<typename T> std::ostream& operator<<(std::ostream& os, std::queue<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.front() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
+template<typename T> std::ostream& operator<<(std::ostream& os, std::deque<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.front() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
+template<typename T> std::ostream& operator<<(std::ostream& os, std::stack<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.top() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
+template<typename T> std::ostream& operator<<(std::ostream& os, std::priority_queue<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.top() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
+
+template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
+    os << "[ ";
+    for(const auto& elem : vec) {
+        os << elem << " ";
+    }
+    os << "]";
+    return os;
+}
 template<typename K, typename V> std::ostream& operator<<(std::ostream& os, const std::map<K, V>& m) {
     os << "{ ";
     for(const auto& pair : m) {
@@ -71,6 +116,22 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+using namespace std;
+using ll = long long;
+#define add push_back 
+#define FOR(i,a,b) for (int i = (a); i < (b); ++i)
+#define F0R(i,a) FOR(i,0,a)
+#define ROF(i,a,b) for (int i = (b)-1; i >= (a); --i)
+#define R0F(i,a) ROF(i,0,a)
+#define f first
+#define s second
+#define trav(a,x) for (auto& a: x)
+#define int long long
+#define vt vector
+#define endl "\n"
+#define double long double
+ll mod = 998244353;
+ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 struct Math {
     ll m;
@@ -249,9 +310,50 @@ struct Math {
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    // int x;
-    // cin >> x;
-    Math m;
-    cout << m.primefactors(8) << endl;
+    // freopen("input.txt" , "r" , stdin);
+    // freopen("output.txt" , "w", stdout);
+    Math ma(mod);
+    ma.fact(1000005);
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int l,n;
+        cin >> l >> n;
+        //find all configurations -> this is just all gaps can be anything
+        int ans = ma.nck(l, 2*n);
+        for(int suma = 0; suma <= l-2*n; suma+=2) {
+            //b1+b2+...+bn=suma
+            //b1/2+b2/2+...+bn/2=suma/2
+            //n-1 bars
+            int therest = l-2*n-suma;
+            ans-=ma.nck(suma/2+n-1, n-1)*ma.nck(therest+n, n);
+            ans%=mod;
+            ans+=mod;
+            ans%=mod;
+            //example: sum=2, n=3
+            //020, 002, 200->3. Also equal to 3c2
+            //example: sum=4, n=3
+            //040, 400, 004, 022, 202, 220
+            //also equal to 4c2 
+        }
+        cout << (ans*2)%mod << endl;
+    }
     return 0;
 }
+/*
+lets solve for n=1
+?J?N?
+John wins if when the two cows are together and it is Nhoj's turn i.e.N-J is even
+
+in general, John wins if after his turn, distance between every cow and her partner is odd
+so when is this impossible to guarantee? You can move closer if its even and not move if it is odd
+aha, when all the distances are odd at the start. You must move once, then Nhoj wins
+
+Now how to calculate this?
+Assume FJ's cow is furthest to left, and double at the end
+we have:
+
+a1 FJ b1 FN a2 FJ b2 FN ... FJ bn FN an+1
+want to populate b1,b2,...,bn with even numbers and a1,...,an+1 with any number
+Loop through what b1+...+bn is, then use stars and bars
+*/

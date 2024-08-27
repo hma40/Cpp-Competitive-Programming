@@ -138,10 +138,48 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    string s;
+    cin >> s;
+    priority_queue<pair<int,int>> pq;
+    int pref = 0;
+    int ans = 0;
+    F0R(i, s.size()) {
+        if(s[i]=='(') {
+            pref++;
+        } else if(s[i]==')') {
+            pref--;
+            if(pref<0) {
+                if(pq.size()==0) {
+                    cout << -1 << endl;
+                    return 0;
+                } else {
+                    ans -= pq.top().f;
+                    s[pq.top().s]='(';
+                    pq.pop();
+                    pref=1;
+                }
+            }
+        } else {
+            int x,y;
+            cin >> x >> y;
+            ans+=y;
+            pref--;
+            s[i]=')';
+            pq.push({y-x, i});
+            if(pref<0) {
+                ans-=pq.top().f;
+                s[pq.top().s]='(';
+                pq.pop();
+                pref=1;
+            }
+        }
+        // cout << i << " " << ans << endl;
     }
+    if(pref!=0) {
+        cout << -1 << endl;
+        return 0;
+    }
+    cout << ans << endl;
+    cout << s << endl;
     return 0;
 }

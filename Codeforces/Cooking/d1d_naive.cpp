@@ -1,41 +1,7 @@
 #include <bits/stdc++.h>
-std::string to_string(__int128_t value) {
-    if (value == 0) return "0";
-    
-    std::string result;
-    bool negative = (value < 0);
-    if (negative) value = -value;
-    
-    while (value > 0) {
-        result += '0' + (value % 10);
-        value /= 10;
-    }
-    
-    if (negative) result += '-';
-    
-    std::reverse(result.begin(), result.end());
-    return result;
-}
-
-// Overload << operator for __int128
-std::ostream& operator<<(std::ostream& os, __int128_t value) {
-    return os << to_string(value);
-}
 template<typename T1, typename T2>
 std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
-    return os;
-}
-template <typename T, std::size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
-    os << "[";
-    for (std::size_t i = 0; i < N; ++i) {
-        os << arr[i];
-        if (i < N - 1) {
-            os << ", ";
-        }
-    }
-    os << "]";
     return os;
 }
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::set<T>& s) {
@@ -54,7 +20,14 @@ template<typename T> std::ostream& operator<<(std::ostream& os, const std::multi
     os << "}";
     return os;
 }
-
+template<typename K, typename V> std::ostream& operator<<(std::ostream& os, const std::map<K, V>& m) {
+    os << "{ ";
+    for(const auto& pair : m) {
+        os << pair.first << " : " << pair.second << ", ";
+    }
+    os << "}";
+    return os;
+}
 template<typename T> std::ostream& operator<<(std::ostream& os, std::queue<T> q) {
     // Print each element in the queue
     os << "{ ";
@@ -99,7 +72,6 @@ template<typename T> std::ostream& operator<<(std::ostream& os, std::priority_qu
     // Print a newline at the end
     return os;
 }
-
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
     os << "[ ";
     for(const auto& elem : vec) {
@@ -108,14 +80,7 @@ template<typename T> std::ostream& operator<<(std::ostream& os, const std::vecto
     os << "]";
     return os;
 }
-template<typename K, typename V> std::ostream& operator<<(std::ostream& os, const std::map<K, V>& m) {
-    os << "{ ";
-    for(const auto& pair : m) {
-        os << pair.first << " : " << pair.second << ", ";
-    }
-    os << "}";
-    return os;
-}
+
 using namespace std;
 using ll = long long;
 #define add push_back 
@@ -132,16 +97,60 @@ using ll = long long;
 #define double long double
 ll mod = 1000000007;
 ll inf = 1e18;
+int n,k;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+vt<vt<int>> allPoss;
+void cont(int pos, vt<int> v) {
+    if(pos>n) {
+        allPoss.add(v);
+        return;
+    }
+    for(int i = 1; i <= n+k; i++) {
+        vt<int> temp = v;
+        temp[pos]=i;
+        cont(pos+1, temp);
+    }
+}
+void gen_all() {
+    vt<int> fun(n+k+1);
+    FOR(i, n+1, n+k+1) {
+        fun[i]=i;
+    }
+    cont(1, fun);
+}
+bool works(vt<int> func) {
+    vt<int> appliedFunc(n+k+1);
+    F0R(i, n+k+1) appliedFunc[i]=i;
+    F0R(iters, n) {
+        F0R(j, n+k+1) {
+            appliedFunc[j]=func[appliedFunc[j]];
+        }
+    }
+    bool good = true;
+    for(int i = 1; i <= n; i++) {
+        if(appliedFunc[i]<=n) good=false;
+    }
+    for(int i = 1; i < n; i++) {
+        if(appliedFunc[i]>appliedFunc[i+1]) good=false;
+    }
+    return good;
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    // int n,k;
+    cin >> n >> k;
+    gen_all();
+    // cout << allPoss << allPoss.size() << endl;
+    int ans = 0;
+    for(auto x: allPoss) {
+        if(works(x)) {
+            // cout << x << endl;
+            ans++;
+        }
     }
+    cout << ans << endl;
     return 0;
 }

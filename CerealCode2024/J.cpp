@@ -145,3 +145,12 @@ signed main() {
     }
     return 0;
 }
+/*
+Super rank=1: all 0 or all 1
+Super rank=2: 
+xxxxx
+xxxxx
+xx...
+xx...
+xx...
+*/

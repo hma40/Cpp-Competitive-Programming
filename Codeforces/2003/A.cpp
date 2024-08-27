@@ -141,7 +141,14 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n;
+        string s;
+        cin >> n >> s;
+        if(s[0]!=s.back()) {
+            cout << "YES" << endl;
+        } else {
+            cout << "NO" << endl;
+        }
     }
     return 0;
 }

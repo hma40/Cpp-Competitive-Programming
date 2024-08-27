@@ -141,7 +141,44 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n,m;
+        cin >> n >> m;
+        vt<int> a(n);
+        vt<pair<int,int>> ivl(m);
+        F0R(i, m) {
+            cin >> ivl[i].f >> ivl[i].s;
+            ivl[i].f--;
+            ivl[i].s--;
+        }   
+        ivl.add({inf,inf});
+        int mx = n-1;
+        vt<int> perm(n);
+        int nxt = 0;
+        F0R(i, n) {
+            // cout << "LINE 158 " << i << endl;
+            if(i!=ivl[nxt].f) {
+                perm[i] = mx--;
+            } else {
+                int dist = ivl[nxt].s-ivl[nxt].f+1;
+                // cout << ivl[nxt] << endl;
+                perm[i]=mx-dist+1;
+                FOR(j, i+1,ivl[nxt].s+1) {
+                    // cout << j << endl;
+                    perm[j]=mx-(j-i-1);
+                }
+                mx=perm[i]-1;
+                i=ivl[nxt].s;
+                nxt++;
+            }
+        }
+        cout << perm << endl;
+        int ans = 0;
+        F0R(i, n) {
+            FOR(j, i+1, n) {
+                if(perm[j]<perm[i]) ans++;
+            }
+        }
+        cout << ans << endl;
     }
     return 0;
 }

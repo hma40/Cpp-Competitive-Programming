@@ -26,18 +26,6 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
     return os;
 }
-template <typename T, std::size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
-    os << "[";
-    for (std::size_t i = 0; i < N; ++i) {
-        os << arr[i];
-        if (i < N - 1) {
-            os << ", ";
-        }
-    }
-    os << "]";
-    return os;
-}
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::set<T>& s) {
     os << "{ ";
     for(const auto& elem : s) {
@@ -99,7 +87,6 @@ template<typename T> std::ostream& operator<<(std::ostream& os, std::priority_qu
     // Print a newline at the end
     return os;
 }
-
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
     os << "[ ";
     for(const auto& elem : vec) {
@@ -138,10 +125,30 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
+    vt<int> times(200001);
+    times[0]=0;
+    FOR(i, 1, 200001) {
+        int j = i;
+        while(j) {
+            times[i]++;
+            j/=3;
+        }
+        times[i]+=times[i-1];
+    }
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int l,r;
+        cin >> l >> r;
+        int moves = 0;
+        int xl = l;
+        while(xl) {
+            moves+=2;
+            xl/=3;
+        }
+        moves+=times[r];
+        moves-=times[l];
+        cout << moves << endl;
     }
     return 0;
 }

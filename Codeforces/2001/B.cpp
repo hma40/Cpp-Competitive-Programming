@@ -141,7 +141,31 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n;
+        cin >> n;
+        if(n%2==0) {
+            cout << -1 << endl;
+        } else {
+            deque<int> dq;
+            dq.push_back(1);
+            bool front = true;
+            for(int i = 2; i <= n; i++) {
+                if(front) {
+                    dq.push_front(i);
+                } else {
+                    dq.push_back(i);
+                }
+                front=!front;
+            }
+            while(dq.size()) {
+                cout << dq.front() << " ";
+                dq.pop_front();
+            }
+            cout << endl;
+        }
     }
     return 0;
 }
+/*
+2 1 3
+*/

@@ -141,7 +141,12 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n;
+        cin >> n;
+        vt<int> a(n);
+        F0R(i, n) cin >> a[i];
+        sort(begin(a),end(a));
+        cout << a[n/2] << endl;
     }
     return 0;
 }

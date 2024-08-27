@@ -138,10 +138,50 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
+    int n;
+    cin >> n;
+    vt<int> dp(n+1);
+    dp[1]=0;
+    for(int i = 2; i < n+1; i++) {
+        dp[i]+=dp[i-1];
+        dp[i]+=(2*i-1)*(2*i-2)/2;
+        dp[i]+=(i-1)*(i-1)*(2*i-1);
+        if(i>=3) {
+            dp[i]-=4;
+            dp[i]-=i-3;
+            dp[i]-=i-3;
+            dp[i]-=i-3;
+            dp[i]-=i-3;   
+            dp[i]-=4*(i-2);        
+        }
+        //1 on right
+        //2 on left
+
         
+        
+
     }
+    // cout << dp << endl;
+    cout << dp[1];
+    FOR(i, 2, n+1) cout << " " << dp[i];
+    cout << endl;
     return 0;
 }
+/*
+.....
+.....
+.....
+.....
+.....
+
+...
+...
+...
+
+......
+......
+......
+......
+......
+......
+*/

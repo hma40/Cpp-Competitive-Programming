@@ -26,18 +26,6 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
     return os;
 }
-template <typename T, std::size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
-    os << "[";
-    for (std::size_t i = 0; i < N; ++i) {
-        os << arr[i];
-        if (i < N - 1) {
-            os << ", ";
-        }
-    }
-    os << "]";
-    return os;
-}
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::set<T>& s) {
     os << "{ ";
     for(const auto& elem : s) {
@@ -99,7 +87,6 @@ template<typename T> std::ostream& operator<<(std::ostream& os, std::priority_qu
     // Print a newline at the end
     return os;
 }
-
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
     os << "[ ";
     for(const auto& elem : vec) {
@@ -128,20 +115,62 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-#define endl "\n"
+// #define endl "\n"
 #define double long double
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+map<int,int> quicksort(vt<int> s) {
+    if(s.size()==0) {
+        map<int,int> ret;
+        return ret;
+    }
+    if(s.size()==1) {
+        map<int,int> ret;
+        ret[s[0]]=0;
+        return ret;
+    }
+    int piv = rnd()%s.size();
+    vt<int> smaller,larger;
+    F0R(i, s.size()) {
+        if(i==piv) {
+            continue;
+        }
+        cout << "? " << char('A'+s[i]) << " " << char('A'+s[piv]) << endl;
+        string res;
+        cin >> res;
+        if(res=="<") {
+            smaller.add(s[i]);
+        } else {
+            larger.add(s[i]);
+        }
+    }
+    map<int,int> ret;
+    // cout << "LINE 149 " << s << smaller << larger << piv << endl;
+    auto smal = quicksort(smaller);
+    auto big = quicksort(larger);
+    trav(x, smal) ret[x.f]=x.s;
+    ret[s[piv]]=smaller.size();
+    trav(x, big) ret[x.f]=x.s+smaller.size()+1;
+    return ret;
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    int n,q;
+    cin >> n >> q;
+    vt<int> all;
+    F0R(i, n) all.add(i);
+    auto bruh = quicksort(all);
+    // cout << bruh << endl;
+    vt<char> ans(n);
+    trav(x, bruh) {
+        ans[x.s]='A'+x.f;
     }
+    cout << "!";
+    trav(x, ans) cout << x;
+    cout << endl;
     return 0;
 }

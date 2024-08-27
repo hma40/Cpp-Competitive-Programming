@@ -133,15 +133,32 @@ using ll = long long;
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+int n;
+vt<pair<int,int>> bounds;
+int q;
+vt<array<int,5>> info;//startX, hiorlo, endX, endY, 
+vt<int> ans;
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    cin >> n;
+    bounds.resize(n);
+    F0R(i, n) cin >> bounds[i].f >> bounds[i].s;
+    cin >> q;
+    vt<array<int,5>> queries;
+    queries.resize(q);
+    ans.resize(q);
+    F0R(i, q) {
+        queries[i][4]=i;
+        cin >> queries[i][0] >> queries[i][1] >> queries[i][2] >> queries[i][3];
+        queries[i][0]--;
+        queries[i][2]--;
     }
+
     return 0;
 }
+/*
+
+*/

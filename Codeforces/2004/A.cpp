@@ -141,7 +141,18 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n;
+        cin >> n;
+        vt<int> v(n);
+        F0R(i, n) cin >> v[i];
+        if(n>=3) cout << "NO" << endl;
+        else {
+            if(abs(v[0]-v[1])!=1) {
+                cout << "YES" << endl;
+            } else {
+                cout << "NO" << endl;
+            }
+        }
     }
     return 0;
 }

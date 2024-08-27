@@ -132,12 +132,21 @@ using ll = long long;
 #define double long double
 ll mod = 1000000007;
 ll inf = 1e18;
+vt<int> pow10;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+int getDig(int startingDigits, int k) {
+    
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
+    pow10.add(1);
+    F0R(i, 18) {
+        pow10.add(pow10.back()*10);
+    }
+    // cout << pow10 << endl;
     int t = 1;
     cin >> t;
     while(t--) {

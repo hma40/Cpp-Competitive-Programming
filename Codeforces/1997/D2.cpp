@@ -1,41 +1,7 @@
 #include <bits/stdc++.h>
-std::string to_string(__int128_t value) {
-    if (value == 0) return "0";
-    
-    std::string result;
-    bool negative = (value < 0);
-    if (negative) value = -value;
-    
-    while (value > 0) {
-        result += '0' + (value % 10);
-        value /= 10;
-    }
-    
-    if (negative) result += '-';
-    
-    std::reverse(result.begin(), result.end());
-    return result;
-}
-
-// Overload << operator for __int128
-std::ostream& operator<<(std::ostream& os, __int128_t value) {
-    return os << to_string(value);
-}
 template<typename T1, typename T2>
 std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
-    return os;
-}
-template <typename T, std::size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
-    os << "[";
-    for (std::size_t i = 0; i < N; ++i) {
-        os << arr[i];
-        if (i < N - 1) {
-            os << ", ";
-        }
-    }
-    os << "]";
     return os;
 }
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::set<T>& s) {
@@ -54,7 +20,14 @@ template<typename T> std::ostream& operator<<(std::ostream& os, const std::multi
     os << "}";
     return os;
 }
-
+template<typename K, typename V> std::ostream& operator<<(std::ostream& os, const std::map<K, V>& m) {
+    os << "{ ";
+    for(const auto& pair : m) {
+        os << pair.first << " : " << pair.second << ", ";
+    }
+    os << "}";
+    return os;
+}
 template<typename T> std::ostream& operator<<(std::ostream& os, std::queue<T> q) {
     // Print each element in the queue
     os << "{ ";
@@ -99,21 +72,12 @@ template<typename T> std::ostream& operator<<(std::ostream& os, std::priority_qu
     // Print a newline at the end
     return os;
 }
-
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
     os << "[ ";
     for(const auto& elem : vec) {
         os << elem << " ";
     }
     os << "]";
-    return os;
-}
-template<typename K, typename V> std::ostream& operator<<(std::ostream& os, const std::map<K, V>& m) {
-    os << "{ ";
-    for(const auto& pair : m) {
-        os << pair.first << " : " << pair.second << ", ";
-    }
-    os << "}";
     return os;
 }
 using namespace std;
@@ -133,6 +97,43 @@ using ll = long long;
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+
+int n;
+vt<int> par;
+vt<vt<int>> chil;
+vt<int> points;
+vt<int> answ;
+void dfs(int node) {
+    // cout << "LINE 107 " << node << " " << chil[node] <<  endl;
+    if(chil[node].size()==0) {
+        answ[node]=points[node];
+        return;
+    }
+    int asn = inf;
+    trav(x, chil[node]) {
+        dfs(x);
+    }
+    // cout << asn << endl;
+    trav(x, chil[node]) {
+        asn=min(asn, answ[x]);
+    }
+    if(points[node]>asn) {
+        // return asn;
+        answ[node]=asn;
+    } else {
+        answ[node]=(asn+points[node])/2;
+    }
+}
+int solve() {
+    trav(x, chil[0]) {
+        dfs(x);
+    }
+    int an = inf;
+    trav(x, chil[0]) {
+        an=min(an, answ[x]);
+    }
+    return an+points[0];
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
@@ -141,7 +142,21 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        cin >> n;
+        par.assign(n,-1);
+        chil.assign(n, vt<int>());
+        points.assign(n, 0);
+        answ.assign(n,0);
+        F0R(i, n) cin >> points[i];
+        FOR(i, 1, n) {
+            cin >> par[i];
+            par[i]--;
+            chil[par[i]].add(i);
+        }
+        // cout << chil << endl;
+
+        cout << solve() << endl;   
+        // cout << answ << endl;
     }
     return 0;
 }

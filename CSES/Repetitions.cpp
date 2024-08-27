@@ -138,10 +138,19 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    string s;
+    cin >> s;
+    int ans = 0;
+    int num = 1;
+    FOR(i, 1, s.size()) {
+        // cout << i << " " << num << endl;
+        if(s[i]==s[i-1]) num++;
+        else {
+            ans=max(ans, num);
+            num=1;
+        }
     }
+    ans=max(ans, num);
+    cout << ans << endl;
     return 0;
 }

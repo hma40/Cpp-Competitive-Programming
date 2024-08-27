@@ -141,7 +141,20 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int a,b;
+        cin >> a >> b;
+        int xyt = a+b;
+        if(xyt%3!=0) cout << "NO" << endl;
+        else {
+            int sm = xyt/3;
+            int x = a-sm;
+            int y = b-sm;
+            if(x>=0&&y>=0) {
+                cout << "YES" << endl;
+            } else {
+                cout << "NO" << endl;
+            }
+        }        
     }
     return 0;
 }

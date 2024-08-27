@@ -126,13 +126,41 @@ using ll = long long;
 #define f first
 #define s second
 #define trav(a,x) for (auto& a: x)
-#define int long long
+// #define int long long
 #define vt vector
 #define endl "\n"
 #define double long double
 ll mod = 1000000007;
-ll inf = 1e18;
-mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+ll inf = 1e9;
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());      
+int n,k;
+vt<vt<int>> notake;
+vt<vt<int>> score;
+// vt<map<int,int>> atLeast;
+bool enough(int i, int aimScore) {
+    // cout << i << " " << aimScore << endl;
+    int target = k;
+    if(i<30) {
+        target=min(target, 1<<i);
+    }
+    int count = 0;
+    if(score[0][i]>=aimScore) count=1;
+    for(int j = 0; j < i; j++) {
+        int scoreHere = aimScore-score[j+1][i];
+        trav(x, notake[j]) {
+            // cout << j << " " << aimScore << " " << scoreHere << " " << x << " " << count << endl;
+            if(-x>=scoreHere) {
+                count++;
+            } else {
+                break;
+            }
+            if(count>=target) return true;
+        }
+    }
+    // cout << "LINE 152 " << i << " " << aimScore << " " << count << " " << target << endl;
+    // return count>=target;
+    return false;
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
@@ -141,7 +169,84 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        cin >> n >> k;
+        multiset<int> take;
+        notake.assign(n, vt<int>());
+        // take.assign(n, multiset<int>());
+        score.assign(n, vt<int>(n,0));
+        // atLeast.assign(n, map<int,int>());
+        F0R(i, n) {
+            FOR(j, i, n) {
+                cin >> score[i][j];
+            }
+        }
+        notake[0].add(0);
+        // atLeast[0][0]=1;
+        take.insert(score[0][0]);
+        FOR(i, 1, n) {
+            // cout << "LINE 181 " << i << endl;
+            //fill notake 
+            multiset<int> temptake;
+            trav(x, notake[i-1]) {
+                notake[i].add(x);
+            }
+            trav(x, take) {
+                notake[i].add(-x);
+            }
+            sort(begin(notake[i]), end(notake[i]));
+            while(notake[i].size()>k) {
+                // notake[i].erase(notake[i].find(*(notake[i].rbegin())));
+                notake[i].pop_back();
+            }
+            // assert(false);
+            int lo = -1e9, hi = 1e9+1;
+            while(lo+1<hi) {
+                int mid = (lo+hi)/2;
+                if(enough(i, mid)) {
+                    lo=mid; 
+                } else {
+                    hi=mid;
+                }
+            }
+            // assert(false);
+            // cout << i << " " << lo << endl;
+            for(int j = 0; j < i; j++) {
+                trav(x, notake[j]) {
+                    // cout << "LINE 201 " << x << " " << score[j+1][i] << endl;
+                    if(-x+score[j+1][i]<=lo) break;
+                    temptake.insert(-x+score[j+1][i]);
+                }
+            }
+            int target = k;
+            if(i<30) {
+                target=min(target, 1<<i);
+            }      
+            if(score[0][i]>=lo&&temptake.size()<=target) {
+                // cout << "GOT HERE" << endl;
+                temptake.insert(score[0][i]);
+            }
+            while(temptake.size()<target) {
+                temptake.insert(lo);
+            }
+            swap(take, temptake);
+            // cout << i << take << endl;
+        }
+        vt<int> all;
+        trav(x, notake.back()) all.add(-x);
+        trav(x, take) all.add(x);
+        sort(begin(all),end(all));
+        // cout << notake << endl << take << endl;
+        F0R(i, k) {
+            // cout << *(all.rbegin()) << endl;
+            cout << all[all.size()-i-1] << " ";
+        }
+        cout << endl;
     }
     return 0;
 }
+/*
+1
+2 4
+0 -6
+-7
+*/

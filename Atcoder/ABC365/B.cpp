@@ -138,10 +138,14 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        
+    int n;
+    cin >> n;
+    vt<pair<int,int>> v(n);
+    F0R(i, n) {
+        cin >> v[i].f;
+        v[i].s=i+1;
     }
+    sort(begin(v),end(v));
+    cout << v[v.size()-2].s << endl;
     return 0;
 }
