@@ -133,84 +133,41 @@ using ll = long long;
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-struct RMQ {
-    vt<vt<int>> sparse;
-    vt<int> lg;
-    RMQ(vt<int> v, int log) {
-        lg.resize(v.size()+5);
-        FOR(i, 2, lg.size()) {
-            lg[i]=lg[i/2]+1;
-        }
-        sparse.resize(v.size(), vt<int>(log, -1));
-        F0R(i, v.size()) {
-            sparse[i][0]=v[i];
-        }
-        FOR(i, 1, log) {
-            F0R(j, (int)v.size()-(1LL<<i)+1) {
-                // cout << (int)v.size()-(1LL<<i)+1 << endl;
-                // cout << i << " " << j << endl;
-                sparse[j][i]=min(sparse[j][i-1], sparse[j+(1<<(i-1))][i-1]);
-            }
-        }
-    }
-    int getMin(int lo, int hi) {
-        int log = lg[hi-lo+1];
-        return min(sparse[lo][log], sparse[hi-(1<<log)+1][log]);
-    }
-};
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        int n,x;
-        cin >> n >> x;
-        vt<int> a(n);
-        F0R(i, n) cin >> a[i];
-        vt<int> pref(n+1);
-        F0R(i, n) pref[i+1]+=pref[i]+a[i];
-        vt<int> leftWall(n, -1), rightWall(n, -1);
-        FOR(i, 1, n) {
-            if(a[i]<=a[i-1]) continue;
-            int lo = -1, hi = i-1;
-            while(lo+1<hi) {
-                int mid = (1+lo+hi)/2;
-                if(pref[i]-pref[mid]<a[i]) {
-                    //from mid to i-1 is less -> set hi to mid
-                    hi=mid;
-                } else {
-                    lo=mid;
-                }
+    int n,m;
+    cin >> n >> m;
+    set<int> s;
+    vt<int> v(n);
+    F0R(i, n) cin >> v[i];
+    v.add(inf);
+    int tot = 0;
+    F0R(i, n) tot+=v[i];
+    vt<int> pref(n+1);
+    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
+    pref.add(inf);
+    set<int> ff;
+    trav(x, pref) ff.insert(x);
+    while(m--) {
+        int x;
+        cin >> x;
+        int needMid = tot-x;
+        bool good = false;
+        int left=0, right=0, sum=v[0];
+        while(left<n) {
+            while(sum<needMid) {
+                right++;
+                sum+=v[right];
             }
-            leftWall[i]=hi;
+            if(sum==needMid) good=true;
+            sum-=v[left];
+            left++;
         }
-        // cout << leftWall << endl;
-        R0F(i, n-1) {
-            if(a[i]<=a[i+1]) continue;
-            int lo = i+1, hi = n;
-            while(lo+1<hi) {
-                int mid = (lo+hi)/2;
-                if(pref[mid+1]-pref[i+1]<a[i]) { //sum from i+1 to mid is less -> set lo to mid
-                    lo=mid; 
-                } else {
-                    hi=mid;
-                }
-            }
-            rightWall[i]=lo;
-        }
-        // cout << leftWall << rightWall;
-        RMQ left(leftWall, 20), right(rightWall, 20);
-        
+        if(good) cout << "Yes" << endl;
+        else cout << "No" << endl;
     }
     return 0;
 }
-/*
- if there exists a proper subarray sum that is strictly smaller than its neighbors, then all of the elements in the subarray cannot be achieved
-
- for each element i, bsearch for the largest element j such that sum from i+1 to j is less than i and least element k such that sum from k to i-1 is less than i.
- For each i, assume i is the right wall. We have [k, i-1] blocked. On this range, find smallest p such that leftWall(j)<=i-1
- then everything from [p, i-1] is NO
-*/
