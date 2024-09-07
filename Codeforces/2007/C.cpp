@@ -132,44 +132,49 @@ using ll = long long;
 #define double long double
 ll mod = 1000000007;
 ll inf = 1e18;
+    ll gcd(ll a, ll b) {
+        if(a>b) swap(a,b);
+        while(a!=0) {
+            int t = a;
+            a=b%a;
+            b=t;
+        }
+        return b;
+    }
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n,m;
-    cin >> n >> m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) cin >> v[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
-    while(m--) {
-        int x;
-        cin >> x;
-        bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n,a,b;
+        cin >> n >> a >> b;
+        a=gcd(a,b);
+        vt<int> x(n);
+        F0R(i, n) cin >> x[i];
+        if(n==1) {
+            cout << 0 << endl;
             continue;
         }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
+        sort(begin(x),end(x));
+        F0R(i, n) {
+            x[i]+=(x.back()-x[i])/a*a;
         }
-        if(good) cout << "Yes" << endl;
-        else cout << "No" << endl;
+        sort(begin(x),end(x));
+        int ans = x.back()-x[0];
+        set<int> s;
+        F0R(i, n) s.insert(x[i]);
+        while(s.size()>1) {
+            auto f = *(s.begin());
+            s.erase(f);
+            f+=a;
+            ans=min(ans, f-*(s.begin()));
+        }
+        
+        cout << ans << endl;
     }
     return 0;
 }
-/*
-5 1
-4 6 8 2 4
-32
-*/

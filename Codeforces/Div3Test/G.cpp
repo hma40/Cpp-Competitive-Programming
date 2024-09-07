@@ -116,6 +116,8 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+template<typename T>
+using min_pq = std::priority_queue<T, std::vector<T>, std::greater<T>>;
 using namespace std;
 using ll = long long;
 #define add push_back 
@@ -133,43 +135,56 @@ using ll = long long;
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+vt<vt<int>> adj;
+vt<int> a;   
+int n,c;
+vt<int> save,noSave;//max coins kept in subtree of i if i is saved/not saved
+void dfs(int node, int par) {
+    trav(x, adj[node]) {
+        if(x==par) continue;
+        dfs(x, node);
+    }     
+    save[node]=a[node];
+    if(adj[node].size()==1&&par!=-1) {
+
+        return;
+    }
+    //first, find noSave[node]. Add max(noSave[x], save[x]) over all children
+    trav(x, adj[node]) {
+        if(x==par) continue;
+        noSave[node]+=max(noSave[x], save[x]);
+    }   
+    //for save[node], for each child, we either save or dont save. If we save, then its -2c. Otherwise, its -0
+    trav(x, adj[node]) {
+        if(x==par) continue;
+        save[node]+=max(save[x]-2*c, noSave[x]);
+    }
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n,m;
-    cin >> n >> m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) cin >> v[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
-    while(m--) {
-        int x;
-        cin >> x;
-        bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
-            continue;
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        cin >> n >> c;
+        a.assign(n, 0);
+        F0R(i, n) cin >> a[i];
+        adj.assign(n, vt<int>());
+        save.assign(n, 0);
+        noSave.assign(n, 0);
+        F0R(i, n-1) {
+            int x,y;
+            cin >> x >> y;
+            x--;
+            y--;
+            adj[x].add(y);
+            adj[y].add(x);
         }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
-        }
-        if(good) cout << "Yes" << endl;
-        else cout << "No" << endl;
+        dfs(0,-1);
+        // cout << save << noSave << endl;
+        cout << max(save[0], noSave[0]) << endl;
     }
     return 0;
 }
-/*
-5 1
-4 6 8 2 4
-32
-*/

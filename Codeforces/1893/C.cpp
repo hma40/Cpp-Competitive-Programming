@@ -138,38 +138,55 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n,m;
-    cin >> n >> m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) cin >> v[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
-    while(m--) {
-        int x;
-        cin >> x;
-        bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int m;
+        cin >> m;
+        vt<array<int,4>> ms(m);
+        int sum_n=0, mn=0, mx = 0;
+        vt<vt<pair<int,int>>> ele(m);
+        F0R(i, m) {
+            cin >> ms[i][0] >> ms[i][1] >> ms[i][2];
+            sum_n+=ms[i][0];
+            mn+=ms[i][1];
+            mx+=ms[i][2];
+            ele[i].resize(ms[i][0]);
+            F0R(j, ms[i][0]) cin >> ele[i][j].f;
+            F0R(j, ms[i][0]) cin >> ele[i][j].s;
+            F0R(j, ms[i][0]) ms[i][3]+=ele[i][j].s;
+        }
+        if(mx-mn>sum_n) {
+            cout << 0 << endl;
             continue;
         }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
+        vt<int> maxChosenDiff(mx-mn+2);
+        vt<int> minUses(mx-mn+2);
+        F0R(i, m) {
+            maxChosenDiff[0]+=ms[i][2];
+            trav(x, ele[i]) {
+                if(x.f>=mn&&x.f<=mx) {
+                    maxChosenDiff[x.f-mn]-=ms[i][2];
+                    maxChosenDiff[x.f-mn+1]+=ms[i][2];
+                    if(ms[i][3]-x.s>=ms[i][1]) {
+                        maxChosenDiff[x.f-mn]+=ms[i][3]-x.s;
+                        maxChosenDiff[x.f-mn+1]-=ms[i][3]-x.s;
+                    } else {
+                        maxChosenDiff[x.f-mn]+=ms[i][1];
+                        maxChosenDiff[x.f-mn+1]-=ms[i][1];
+                        minUses[x.f-mn]+=ms[i][1]-(ms[i][3]-x.s);
+                    }
+                }
+            }
         }
-        if(good) cout << "Yes" << endl;
-        else cout << "No" << endl;
+        FOR(i,1, mx-mn+2) maxChosenDiff[i]+=maxChosenDiff[i-1];
+        int ans = inf;
+        FOR(i, mn, mx+1) {
+            int here = minUses[i-mn];
+            if(maxChosenDiff[i-mn]<i) here+=i-maxChosenDiff[i-mn];
+            ans=min(ans, here);
+        }
+        cout << ans << endl;
     }
     return 0;
 }
-/*
-5 1
-4 6 8 2 4
-32
-*/

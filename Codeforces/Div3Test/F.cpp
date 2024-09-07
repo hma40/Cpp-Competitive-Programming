@@ -116,6 +116,8 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+template<typename T>
+using min_pq = std::priority_queue<T, std::vector<T>, std::greater<T>>;
 using namespace std;
 using ll = long long;
 #define add push_back 
@@ -138,38 +140,86 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n,m;
-    cin >> n >> m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) cin >> v[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
-    while(m--) {
-        int x;
-        cin >> x;
-        bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
-            continue;
+    int tt = 1;
+    cin >> tt;
+    while(tt--) {
+        int n,m,h;
+        cin >> n >> m >> h;
+        vt<bool> horse(n);
+        F0R(i, h)  {
+            int x;
+            cin >> x;
+            horse[x-1]=true;
         }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
+        // F0R(i, h) cin >> horses[i];
+        vt<vt<pair<int,int>>> adj(n);
+        F0R(i, m) {
+            int x,y,z;
+            cin >> x >> y >> z;
+            x--;
+            y--;
+            adj[x].add({y,z});
+            adj[y].add({x,z});
         }
-        if(good) cout << "Yes" << endl;
-        else cout << "No" << endl;
+        min_pq<array<int,3>> pq;
+        vt<array<int,2>> distMar(n);
+        F0R(i, n) {
+            F0R(j, 2) distMar[i][j]=inf;
+        }
+        distMar[0][0]=0;
+        pq.push({0,0,0});
+        while(pq.size()) {
+            auto tp = pq.top();
+            pq.pop();
+            if(distMar[tp[2]][tp[1]]!=tp[0]) {
+                continue;
+            }
+            if(horse[tp[2]]) tp[1]=1;
+            trav(x, adj[tp[2]]) {
+                int nt;
+                if(tp[1]) {
+                    nt=tp[0]+x.s/2;
+                } else {
+                    nt=tp[0]+x.s;
+                }
+                if(distMar[x.f][tp[1]]>nt) {
+                    distMar[x.f][tp[1]]=nt;
+                    pq.push({nt, tp[1], x.f});
+                }
+            }
+        }
+                vt<array<int,2>> distRob(n);
+        F0R(i, n) {
+            F0R(j, 2) distRob[i][j]=inf;
+        }
+        distRob[n-1][0]=0;
+        pq.push({0,0,n-1});
+        while(pq.size()) {
+            auto tp = pq.top();
+            pq.pop();
+            if(distRob[tp[2]][tp[1]]!=tp[0]) {
+                continue;
+            }
+            if(horse[tp[2]]) tp[1]=1;
+            trav(x, adj[tp[2]]) {
+                int nt;
+                if(tp[1]) {
+                    nt=tp[0]+x.s/2;
+                } else {
+                    nt=tp[0]+x.s;
+                }
+                if(distRob[x.f][tp[1]]>nt) {
+                    distRob[x.f][tp[1]]=nt;
+                    pq.push({nt, tp[1], x.f});
+                }
+            }
+        }
+        int ans = inf;
+        F0R(i, n) {
+            ans=min(ans, max(min(distRob[i][0], distRob[i][1]), min(distMar[i][0], distMar[i][1])));
+        }
+        if(ans>=inf) cout << -1 << endl;
+        else cout << ans << endl;
     }
     return 0;
 }
-/*
-5 1
-4 6 8 2 4
-32
-*/

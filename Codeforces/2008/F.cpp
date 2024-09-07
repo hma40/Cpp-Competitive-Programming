@@ -1,3 +1,4 @@
+#pragma GCC optimize ("trapv")
 #include <bits/stdc++.h>
 std::string to_string(__int128_t value) {
     if (value == 0) return "0";
@@ -133,43 +134,48 @@ using ll = long long;
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+    ll bexpo(ll b, ll e) {
+        ll a = 1;
+        while(e) {
+            if(e%2) {
+                a*=b;
+                a%=mod;
+            }
+            e/=2;
+            b*=b;
+            b%=mod;
+        }
+        return a;
+    }
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n,m;
-    cin >> n >> m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) cin >> v[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
-    while(m--) {
-        int x;
-        cin >> x;
-        bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
-            continue;
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        vt<int> a(n);
+        F0R(i, n) cin >> a[i];
+        int sum = 0;
+        int sumProd = 0;
+        F0R(i, n) sum+=a[i];
+        sum%=mod;
+        F0R(i, n) {
+            sumProd+=a[i]*(sum-a[i]);
+            sumProd%=mod;
+            sum-=a[i];
+            sum+=mod;
+            sum%=mod;
         }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
-        }
-        if(good) cout << "Yes" << endl;
-        else cout << "No" << endl;
+        sumProd%=mod;
+        sumProd+=mod;
+        sumProd%=mod;
+        sumProd*=bexpo((n*(n-1)/2)%mod, mod-2);
+        sumProd%=mod;
+        cout << sumProd << endl;
     }
     return 0;
 }
-/*
-5 1
-4 6 8 2 4
-32
-*/

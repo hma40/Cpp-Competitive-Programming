@@ -138,38 +138,32 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n,m;
-    cin >> n >> m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) cin >> v[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
-    while(m--) {
-        int x;
-        cin >> x;
-        bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
-            continue;
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n,m;
+        cin >> n >> m;
+        vt<int> a(n),b(m);
+        F0R(i, n) cin >> a[i];
+        F0R(i, m) cin >> b[i];
+        sort(begin(b),end(b));
+        vt<int> res;
+        int aptr = 0, bptr = m-1;
+        F0R(i, n+m) {
+            if(aptr==n) {
+                res.add(b[bptr--]);
+            } else if(bptr==-1) {
+                res.add(a[aptr++]);
+            } else {
+                if(a[aptr]>=b[bptr]) {
+                    res.add(a[aptr++]);
+                } else {
+                    res.add(b[bptr--]);
+                }
+            }
         }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
-        }
-        if(good) cout << "Yes" << endl;
-        else cout << "No" << endl;
+        trav(x, res) cout << x << " ";
+        cout << endl;
     }
     return 0;
 }
-/*
-5 1
-4 6 8 2 4
-32
-*/

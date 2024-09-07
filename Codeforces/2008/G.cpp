@@ -133,43 +133,68 @@ using ll = long long;
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+    ll gcd(ll a, ll b) {
+        if(a>b) swap(a,b);
+        while(a!=0) {
+            int t = a;
+            a=b%a;
+            b=t;
+        }
+        return b;
+    }
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n,m;
-    cin >> n >> m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) cin >> v[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
-    while(m--) {
-        int x;
-        cin >> x;
-        bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n,k;
+        cin >> n >> k;
+        vt<int> a(n);
+        F0R(i, n) cin >> a[i];
+        if(n==1) {
+            if(a[0]<=k-1) {
+                cout << k << endl;
+            } else {
+                cout << k-1 << endl;
+            }
             continue;
         }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
+        int g = 0;
+        F0R(i, n) {
+            g=gcd(g, a[i]);
         }
-        if(good) cout << "Yes" << endl;
-        else cout << "No" << endl;
+        sort(begin(a),end(a));
+        int next = 0;
+        F0R(i, n) {
+            a[i]=next;
+            next+=g;
+        }
+        // cout << a << endl;
+        // k--;
+        int ans = 0;
+        F0R(i, n-1) {
+            // cout << i << " " << k << " " << ans << endl;
+            if(a[i+1]-a[i]<k+1) {
+                k-=max(0LL,a[i+1]-a[i]-1);
+                ans=a[i+1]-1;
+            } else {
+                ans=a[i]+k;
+                k=0;
+                break;
+            }
+        }
+        // cout << k << " " << ans << endl;
+        if(k!=0) ans=a.back()+k;
+        cout << ans << endl;
     }
     return 0;
 }
 /*
+1
 5 1
-4 6 8 2 4
-32
+1 1 2 2 2
+
 */

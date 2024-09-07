@@ -21,10 +21,11 @@ struct SegTree {
     vt<int> addLazy; 
     //CHANGE THESE!
     int none;
-    SegTree(int nn): n(nn) {
+    SegTree(int nn) {
         none=(-6969420);
-        while((n&(-n))!=n) {
-            n++;
+        n=1;
+        while(n<nn) {
+            n*=2;
         }
         beg.resize(2*n);
         end.resize(2*n);
@@ -129,7 +130,7 @@ struct SegTree {
         if(i<n) prop(i);
         if(beg[i]==left&&end[i]==right) {
             setLazy[i]=val;
-            tree[i]=val*end[i]-beg[i]+1;
+            tree[i]=val*(end[i]-beg[i]+1);
             return;
         }
         if(beg[2*i]<=right&&end[2*i]>=left) {

@@ -116,6 +116,8 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+template<typename T>
+using min_pq = std::priority_queue<T, std::vector<T>, std::greater<T>>;
 using namespace std;
 using ll = long long;
 #define add push_back 
@@ -138,38 +140,44 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n,m;
-    cin >> n >> m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) cin >> v[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
-    while(m--) {
-        int x;
-        cin >> x;
-        bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
-            continue;
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n,c;
+        cin >> n >> c;
+        vt<int> a(n);
+        F0R(i, n) cin >> a[i];
+        vt<pair<int,int>> needed;
+        FOR(i, 1, n) {
+            //how much more needed for a[i] to unite with a[0]?
+            //a[0]+a[i]>=(i+1)c
+            //need to increase by (i+1)c-a[0]-a[i]
+            needed.add({(i+1)*c-a[0]-a[i], i});
         }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
+        sort(begin(needed),end(needed));
+        int curEx = 0;
+        bool bad = false;
+        trav(x, needed) {
+            if(x.f<=curEx) {
+                curEx+=a[x.s];
+            } else {
+                bad=true;
+            }
         }
-        if(good) cout << "Yes" << endl;
-        else cout << "No" << endl;
+        if(bad) {
+            cout << "NO" << endl;
+        } else {
+            cout << "YES" << endl;
+        }
     }
     return 0;
 }
 /*
-5 1
-4 6 8 2 4
-32
+is it possible?
+a1+aj<jc
+a1+ak<kc
+aj+ak>=jkc
+
+even if a1=0, aj=jc-1, ak=kc-1
+c(j+k)<cjk
 */

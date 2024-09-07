@@ -138,38 +138,58 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n,m;
-    cin >> n >> m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) cin >> v[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
-    while(m--) {
-        int x;
-        cin >> x;
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n,k;
+        cin >> n >> k;
+        vt<int> b(n);
+        F0R(i, n) cin >> b[i];
+        F0R(i, n) b[i]--;
+        vt<vt<int>> adj(n);
+        F0R(i, n) {
+            //calculate which cyclic shift has this in the correct spot
+            if(b[i]>=n) continue;
+            int old = (i+n-b[i])%n;
+            int nw = (old+b[i]+1)%n;
+            adj[nw].add(old);
+        }
+        vt<bool> vis(n);
+        vis[0]=true;
+        queue<int> q;
+        vt<int> dist(n);
+        q.push(0);
         bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
-            continue;
+        // cout << adj << endl;
+        while(q.size()) {
+            auto x = q.front();
+            q.pop();
+            trav(y, adj[x]) {
+                if(vis[y]) {
+                    good=true;
+                    break;
+                }
+                dist[y]=dist[x]+1;
+                vis[y]=true;
+                q.push(y);
+            }
+            if(good) {
+                break;
+            }
         }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
+        F0R(i, n) {
+            if(dist[i]>=k) {
+                good=true;
+            }
         }
-        if(good) cout << "Yes" << endl;
-        else cout << "No" << endl;
+        if(good) {
+            cout << "YES" << endl;
+        } else {
+            cout << "NO" << endl;
+        }
     }
     return 0;
 }
 /*
-5 1
-4 6 8 2 4
-32
+23433
 */

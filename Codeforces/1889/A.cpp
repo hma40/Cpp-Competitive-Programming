@@ -116,6 +116,8 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+template<typename T>
+using min_pq = std::priority_queue<T, std::vector<T>, std::greater<T>>;
 using namespace std;
 using ll = long long;
 #define add push_back 
@@ -138,38 +140,53 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n,m;
-    cin >> n >> m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) cin >> v[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
-    while(m--) {
-        int x;
-        cin >> x;
-        bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n;
+        string s;
+        cin >> n >> s;
+        int zCount = 0, oCount = 0;
+        F0R(i, n) {
+            if(s[i]=='0') zCount++;
+            else oCount++;
+        }
+        if(zCount!=oCount) {
+            cout << -1 << endl;
             continue;
         }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
+        deque<char> dq;
+        F0R(i, s.size()) {
+            dq.push_back(s[i]);
         }
-        if(good) cout << "Yes" << endl;
-        else cout << "No" << endl;
+        vt<int> moves;
+        int leftInd=0, rightInd=n;
+        while(dq.size()) {
+            if(dq.front()!=dq.back()) {
+                dq.pop_front();
+                dq.pop_back();
+                leftInd++;
+                rightInd--;
+            } else if(dq.front()=='0') {
+                //move this 0 to the end
+                moves.add(rightInd);
+                dq.pop_front();
+                dq.push_back('0');
+                leftInd++;
+                rightInd++;
+            } else {
+                moves.add(leftInd);
+                dq.pop_back();
+                dq.push_front('1');
+                leftInd++;
+                rightInd++;
+            }
+        }
+        cout << moves.size() << endl;
+        trav(x, moves) cout << x << " ";
+        cout << endl;
     }
-    return 0;
 }
 /*
-5 1
-4 6 8 2 4
-32
+0101100101
 */

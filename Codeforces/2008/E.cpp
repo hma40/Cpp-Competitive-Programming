@@ -138,38 +138,58 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n,m;
-    cin >> n >> m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) cin >> v[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
-    while(m--) {
-        int x;
-        cin >> x;
-        bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
-            continue;
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        string s;
+        cin >> s;
+        int ans = inf;
+        vt<vt<int>> dp(n, vt<int>(2));
+        F0R(first, 26) {
+            F0R(sec, 26) {
+                if(s[0]-'a'==first) {
+                    dp[0][0]=0;
+                } else {
+                    dp[0][0]=1;
+                }
+                dp[0][1]=1;
+                FOR(i, 1, n) {
+                    if(i%2==0) {
+                        if(s[i]-'a'==first) {
+                            dp[i][0]=dp[i-1][0];
+                        } else {
+                            dp[i][0]=dp[i-1][0]+1;
+                        }
+                        if(s[i]-'a'==sec) {
+                            dp[i][1]=dp[i-1][1];
+                        } else {
+                            dp[i][1]=dp[i-1][1]+1;
+                        }
+                        dp[i][1]=min(dp[i][1], dp[i-1][0]+1);
+                    } else {
+                        if(s[i]-'a'==sec) {
+                            dp[i][0]=dp[i-1][0];
+                        } else {
+                            dp[i][0]=dp[i-1][0]+1;
+                        }
+                        if(s[i]-'a'==first) {
+                            dp[i][1]=dp[i-1][1];
+                        } else {
+                            dp[i][1]=dp[i-1][1]+1;
+                        }
+                        dp[i][1]=min(dp[i][1], dp[i-1][0]+1);
+                    }
+                }
+                if(n%2==0) {
+                    ans=min(ans, dp[n-1][0]);
+                } else {
+                    ans=min(ans, dp[n-1][1]);
+                }
+            }
         }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
-        }
-        if(good) cout << "Yes" << endl;
-        else cout << "No" << endl;
+        cout << ans << endl;
     }
     return 0;
 }
-/*
-5 1
-4 6 8 2 4
-32
-*/

@@ -128,48 +128,63 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-#define endl "\n"
+// #define endl "\n"
 #define double long double
-ll mod = 1000000007;
+// ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+__int128_t mod = (1LL<<61)-1;
+vt<__int128_t> pw;
+int sd = 0;
+struct Hash {
+    vt<__int128_t> hsh;
+    Hash(string s) {
+        hsh.resize(s.size()+1);
+        F0R(i, s.size()) {
+            hsh[i+1]=hsh[i]*sd;
+            hsh[i+1]+=s[i];
+            hsh[i+1]%=mod;
+        }
+    }
+    int getHash(int left, int right) {
+        __int128_t raw = hsh[right+1]-hsh[left]*pw[right-left+1];
+        raw%=mod;
+        raw+=mod;
+        raw%=mod;
+        return (ll)raw;
+    }
+};
+void initialize() {
+    sd = rnd()%mod;
+    pw.add(1);
+    F0R(i, 400050) {
+        pw.add(pw.back()*sd%mod);
+    }
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n,m;
-    cin >> n >> m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) cin >> v[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
-    while(m--) {
-        int x;
-        cin >> x;
-        bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
-            continue;
+    string t;
+    cin >> t;
+    // reverse(begin(t),end(t));
+    // cout << t.hsh << endl;  
+      initialize();
+    Hash h(t);
+    F0R(i, t.size()-1) {
+        int end_start = t.size()-i-1;
+        if(end_start>i) continue;
+        if(h.getHash(0,i)==h.getHash(end_start,t.size()-1)) {
+            cout << "YES" << endl;
+            while(t.size()>i+1) t.pop_back();
+            cout << t << endl;
+            return 0;
         }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
-        }
-        if(good) cout << "Yes" << endl;
-        else cout << "No" << endl;
     }
+    cout << "NO" << endl;
     return 0;
 }
 /*
-5 1
-4 6 8 2 4
-32
+aaaaaaa
 */

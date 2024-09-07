@@ -133,43 +133,113 @@ using ll = long long;
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+int n,w;
+vt<int> ans, par, subSize, depth;
+vt<vt<int>> chil;
+
+void reset() {
+    ans.assign(n, n*w);
+    subSize.assign(n, 1);
+    chil.assign(n, vt<int>());
+    par.assign(n, -1);
+    depth.assign(n,0);
+}
+void dfs(int node=0) {
+    // cout << node << endl;
+    trav(x, chil[node]) {
+        depth[x]=depth[node]+1;
+        dfs(x);
+        subSize[node]+=subSize[x];
+    }
+}
+vt<vt<int>> sparse;
+void set_sparse() {
+    sparse.resize(n, vt<int>(20));
+    F0R(i, n) sparse[i][0]=par[i];
+    FOR(i, 1, 20) {
+        F0R(j, n) {
+            if(sparse[j][i-1]==-1) sparse[j][i]=-1;
+            else sparse[j][i]=sparse[sparse[j][i-1]][i-1];
+        }
+    }
+}
+int jump(int x, int steps) {
+    R0F(i, 20) {
+        if(steps&(1<<i)) {
+            x=sparse[x][i];
+        }
+    }
+    return x;
+}
+
+int lca(int x, int y) {
+    if(depth[x]>depth[y]) swap(x,y);
+    y=jump(y, depth[y]-depth[x]);
+    if(x==y) return x;
+    R0F(i, 20) {
+        if(sparse[x][i]!=sparse[y][i]) {
+            x=sparse[x][i];
+            y=sparse[y][i];
+        }
+    }
+    return par[x];
+}
+int dist(int x, int y) {
+    return depth[x]+depth[y]-2*depth[lca(x,y)];
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n,m;
-    cin >> n >> m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) cin >> v[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
-    while(m--) {
-        int x;
-        cin >> x;
-        bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
-            continue;
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        cin >> n >> w;
+        reset();
+        FOR(i, 1, n) {
+            cin >> par[i];
+            par[i]--;
+            // cout << chil.size() << par[i] << endl;
+            chil[par[i]].add(i);
+        }        
+        dfs();
+        set_sparse();
+        vt<int> distToNext(n);
+        F0R(i, n) {
+            distToNext[i]=dist(i, (i+1)%n);
         }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
+        int incomp = n;
+        vt<int> set(n);
+        int pref = 0;
+        FOR(i, 1, n) {
+            int x,y;
+            cin >> x >> y;
+            pref+=y;
+            x--;
+            ans[i]=ans[i-1]-(incomp-2)*y;
+            //check [i-1,i]
+            distToNext[x-1]--;
+            set[x-1]+=y;
+            if(distToNext[x-1]==0) {
+                ans[i]-=w-pref+set[x-1];
+                // cout << "LINE 226" << endl;
+                ans[i]+=set[x-1];
+                incomp--;
+            }
+            set[x+subSize[x]-1]+=y;
+            distToNext[x+subSize[x]-1]--;
+            if(distToNext[x+subSize[x]-1]==0) {
+                // cout << "LINE 232" << endl;
+                ans[i]-=w-pref+set[x+subSize[x]-1];
+                ans[i]+=set[x+subSize[x]-1];
+                incomp--;
+            }
+            // cout << i << " " << incomp << " " << ans << set << distToNext << endl;
         }
-        if(good) cout << "Yes" << endl;
-        else cout << "No" << endl;
+        // cout << ans << endl;
+        for(int i = 1; i < n; i++) cout << ans[i] << " ";
+        cout << endl;
     }
     return 0;
 }
-/*
-5 1
-4 6 8 2 4
-32
-*/

@@ -116,6 +116,8 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+template<typename T>
+using min_pq = std::priority_queue<T, std::vector<T>, std::greater<T>>;
 using namespace std;
 using ll = long long;
 #define add push_back 
@@ -138,38 +140,28 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n,m;
-    cin >> n >> m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) cin >> v[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
-    while(m--) {
-        int x;
-        cin >> x;
-        bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        vt<int> a(n);
+        F0R(i, n) cin >> a[i];
+        if(n<=2) {
+            cout << -1 << endl;
             continue;
         }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
-        }
-        if(good) cout << "Yes" << endl;
-        else cout << "No" << endl;
+        sort(begin(a),end(a));
+        int minAvg = n/2;
+        minAvg=a[minAvg];
+        minAvg*=2;
+        // minAvg++;
+        minAvg*=n;
+        minAvg++;
+        // cout << minAvg << endl;
+        F0R(i, n) minAvg-=a[i];
+        minAvg=max(0LL, minAvg);
+        cout << minAvg << endl;
     }
     return 0;
 }
-/*
-5 1
-4 6 8 2 4
-32
-*/

@@ -145,31 +145,21 @@ signed main() {
     F0R(i, n) cin >> v[i];
     vt<int> pref(n+1);
     FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
+    // cout << pref << endl;
+    FOR(front, 0, n+1) {
+        for(int back = 0; back+front<=n; back++) {
+            int frontSum = pref[front];
+            int backSum = pref.back()-pref[n-back];
+            // cout << front << " " << back << " " << frontSum << " " << backSum << endl;
+            s.insert(frontSum+backSum);
+        }
+    }
+    // cout << s << endl;
     while(m--) {
         int x;
         cin >> x;
-        bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
-            continue;
-        }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
-        }
-        if(good) cout << "Yes" << endl;
+        if(s.count(x)) cout << "Yes" << endl;
         else cout << "No" << endl;
     }
     return 0;
 }
-/*
-5 1
-4 6 8 2 4
-32
-*/

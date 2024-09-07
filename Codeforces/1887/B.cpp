@@ -128,7 +128,7 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-#define endl "\n"
+// #define endl "\n"
 #define double long double
 ll mod = 1000000007;
 ll inf = 1e18;
@@ -138,38 +138,55 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n,m;
-    cin >> n >> m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) cin >> v[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
-    while(m--) {
+    int n,t;
+    cin >> n >> t;
+    vt<vt<pair<int,int>>> adj(n);
+    F0R(i, t) {
+        int m;
+        cin >> m;
+        F0R(j, m) {
+            int u,v;
+            cin >> u >> v;
+            u--;v--;
+            adj[u].add({v,i});
+            adj[v].add({u,i});
+        }
+    }
+    int k;
+    cin >> k;
+    vt<set<int>> v(t);
+    F0R(i, k) {
         int x;
         cin >> x;
-        bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
-            continue;
-        }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
-        }
-        if(good) cout << "Yes" << endl;
-        else cout << "No" << endl;
+        x--;
+        v[x].insert(i);
     }
+    // cout << adj << endl;
+    F0R(i, t) v[i].insert(inf);
+    // cout << v << endl;
+    vt<int> dist(n, inf);
+    dist[0]=0;
+    priority_queue<pair<int,int>> pq;
+    pq.push({0,0});
+    while(pq.size()) {
+        auto f = pq.top();        pq.pop();
+        f.f*=-1;
+        if(f.f!=dist[f.s]) continue;
+        // cout << f << endl;
+
+        trav(x, adj[f.s]) {
+            //what time would we arrive if we use this?
+            int timeNeeded = x.s;
+            auto nextTime = *(v[timeNeeded].lower_bound(f.f));
+            // cout << x << nextTime << endl;
+            if(nextTime==inf) continue;
+            if(nextTime+1>dist[x.f]) continue;
+            // cout << "LINE 182 " << dist << pq << endl;
+            dist[x.f]=nextTime+1;
+            pq.push({-nextTime-1, x.f});
+        }
+    }
+    if(dist.back()==inf) cout << -1 << endl;
+    else cout << dist.back() << endl;
     return 0;
 }
-/*
-5 1
-4 6 8 2 4
-32
-*/

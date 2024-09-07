@@ -116,6 +116,8 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+template<typename T>
+using min_pq = std::priority_queue<T, std::vector<T>, std::greater<T>>;
 using namespace std;
 using ll = long long;
 #define add push_back 
@@ -138,38 +140,50 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n,m;
-    cin >> n >> m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) cin >> v[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
-    while(m--) {
-        int x;
-        cin >> x;
-        bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
-            continue;
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n,d,k;
+        cin >> n >> d >> k;
+        vt<pair<int,int>> jobs(k);
+        F0R(i, k) cin >> jobs[i].f >> jobs[i].s;
+        int min_start = 1, max_start=n-d+1;
+        min_pq<pair<int,int>> enter;
+        min_pq<pair<int,int>> exit;
+        for(int i = 0; i < k; i++) {
+            // pq.push({jobs[i].f, 1});
+            // pq.push({jobs[i].s+1, -1});
+            enter.push({jobs[i].f, 1});
+            exit.push({jobs[i].s+1, -1});
         }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
+        int active = 0;
+        int mxActive = 0, mnActive = inf;
+        int mxDay=-1, mnDay=-1;
+        vector<int> overlap(n+1);
+        // int active = 0;
+        FOR(i, min_start, max_start+1) {
+            int end = i+d-1;
+            while(enter.size()&&enter.top().f<=end) {
+                enter.pop();
+                active++;
+            }
+            while(exit.size()&&exit.top().f<=i) {
+                exit.pop();
+                active--;
+            }
+            overlap[i]=active;
         }
-        if(good) cout << "Yes" << endl;
-        else cout << "No" << endl;
+        FOR(i, min_start,  max_start+1) {
+            if(overlap[i]>mxActive) {
+                mxActive=overlap[i];
+                mxDay=i;
+            }
+            if(overlap[i]<mnActive) {
+                mnActive=overlap[i];
+                mnDay=i;
+            }
+        }
+        cout << mxDay << " " << mnDay << endl;
     }
     return 0;
 }
-/*
-5 1
-4 6 8 2 4
-32
-*/

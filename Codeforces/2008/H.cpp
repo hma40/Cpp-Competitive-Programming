@@ -130,7 +130,7 @@ using ll = long long;
 #define vt vector
 #define endl "\n"
 #define double long double
-ll mod = 1000000007;
+// ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
@@ -138,38 +138,43 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n,m;
-    cin >> n >> m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) cin >> v[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
-    while(m--) {
-        int x;
-        cin >> x;
-        bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
-            continue;
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n,q;
+        cin >> n >> q;
+        vt<int> freq(2*n+5);
+        F0R(i, n) {
+            int x;
+            cin >> x;
+            freq[x]++;
         }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
+        FOR(i, 1, n*2+5) freq[i]+=freq[i-1];
+        // cout << freq << endl;
+        vt<int> ans(n+1);
+        FOR(mod, 1, n+1) {
+            int lo = -1, hi = mod-1;
+            while(lo+1<hi) {
+                int mid = (lo+hi)/2;
+                int here = 0;
+                for(int k = 0; k*mod<=n; k++) {
+                    here+=freq[k*mod+mid]-freq[max(0LL,k*mod-1)];
+                }
+                // cout << mod << " " << mid << " " << here << endl;
+                if(here>n/2) {
+                    hi=mid;
+                } else {
+                    lo=mid;
+                }
+            }
+            ans[mod]=hi;
         }
-        if(good) cout << "Yes" << endl;
-        else cout << "No" << endl;
+        // cout << ans << endl;
+        F0R(i, q) {
+            int x;
+            cin >> x;
+            cout << ans[x] << endl;
+        }
     }
     return 0;
 }
-/*
-5 1
-4 6 8 2 4
-32
-*/

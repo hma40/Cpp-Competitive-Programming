@@ -130,46 +130,119 @@ using ll = long long;
 #define vt vector
 #define endl "\n"
 #define double long double
-ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+__int128_t mod = (1LL<<61)-1;
+vt<__int128_t> pw;
+int sd = 0;
+void initialize() {
+    sd = rnd()%mod;
+    pw.add(1);
+    F0R(i, 500050) {
+        pw.add(pw.back()*sd%mod);
+    }
+}
+struct SegTree {
+    int n;
+    vt<__int128_t> tree;
+    SegTree(int nn) {
+        int np = 1;
+        while(np<nn) np*=2;
+        tree.resize(2*np);
+        n=np;
+    }
+    void set(int pos, __int128_t x) {
+        pos+=n;
+        tree[pos]=x;
+        for(pos/=2; pos; pos/=2) {
+            //CHANGE HERE
+            tree[pos]=(tree[2*pos]+tree[2*pos+1])%mod;
+        }
+    }
+    void setPos(int pos, int x) {
+        __int128_t setTo = x;
+        setTo*=pw[pos];
+        setTo%=mod;
+        setTo+=mod;
+        setTo%=mod;
+        set(pos, setTo);
+    }
+    int rangeQuery(int a, int b) {
+        a+=n;
+        __int128_t ans = 0;
+        b+=n;
+        while(a<=b) {
+            if(a%2==1) ans+=tree[a++];
+            if(b%2==0) ans+=tree[b--];
+            a/=2;
+            b/=2;
+            ans%=mod;
+        }
+        return ans;
+    }
+};
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n,m;
-    cin >> n >> m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) cin >> v[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
-    while(m--) {
-        int x;
-        cin >> x;
-        bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
-            continue;
+    initialize();
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        vt<int> a(n);
+        F0R(i, n) cin >> a[i];
+        vt<int> diff(n+1);
+        diff[0]=a[0];
+        FOR(i, 1, n) diff[i]=a[i]-a[i-1];
+        SegTree before(n+1), here(1+n);
+        F0R(i, n) {
+            before.setPos(i, diff[i]);
+            here.setPos(i, diff[i]);
         }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
+        vt<int> curDiff = diff;
+        int q;
+        cin >> q;
+        vt<pair<int,int>> cumQueries;
+        while(q--) {
+            int l,r,x;
+            cin >> l >> r >> x;
+            l--;
+            curDiff[l]+=x;
+            curDiff[r]-=x;
+            cumQueries.add({l,x});
+            cumQueries.add({r, -x});
+            here.setPos(l, curDiff[l]);
+            here.setPos(r, curDiff[r]);
+            // cout << q << diff << curDiff << cumQueries << endl;
+            // cout << before.tree << here.tree << endl;
+            if(before.tree[1]==here.tree[1]) continue;
+            int treeInd = 1;
+            while(treeInd<before.n) {
+                // cout << treeInd << endl;
+                if(before.tree[2*treeInd]==here.tree[2*treeInd]) {
+                    treeInd=treeInd*2+1;
+                } else {
+                    treeInd=treeInd*2;
+                }
+            }
+            treeInd-=before.n;
+            // cout << treeInd << endl;
+            if(diff[treeInd]>curDiff[treeInd]) {
+                //new smallest array
+                while(cumQueries.size()) {
+                    diff[cumQueries.back().f]+=cumQueries.back().s;
+                    before.setPos(cumQueries.back().f, diff[cumQueries.back().f]);
+                    cumQueries.pop_back();
+                }
+            }
         }
-        if(good) cout << "Yes" << endl;
-        else cout << "No" << endl;
+        // cout << diff << endl;
+        FOR(i, 1, n+1) diff[i]+=diff[i-1];
+        F0R(i, n) cout << diff[i] << " ";
+        cout << endl;
     }
     return 0;
 }
-/*
-5 1
-4 6 8 2 4
-32
-*/

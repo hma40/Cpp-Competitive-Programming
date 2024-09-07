@@ -116,6 +116,8 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+template<typename T>
+using min_pq = std::priority_queue<T, std::vector<T>, std::greater<T>>;
 using namespace std;
 using ll = long long;
 #define add push_back 
@@ -138,38 +140,56 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n,m;
-    cin >> n >> m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) cin >> v[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
-    while(m--) {
-        int x;
-        cin >> x;
-        bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
-            continue;
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n,m,k;
+        cin >> n >> m >> k;
+        // vector<pair<int,int>> milk(n);
+        min_pq<pair<int,int>> milk;
+        F0R(i, n) {
+            int x,y;cin >> x >> y;
+            milk.push({x,y});
         }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
+        int day=0, ans=0;
+        while(milk.size()) {
+            auto f = milk.top();
+            milk.pop();
+
+            int lastDay = f.f+k-1;
+            if(day>lastDay) continue;
+            day=max(day, f.f);
+            if(f.s<m) {
+                while(milk.size()&&f.s<m&&milk.top().f<=day) {
+                    auto tp = milk.top();
+                    milk.pop();
+                    if(f.s+tp.s>=m) {
+                        milk.push({tp.f, f.s+tp.s-m});
+                        ans++;
+                        break;
+                    } 
+                    f.s+=tp.s;
+                }
+                day++;
+            } else {
+                int days = min(lastDay-day+1, f.s/m);
+                // cout << days << endl;
+                ans+=days;
+                day=day+days;
+                milk.push({f.f, f.s-days*m});
+            }
         }
-        if(good) cout << "Yes" << endl;
-        else cout << "No" << endl;
+        cout << ans << endl;
     }
     return 0;
 }
 /*
-5 1
-4 6 8 2 4
-32
+1
+5 3 9
+3 7
+4 1
+5 9
+8 6
+10 1
+
 */

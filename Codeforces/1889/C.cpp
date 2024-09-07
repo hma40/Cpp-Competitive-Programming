@@ -116,6 +116,8 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+template<typename T>
+using min_pq = std::priority_queue<T, std::vector<T>, std::greater<T>>;
 using namespace std;
 using ll = long long;
 #define add push_back 
@@ -138,38 +140,28 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n,m;
-    cin >> n >> m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) cin >> v[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
-    while(m--) {
-        int x;
-        cin >> x;
-        bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
-            continue;
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n,m,k;
+        cin >> n >> m >> k;
+        vt<vt<int>> ad(n+1),sub(n+1);
+        F0R(i, m) {
+            int l,r;
+            cin >> l >> r;
+            l--;
+            ad[l].add(i);
+            sub[r].add(i);
         }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
+        int zeroes = 0;
+        map<set<int>,int> mp;
+        set<int> active;
+        F0R(i, n) {
+            trav(x, ad[i]) active.insert(i);
+            trav(x, sub[i]) active.erase(i);
+            if(active.size()<=k) mp[active]++;
+            
         }
-        if(good) cout << "Yes" << endl;
-        else cout << "No" << endl;
     }
     return 0;
 }
-/*
-5 1
-4 6 8 2 4
-32
-*/

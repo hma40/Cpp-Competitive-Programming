@@ -133,43 +133,95 @@ using ll = long long;
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+ll gcd(ll a, ll b) {
+    // if(a==0&&b==0) {
+    //     return 3;
+    // }
+    if(a>b) swap(a,b);
+    while(a!=0) {
+        int t = a;
+        a=b%a;
+        b=t;
+    }
+    return b;
+}
+struct RMQ {
+    vt<vt<int>> sparse;
+    vt<int> lg;
+    RMQ(vt<int> v, int log) {
+        lg.resize(v.size()+5);
+        FOR(i, 2, lg.size()) {
+            lg[i]=lg[i/2]+1;
+        }
+        sparse.resize(v.size(), vt<int>(log, -1));
+        F0R(i, v.size()) {
+            sparse[i][0]=v[i];
+        }
+        FOR(i, 1, log) {
+            F0R(j, (int)v.size()-(1LL<<i)+1) {
+                // cout << (int)v.size()-(1LL<<i)+1 << endl;
+                // cout << i << " " << j << endl;
+                sparse[j][i]=gcd(sparse[j][i-1], sparse[j+(1<<(i-1))][i-1]);
+            }
+        }
+    }
+    int getMin(int lo, int hi) {
+        int log = lg[hi-lo+1];
+        return gcd(sparse[lo][log], sparse[hi-(1<<log)+1][log]);
+    }
+};
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n,m;
-    cin >> n >> m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) cin >> v[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
-    while(m--) {
-        int x;
-        cin >> x;
-        bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
-            continue;
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        vt<int> a(n);
+        F0R(i, n) cin >> a[i];
+        vt<int> diffs;
+        F0R(i, n-1) {
+            // if(a[i]!=a[i+1]) {
+                diffs.add(abs(a[i]-a[i+1]));
+            // }
         }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
+        diffs.add(1);
+        RMQ r(diffs,20);
+        int ans = n*(n+1)/2;
+        // cout << diffs << endl;
+        F0R(i, n-1) {
+            int lo = i, hi = n-1;
+            while(lo<hi) {
+                // cout << lo << " " << hi << endl;
+                int mid = (lo+hi)/2;
+                int g = r.getMin(i, mid);
+                if(g!=(g&(-g))||g==0) {
+                    //not a pow of 2
+                    lo=mid+1;
+                } else {
+                    hi=mid;
+                }
+            }
+            // cout << i << " " << lo << " " << ans << endl;
+            ans-=lo-i; 
         }
-        if(good) cout << "Yes" << endl;
-        else cout << "No" << endl;
+        int here = 1;
+        FOR(i, 1, n) {
+            if(a[i]==a[i-1]) here++;
+            else {
+                ans+=here*(here-1)/2;
+                here=1;
+            }
+        }
+        ans+=here*(here-1)/2;
+        cout << ans << endl;
+
     }
     return 0;
 }
 /*
-5 1
-4 6 8 2 4
-32
+2 3 4 5 6
 */

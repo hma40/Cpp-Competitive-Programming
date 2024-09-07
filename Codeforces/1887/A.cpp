@@ -133,43 +133,82 @@ using ll = long long;
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+bool works(vt<int> &a, vt<int> &b, int remv) {
+    // cout << a << b << remv << endl;
+    for(int i = 0; i < b.size()-remv; i++) {
+        // cout << i << endl;
+        if(a[i]>=b[b.size()-remv-i-1]) {
+            return false;
+        }   
+    }
+    return true;
+}
+bool fine(vt<int> a, vt<int> &b, int remv) {
+    sort(begin(a),end(a));
+    for(int i = 0; i < b.size()-remv; i++) {
+        // cout << i << endl;
+        if(a[i]>=b[b.size()-remv-i-1]) {
+            return false;
+        }   
+    }
+    return true;
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n,m;
-    cin >> n >> m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) cin >> v[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
-    while(m--) {
-        int x;
-        cin >> x;
-        bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
-            continue;
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n,m;
+        cin >> n >> m;
+        vt<int> a(n-1);
+        F0R(i, n-1) cin >> a[i];
+        vt<int> b(n);
+        F0R(i, n) {
+            cin >> b[i];
+            b[i]*=-1;
         }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
+        sort(begin(a),end(a));
+        sort(begin(b),end(b));
+        F0R(i, n) {
+            b[i]*=-1;
         }
-        if(good) cout << "Yes" << endl;
-        else cout << "No" << endl;
+        //first bsearch on what the answer is if we remove the extra element
+        int lo = 0, hi = n;
+        while(lo+1<hi) {
+            int mid = (lo+1+hi)/2;
+            if(works(a,b,mid)) {
+                hi=mid;
+            } else {
+                lo=mid;
+            }
+        }
+        // cout << hi << endl;
+        //hi now contains elements to remove if extra element is removed
+        //now bsearch 2: what max of other element is if we don't remove
+        
+        a.add(1);
+        int lo2 = 0, hi2 = 1000000001;
+        while(lo2+1<hi2) {
+            int mid = (lo2+hi2)/2;
+            a.back()=mid;
+            if(fine(a,b,hi-1)) {
+                lo2=mid;
+            } else {
+                hi2=mid;
+            }
+        }
+        if(lo2>=m) {
+            cout << (hi-1)*m << endl;
+        } else {
+            cout << (hi-1)*lo2+hi*(m-lo2) << endl;
+        }
     }
     return 0;
 }
 /*
-5 1
-4 6 8 2 4
-32
+1 1 5 5
+3 3 3 8
 */

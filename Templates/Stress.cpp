@@ -52,6 +52,9 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
 }
 
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+ll rand_num(int l, int h) {
+    return rnd()%(h-l+1)+l;
+}
 struct TestCase {
     int n;
 

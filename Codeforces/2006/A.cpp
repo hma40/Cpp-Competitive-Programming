@@ -133,43 +133,100 @@ using ll = long long;
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+int none = 0, leafZ = 0, leafO = 0, noLeaf=0;
+vt<vt<int>> adj;
+int n;
+string s;
+void dfs(int node, int par) {
+    if(adj[node].size()==1&&node!=0) {
+        if(s[node]=='0') {
+            leafZ++;
+        } else if(s[node]=='1') {
+            leafO++;
+        } else {
+            noLeaf++;
+        }
+    } else if(node!=0) {
+        if(s[node]=='?') none++;
+    }
+    trav(x, adj[node]) {
+        if(x!=par) {
+            dfs(x,node);
+        }
+    }
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n,m;
-    cin >> n >> m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) cin >> v[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
-    while(m--) {
-        int x;
-        cin >> x;
-        bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
-            continue;
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        none=0;
+        leafZ=0;
+        leafO=0;
+        noLeaf=0;
+        cin >> n;
+        adj.assign(n, vt<int>());
+        FOR(i, 1, n) {
+            int x,y;
+            cin >> x >> y;
+            adj[x-1].add(y-1);
+            adj[y-1].add(x-1);
+        }   
+        cin >> s;
+        dfs(0,-1);
+        // assert(false);
+        int score = 0;
+        if(s[0]=='?') {
+            if(leafZ==0&&leafO==0) {
+                if(none%2==0) {
+                    score=noLeaf/2;
+                } else {
+                    score=(noLeaf+1)/2;
+                }
+            } else {
+                score=max(leafZ,leafO)+noLeaf/2;
+                if(leafZ==leafO) {
+                    if(none%2==0) {
+                        score=leafZ+noLeaf/2;
+                    } else {
+                        score=leafZ+(noLeaf+1)/2;
+                    }
+                }
+            }
+        } else {
+            if(s[0]=='0') {
+                score=leafO+(noLeaf+1)/2;
+            } else {
+                score=leafZ+(noLeaf+1)/2;
+            }
         }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
-        }
-        if(good) cout << "Yes" << endl;
-        else cout << "No" << endl;
+        cout << score << endl;
     }
     return 0;
 }
 /*
-5 1
-4 6 8 2 4
-32
+score is -1, 0, 1
+01010: score of 0
+0101: score of 1
+odd length: zero
+even length: nonzero
+Iris wants to maximize even length
+Dora wants to maximize odd length (when duplicates erased)
+
+0?1: two either way
+0?0: one or three
+
+Only matters root and leaf - everything else don't matter
+Iris wants leaf and root to not match
+Dora wants leaf and root to match
+
+If root is already determined: both rush to complete leaves
+If root is not determined, but at least one leaf is: iris takes root first, then both rush to finish
+If no root and no leaf determined: 
+- whoevers colors first takes floor(leaf/2)
+- whoever colors second takes floor(leaf/2)
+depends on parity of uncolored nonleafs
 */

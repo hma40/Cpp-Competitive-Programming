@@ -138,38 +138,38 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n,m;
-    cin >> n >> m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) cin >> v[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    set<int> ff;
-    trav(x, pref) ff.insert(x);
-    // cout << ff << endl;
-    while(m--) {
-        int x;
-        cin >> x;
-        bool good = false;
-        int needMid = pref.back()-x;
-        if(needMid<0) {
-            cout << "No" << endl;
+    int t = 1;
+    cin >> t;
+    map<int,int> sqr;
+    FOR(i, 1, 10000) {
+        sqr[i*i]=i;
+    }
+    while(t--) {
+        int n;
+        string s;
+        cin >> n >> s;
+        if(!sqr.count(n)) {
+            cout <<"NO" << endl;
             continue;
         }
-        F0R(i, n+1) {
-            auto bro = pref[i];
-            auto look = bro+needMid;
-            // cout << bro << " " << look << " " << ff.count(look) << endl;
-            if(ff.count(look)) good=true;
+        vt<vt<int>> mat(sqr[n], vt<int>(sqr[n]));
+        F0R(i, n) {
+            mat[i/sqr[n]][i%sqr[n]]=s[i]-'0';
         }
-        if(good) cout << "Yes" << endl;
-        else cout << "No" << endl;
+        bool bad = false;
+        // cout << mat << endl;
+        F0R(i, sqr[n]) {
+            F0R(j, sqr[n]) {
+                // cout << i << " " << j << " " << bad << endl;
+                if(i==0||j==0||i==sqr[n]-1||j==sqr[n]-1) {
+                    if(mat[i][j]!=1) bad=true;
+                } else {
+                    if(mat[i][j]!=0) bad=true;
+                }
+            }
+        }
+        if(bad) cout << "NO" << endl;
+        else cout << "YES" << endl;
     }
     return 0;
 }
-/*
-5 1
-4 6 8 2 4
-32
-*/
