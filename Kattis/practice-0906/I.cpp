@@ -135,12 +135,7 @@ using ll = long long;
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-bool nextAnd() {
-    string s;
-    cin >> s;
-    if(s=="and") return true;
-    return false;
-}
+string ans = "";
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
@@ -148,50 +143,41 @@ signed main() {
     // freopen("output.txt" , "w", stdout);
     int n;
     cin >> n;
-    set<string> alr;
-    vt<int> more;
-    vt<string> reward;
-    map<string,set<int>> contrib;
-    set<string> exists;
-    F0R(i, n) {
-        string s;
-        cin >> s;
-        if(s=="if") {
-            int cnt = 0;
-            while(true) {
-                cin >> s;
-                cnt++;
-                contrib[s].insert(more.size());
-                if(nextAnd()) {
-
-                } else {
-                    cin >> s;
-                    more.add(cnt);
-                    reward.add(s);
-                    break;
-                }
-            }
-        } else {
-            alr.insert(s);
-        }
-    }
-    trav(x, alr) exists.insert(x);
-    // cout << more << reward << endl;
-    int ans = alr.size();
-    while(alr.size()) {
-        auto bk = *(alr.begin());
-        alr.erase(bk);
-        trav(x, contrib[bk]) {
-            more[x]--;
-            if(more[x]==0) {
-                if(!exists.count(reward[x])) {
-                    exists.insert(reward[x]);
-                    alr.insert(reward[x]);
-                    ans++;
-                }
+    vt<int> a(n);
+    F0R(i, n) cin >> a[i];
+    vt<string> makeEach(n);
+    int combines = 0;
+    R0F(x, n) {
+        // cout << x << " " << combines << endl;
+        //2^i takes i combines
+        a[x]+=combines;
+        vt<int> here;
+        here.add(a[x]);
+        while(here.back()!=1) {
+            if(here.back()%2==0) {
+                here.add(here.back()/2);
+            } else {
+                here.add(here.back()-1);
             }
         }
+        reverse(begin(here),end(here));
+        makeEach[x]+="1";
+        F0R(i, here.size()-1) {
+            if(here[i+1]==here[i]+1) {
+                makeEach[x]+="1+";
+            } else {
+                makeEach[x]+="d+";
+            }
+        }
+        trav(xx, makeEach[x]) {
+            if(xx=='+') combines++;
+        }
     }
-    cout << ans << endl;
+    // cout << makeEach << endl;
+    F0R(i, n) cout << makeEach[i];
+    cout << endl;
     return 0;
 }
+/*
+2 3 
+*/

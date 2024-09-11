@@ -135,63 +135,53 @@ using ll = long long;
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-bool nextAnd() {
-    string s;
-    cin >> s;
-    if(s=="and") return true;
-    return false;
-}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n;
-    cin >> n;
-    set<string> alr;
-    vt<int> more;
-    vt<string> reward;
-    map<string,set<int>> contrib;
-    set<string> exists;
-    F0R(i, n) {
-        string s;
-        cin >> s;
-        if(s=="if") {
-            int cnt = 0;
-            while(true) {
-                cin >> s;
-                cnt++;
-                contrib[s].insert(more.size());
-                if(nextAnd()) {
-
-                } else {
-                    cin >> s;
-                    more.add(cnt);
-                    reward.add(s);
-                    break;
-                }
-            }
-        } else {
-            alr.insert(s);
-        }
-    }
-    trav(x, alr) exists.insert(x);
-    // cout << more << reward << endl;
-    int ans = alr.size();
-    while(alr.size()) {
-        auto bk = *(alr.begin());
-        alr.erase(bk);
-        trav(x, contrib[bk]) {
-            more[x]--;
-            if(more[x]==0) {
-                if(!exists.count(reward[x])) {
-                    exists.insert(reward[x]);
-                    alr.insert(reward[x]);
-                    ans++;
-                }
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        vt<int> a(n);
+        F0R(i, n) cin >> a[i];
+        cout << a[0];
+        int odds = 0;
+        if(a[0]%2) odds++;
+        int sum = a[0];
+        FOR(i, 1, n) {
+            sum+=a[i];
+            if(a[i]%2) odds++;
+            if(odds%3==0) {
+                cout << " " << sum-odds/3;
+            } else if(odds%3==1) {
+                cout << " " << sum-odds/3-1;
+            } else {
+                cout << " " << sum-odds/3;
             }
         }
+        cout << endl;
     }
-    cout << ans << endl;
     return 0;
 }
+/*
+For one array:
+- For each pile of 2, players alternate destroying piles. Second player always gets +2 for every pile he destroys
+-  3: +1 if either player starts
+-  4: +2 if either player starts
+-  5: +3 if second player starts, +1 & transfer if first player starts
+-  6: +2 if either player starts
+-  7: +3 if either player starts
+-  8: +4 if second pllayer starts, +2 & transfer turns if first player starts 
+
+0 mod 3: always +n/3
+1 mod 3: always +(n+2)/3
+2 mod 3: +(n+1)/3+1 if second player starts, +(n+1)/3-1 if first player starts
+
+Both players rush to get 2 mod 3 piles & other player gets to start next 2 mod 3
+problem comes down to counting how many 2 mod 3 piles there are
+odd: -1
+even: 0
+*/

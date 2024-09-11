@@ -143,31 +143,33 @@ signed main() {
     set<int> s;
     vt<int> v(n);
     F0R(i, n) cin >> v[i];
-    v.add(inf);
-    int tot = 0;
-    F0R(i, n) tot+=v[i];
     vt<int> pref(n+1);
     FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    pref.add(inf);
     set<int> ff;
     trav(x, pref) ff.insert(x);
+    // cout << ff << endl;
     while(m--) {
         int x;
         cin >> x;
-        int needMid = tot-x;
         bool good = false;
-        int left=0, right=0, sum=v[0];
-        while(left<n) {
-            while(sum<needMid) {
-                right++;
-                sum+=v[right];
-            }
-            if(sum==needMid) good=true;
-            sum-=v[left];
-            left++;
+        int needMid = pref.back()-x;
+        if(needMid<0) {
+            cout << "No" << endl;
+            continue;
+        }
+        F0R(i, n+1) {
+            auto bro = pref[i];
+            auto look = bro+needMid;
+            // cout << bro << " " << look << " " << ff.count(look) << endl;
+            if(ff.count(look)) good=true;
         }
         if(good) cout << "Yes" << endl;
         else cout << "No" << endl;
     }
     return 0;
 }
+/*
+5 1
+4 6 8 2 4
+32
+*/

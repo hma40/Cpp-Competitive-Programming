@@ -135,63 +135,30 @@ using ll = long long;
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-bool nextAnd() {
-    string s;
-    cin >> s;
-    if(s=="and") return true;
-    return false;
-}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n;
-    cin >> n;
-    set<string> alr;
-    vt<int> more;
-    vt<string> reward;
-    map<string,set<int>> contrib;
-    set<string> exists;
-    F0R(i, n) {
-        string s;
-        cin >> s;
-        if(s=="if") {
-            int cnt = 0;
-            while(true) {
-                cin >> s;
-                cnt++;
-                contrib[s].insert(more.size());
-                if(nextAnd()) {
-
-                } else {
-                    cin >> s;
-                    more.add(cnt);
-                    reward.add(s);
-                    break;
-                }
-            }
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n,k;
+        cin >> n >> k;
+        int prod = 1;
+        F0R(i, n) {
+            int x;
+            cin >> x;
+            prod*=x;
+        }
+        if(2023%prod!=0) {
+            cout << "NO" << endl;
         } else {
-            alr.insert(s);
+            cout << "YES" << endl;
+            cout << 2023/prod;
+            FOR(i, 1, k) cout << " " << 1;
+            cout << endl;
         }
     }
-    trav(x, alr) exists.insert(x);
-    // cout << more << reward << endl;
-    int ans = alr.size();
-    while(alr.size()) {
-        auto bk = *(alr.begin());
-        alr.erase(bk);
-        trav(x, contrib[bk]) {
-            more[x]--;
-            if(more[x]==0) {
-                if(!exists.count(reward[x])) {
-                    exists.insert(reward[x]);
-                    alr.insert(reward[x]);
-                    ans++;
-                }
-            }
-        }
-    }
-    cout << ans << endl;
     return 0;
 }

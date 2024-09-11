@@ -132,66 +132,127 @@ using ll = long long;
 #define vt vector
 #define endl "\n"
 #define double long double
-ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-bool nextAnd() {
-    string s;
-    cin >> s;
-    if(s=="and") return true;
-    return false;
-}
+struct SegTree {
+    int n;
+    vt<int> tree;
+    vt<int> max_tree;
+    vt<int> beg,end;
+    SegTree(int nn) {
+        int np = 1;
+        while(np<nn) np*=2;
+        tree.resize(2*np);
+        max_tree.resize(2*np);
+        beg.resize(2*np);
+        end.resize(2*np);
+        F0R(i, np) beg[i+np]=end[i+np]=i;
+        ROF(i, 1, np) {
+            beg[i]=beg[2*i];
+            end[i]=end[2*i+1];
+        }
+        n=np;
+    }
+    void build(vt<int> &arr) {
+        for(int i = 0; i < arr.size(); i++) {
+            tree[i+n]=arr[i];
+            max_tree[i+n]=arr[i];
+        }
+        for(int i = n-1; i > 0; i--) {
+            //CHANGE HERE
+            tree[i]=tree[2*i]+tree[2*i+1];
+            max_tree[i]=max(max_tree[2*i], max_tree[2*i+1]);
+        }
+    }
+    void set(int pos, int x) {
+        pos+=n;
+        tree[pos]=x;
+        max_tree[pos]=x;
+        for(pos/=2; pos; pos/=2) {
+            //CHANGE HERE
+            tree[pos]=tree[2*pos]+tree[2*pos+1];
+            max_tree[pos]=max(max_tree[2*pos], max_tree[2*pos+1]);
+        }
+    }
+    int rangeSum(int a, int b) {
+        a+=n;
+        int ans = 0;
+        b+=n;
+        while(a<=b) {
+            if(a%2==1) ans+=tree[a++];
+            if(b%2==0) ans+=tree[b--];
+            a/=2;
+            b/=2;
+        }
+        return ans;
+    }
+    int rangeMax(int a, int b) {
+        a+=n;
+        int ans = 0;
+        b+=n;
+        while(a<=b) {
+            if(a%2==1) ans=max(ans,tree[a++]);
+            if(b%2==0) ans=max(ans,tree[b--]);
+            a/=2;
+            b/=2;
+        }
+        return ans;
+    }
+    void modulo(int i, int l, int r, int mod) {
+        // cout << "MODULO CALLED " << i << " " << l << " " << r << " " << mod << endl;
+        int mx = max_tree[i];
+        // cout << mx << endl;
+        if(mx<mod) return;
+        if(r<beg[i]||end[i]<l) return;
+        if(beg[i]==end[i]) {
+            tree[i]%=mod;
+            max_tree[i]%=mod;
+            return;
+        }
+        // if(beg[2*i]<=r&&end[2*i]>=l) {
+        modulo(2*i, l, r, mod);
+    // }
+    // if(beg[2*i+1]<=r&&end[2*i+1]>=l) {
+        modulo(2*i+1, l, r, mod);
+        // }
+        tree[i]=tree[2*i]+tree[2*i+1];
+        max_tree[i]=max(max_tree[2*i], max_tree[2*i+1]);
+    }
+};
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n;
-    cin >> n;
-    set<string> alr;
-    vt<int> more;
-    vt<string> reward;
-    map<string,set<int>> contrib;
-    set<string> exists;
-    F0R(i, n) {
-        string s;
-        cin >> s;
-        if(s=="if") {
-            int cnt = 0;
-            while(true) {
-                cin >> s;
-                cnt++;
-                contrib[s].insert(more.size());
-                if(nextAnd()) {
-
-                } else {
-                    cin >> s;
-                    more.add(cnt);
-                    reward.add(s);
-                    break;
-                }
-            }
+    int n,m;
+    cin >> n >> m;
+    vt<int> a(n);
+    F0R(i, n) cin >> a[i];
+    SegTree st(n);
+    // cout << st.beg << st.end << endl;
+    st.build(a);
+    while(m--) {
+        int type;
+        cin >> type;
+        if(type==1) {
+            int l,r;
+            cin >> l >> r;
+            l--;
+            r--;
+            cout << st.rangeSum(l,r) << endl;
+        } else if(type==2) {
+            int l,r,x;
+            cin >> l >> r >> x;
+            l--;
+            r--;
+            st.modulo(1,l,r,x);
         } else {
-            alr.insert(s);
+            int k,x;
+            cin >> k >> x;
+            k--;
+            st.set(k,x);
         }
+        // cout << st.tree << endl << st.max_tree << endl;
     }
-    trav(x, alr) exists.insert(x);
-    // cout << more << reward << endl;
-    int ans = alr.size();
-    while(alr.size()) {
-        auto bk = *(alr.begin());
-        alr.erase(bk);
-        trav(x, contrib[bk]) {
-            more[x]--;
-            if(more[x]==0) {
-                if(!exists.count(reward[x])) {
-                    exists.insert(reward[x]);
-                    alr.insert(reward[x]);
-                    ans++;
-                }
-            }
-        }
-    }
-    cout << ans << endl;
     return 0;
 }

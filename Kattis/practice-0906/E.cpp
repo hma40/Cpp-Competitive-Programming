@@ -139,9 +139,102 @@ signed main() {
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
     int t = 1;
-    cin >> t;
+    cin >> t;     
+    int board[3][3];
     while(t--) {
-        
+        string s;
+        cin >> s;
+        int pow = 1;
+        int b10 = 0;
+        R0F(i, s.size()) {
+            b10+=(s[i]-'0')*pow;
+            pow*=8;
+        }
+        if(b10&(1<<8)) {
+            if(b10&(1<<17)) board[0][0]=1;
+            else board[0][0]=2;
+        } else board[0][0]=0;
+        if(b10&(1<<7)) {
+            if(b10&(1<<16)) board[0][1]=1;
+            else board[0][1]=2;
+        } else board[0][1]=0;
+         if(b10&(1<<6)) {
+            if(b10&(1<<15)) board[0][2]=1;
+            else board[0][2]=2;
+        } else board[0][2]=0;   
+        if(b10&(1<<5)) {
+            if(b10&(1<<14)) board[1][0]=1;
+            else board[1][0]=2;
+        } else board[1][0]=0;
+        if(b10&(1<<4)) {
+            if(b10&(1<<13)) board[1][1]=1;
+            else board[1][1]=2;
+        } else board[1][1]=0;
+        if(b10&(1<<3)) {
+            if(b10&(1<<12)) board[1][2]=1;
+            else board[1][2]=2;
+        } else board[1][2]=0;
+        if(b10&(1<<2)) {
+            if(b10&(1<<11)) board[2][0]=1;
+            else board[2][0]=2;
+        } else board[2][0]=0;
+        if(b10&(1<<1)) {
+            if(b10&(1<<10)) board[2][1]=1;
+            else board[2][1]=2;
+        } else board[2][1]=0;
+        if(b10&(1<<0)) {
+            if(b10&(1<<9)) board[2][2]=1;
+            else board[2][2]=2;
+        } else board[2][2]=0;
+        int outcome = 3;
+        int blank = 0;
+        F0R(i, 3) {
+            F0R(j, 3) {
+                if(board[i][j]==0) blank++;
+            }
+        }
+        if(blank==0) outcome=2;
+        if(board[0][0]==board[0][1]&&board[0][0]==board[0][2]) {
+            if(board[0][0]==1) outcome=0;
+            if(board[0][0]==2) outcome=1;
+        }
+        if(board[1][0]==board[1][1]&&board[1][0]==board[1][2]) {
+            if(board[1][0]==1) outcome=0;
+            if(board[1][0]==2) outcome=1;
+        }
+        if(board[2][0]==board[2][1]&&board[2][0]==board[2][2]) {
+            if(board[2][0]==1) outcome=0;
+            if(board[2][0]==2) outcome=1;
+        }
+        if(board[0][0]==board[1][0]&&board[0][0]==board[2][0]) {
+            if(board[0][0]==1) outcome=0;
+            if(board[0][0]==2) outcome=1;
+        }
+        if(board[0][1]==board[1][1]&&board[0][1]==board[2][1]) {
+            if(board[0][1]==1) outcome=0;
+            if(board[0][1]==2) outcome=1;
+        }
+        if(board[0][2]==board[1][2]&&board[0][2]==board[2][2]) {
+            if(board[0][2]==1) outcome=0;
+            if(board[0][2]==2) outcome=1;
+        }
+        if(board[0][0]==board[1][1]&&board[1][1]==board[2][2]) {
+            if(board[0][0]==1) outcome=0;
+            if(board[0][0]==2) outcome=1;
+        }
+        if(board[2][0]==board[1][1]&&board[2][0]==board[0][2]) {
+            if(board[2][0]==1) outcome=0;
+            if(board[2][0]==2) outcome=1;
+        }
+        if(outcome==0) {
+            cout << "X wins" << endl;
+        } else if(outcome==1) {
+            cout << "O wins" << endl;
+        } else if(outcome==2) {
+            cout << "Cat's" << endl;
+        } else {
+            cout << "In progress" << endl;
+        }
     }
     return 0;
 }

@@ -208,7 +208,7 @@ struct Math {
             y = x;
             for (ll i = 0; i < z; i++) {
                 (x = (x*x+1)%n);
-                ff = std::gcd(ll(x-y), n);
+                ff = gcd(abs(ll(x-y)), abs(n));
                 if(ff > 1) {
                     out.push_back(min(ff, n/ff)), out.push_back(max(ff, n/ff));
                     return out;
@@ -224,7 +224,9 @@ struct Math {
         }
         // cout << p << endl;
         vector<ll> out = {1};
-        for (auto& [q, f] : p) {
+        for (auto& x : p) {
+            ll q = x.f;
+            int f = x.s;
             vector<ll> tmp;
                 for (ll x : out) {
                     ll r = 1;

@@ -135,63 +135,66 @@ using ll = long long;
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-bool nextAnd() {
-    string s;
-    cin >> s;
-    if(s=="and") return true;
-    return false;
-}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n;
-    cin >> n;
-    set<string> alr;
-    vt<int> more;
-    vt<string> reward;
-    map<string,set<int>> contrib;
-    set<string> exists;
+    int n,m;
+    cin >> n >> m;
+    vt<set<int>> adj(n);
+    F0R(i, m) {
+        int a,b;
+        cin >> a >> b;
+        a--;
+        b--;
+        adj[a].insert(b);
+        adj[b].insert(a);
+    }
+    int ans = 0;
     F0R(i, n) {
-        string s;
-        cin >> s;
-        if(s=="if") {
-            int cnt = 0;
-            while(true) {
-                cin >> s;
-                cnt++;
-                contrib[s].insert(more.size());
-                if(nextAnd()) {
-
-                } else {
-                    cin >> s;
-                    more.add(cnt);
-                    reward.add(s);
-                    break;
-                }
+        if(adj[i].size()<4) continue;
+        trav(x, adj[i]) {
+            if(adj[x].size()>1) {
+                ans+=(adj[i].size()-1)*(adj[i].size()-2)*(adj[i].size()-3)/6*(adj[x].size()-1);
             }
-        } else {
-            alr.insert(s);
         }
     }
-    trav(x, alr) exists.insert(x);
-    // cout << more << reward << endl;
-    int ans = alr.size();
-    while(alr.size()) {
-        auto bk = *(alr.begin());
-        alr.erase(bk);
-        trav(x, contrib[bk]) {
-            more[x]--;
-            if(more[x]==0) {
-                if(!exists.count(reward[x])) {
-                    exists.insert(reward[x]);
-                    alr.insert(reward[x]);
-                    ans++;
+    vector<array<int,3>> triangles;
+    F0R(v, n) {
+        //v
+        trav(w, adj[v]) {
+            if(adj[w].size()<adj[v].size()) continue;
+            if(adj[w].size()==adj[v].size()&&w<v) continue;
+            // cout << v << " " << w << endl;
+            trav(u, adj[v]) {
+                if(adj[u].size()>adj[v].size()) continue;
+                if(adj[u].size()==adj[v].size()&&u>v) continue;
+                if(adj[u].count(w)) {
+                    array<int,3> hr = {u,v,w};
+                    sort(begin(hr),end(hr));
+                    triangles.add(hr);
                 }
             }
+        }
+    }
+    // cout << ans << endl;
+    // cout << triangles << endl;
+    // cout << triangles.size() << endl;
+    trav(x, triangles) {
+        //u,v,w
+        //u as middle
+        if(adj[x[0]].size()>=4) {
+            ans-=(adj[x[0]].size()-2)*(adj[x[0]].size()-3);
+        }
+        if(adj[x[1]].size()>=4) {
+            ans-=(adj[x[1]].size()-2)*(adj[x[1]].size()-3);
+        }        
+        if(adj[x[2]].size()>=4) {
+            ans-=(adj[x[2]].size()-2)*(adj[x[2]].size()-3);
         }
     }
     cout << ans << endl;
+    // cout << ans << endl;
     return 0;
 }

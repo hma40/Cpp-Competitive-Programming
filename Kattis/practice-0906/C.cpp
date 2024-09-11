@@ -126,7 +126,7 @@ using ll = long long;
 #define f first
 #define s second
 #define trav(a,x) for (auto& a: x)
-#define int long long
+#define int __int128_t
 #define vt vector
 #define endl "\n"
 #define double long double
@@ -147,16 +147,14 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int n;
+    ll n;
     cin >> n;
     /*
     6 * 1/2 * 2/3 = 2
     n-phi(n)=n(1-(1/2)(2/3)etc) 
     maximize 1-(1/2)(2/3)
     2 * 3 * 5 = 30
-    maximize 
-    1 - (p1-1)(p2-1)...(pn-1)/(p1p2...pn)
-    
+
     */
     vector<int> primes = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47, 53, 59, 61,67};
     int prod = 1;

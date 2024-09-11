@@ -56,9 +56,8 @@ ll rand_num(int l, int h) {
     return rnd()%(h-l+1)+l;
 }
 struct TestCase {
-    int n,m;
-    vt<int> a,q;
-
+    int n;
+    vt<int> a;
 };
 void fill_rand(vt<int> &v, int lo, int hi) {
     for(auto &x: v) {
@@ -73,86 +72,72 @@ void rand_tree(vt<vt<int>> &adj) {
     }
 }
 void print_TC(TestCase tc) {
-    cout << tc.n << " " << tc.m << endl <<  tc.a << endl << tc.q << endl;
-    cout << "HELLO" << endl;
+    cout << tc.n << endl << tc.a << endl;
 }
 TestCase randTC() {
-    TestCase tc;
-    cout << "LINE 80" << endl;
-    tc.n=5;
-    tc.m=5;
-    F0R(i, tc.n) tc.a.add(rand_num(1,10));
-    F0R(i, tc.m) tc.q.add(rand_num(1,100));
-    cout << "LINE 85" << endl;
+    TestCase tc;    
+    tc.n=50;
+    F0R(i, tc.n) {
+        tc.a.add(rand_num(-25,25));
+    }
     return tc;
 }
 struct WrongSol {
-    string solve(TestCase tc) {
-        int n,m;
-        // cin >> n >> m;
-        n=tc.n;
-        m=tc.m;
-        set<int> s;
-        string ret = "";
-        vt<int> v(n);
-        F0R(i, n) v[i]=tc.a[i];
+    int solve(TestCase tc) {
+        vt<int> pow2 = {1,2,4,8,16,32,64,128,256,512,1024,2048};
+        int n=tc.n;
+        // cin >> n;
+        vt<int> a=tc.a;
+        // F0R(i, n) cin >> a[i];
         vt<int> pref(n+1);
-        FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-        set<int> ff;
-        trav(x, pref) ff.insert(x);
-        F0R(xx, m) {
-            int x=tc.q[xx];
-            // cin >> x;
-            bool good = false;
-            int needMid = pref.back()-x;
-            F0R(i, n+1) {
-                auto bro = pref[i];
-                auto look = bro+needMid;
-                if(ff.count(look)) good=true;
-            }
-            if(good) ret+="Yes\n";
-            else ret+="No\n";
+        F0R(i, n) pref[i+1]=pref[i]+a[i];
+        int mx = 0;
+        FOR(i, 1, n+1) {
+            //assume abs val used before a[i]
+            mx=max(mx, abs(pref[i])+pref[n]-pref[i]);
         }
-        return ret;
+        int ans = 0;
+        vt<int> critVal(n+1),ways(n+1);
+        critVal[0]=mx-pref[n];
+        if(critVal[0]==0) ways[0]=1;
+        int nonneg = 0;
+        FOR(i, 1, n+1) {
+            critVal[i]=mx-pref[n]+pref[i];
+            ways[i]=ways[i-1]*2;
+            if(pref[i]<0&&abs(pref[i])==critVal[i]) {
+                ways[i]+=pow2[nonneg];
+            }
+            if(pref[i]>=0) nonneg++;
+        }
+        return ways.back();
     }
-
 };
 struct CorrectSol {
-    string solve(TestCase tc) {
-    int n,m;
-    // cin >> n >> m;
-    n=tc.n;
-    m=tc.m;
-    set<int> s;
-    vt<int> v(n);
-    F0R(i, n) v[i]=tc.a[i];
-    vt<int> pref(n+1);
-    FOR(i, 1, n+1) pref[i]=pref[i-1]+v[i-1];
-    vector<int> poss(105);
-    // cout << pref << endl;
-    FOR(front, 0, n+1) {
-        for(int back = 0; back+front<=n; back++) {
-            int frontSum = pref[front];
-            int backSum = pref.back()-pref[n-back];
-            // cout << front << " " << back << " " << frontSum << " " << backSum << endl;
-            poss[frontSum+backSum]=true;
+    int solve(TestCase tc) {
+        vt<int> p2 = {1,2,4,8,16,32,64,128,256,512,1024,2048};
+        int n=tc.n;
+        vector<int> arr=tc.a;// for (int i = 0; i < n; ++i) cin >> arr[i];
+        ll sum = 0, mn = 0, ans = 0, abses = 0;
+        for (int i = 0; i < n; ++i) sum += arr[i], mn = min(mn, sum);
+        if (mn == 0) {
+            // cout << p2[n] << '\n';
+            return p2[n];
         }
-    }
-    // cout << s << endl;
-    string ret = "";
-    F0R(xx, m) {
-        int x=tc.q[xx];
-        // cin >> x;
-        if(poss[x]) ret+="Yes\n";
-        else ret+="No\n";
-    }
-    return ret;
+        sum = 0;
+        for (int i = 0; i < n; ++i) {
+            sum += arr[i];
+            if (sum == mn) {
+            ans = (ans + p2[n - i - 1 + abses]) % mod;
+            }
+            if (sum >= 0) ++abses;
+        }
+        // cout << ans << '\n';
+        return ans;
     }
 };
 signed main() {
     while(true) {
         TestCase tc = randTC();
-        print_TC(tc);
         WrongSol w;
         CorrectSol c;
         auto wa = w.solve(tc);
