@@ -1,11 +1,3 @@
-/*
-For each number i, if we make this the mode of set 1, whats the max mode of set 2?
-
-(stop when we reach x such that y<x appears more than two times more often)
-find max number with frequency >= k-freq(i)
-
-*/
-
 #include <bits/stdc++.h>
 std::string to_string(__int128_t value) {
     if (value == 0) return "0";
@@ -124,6 +116,8 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+template<typename T>
+using min_pq = std::priority_queue<T, std::vector<T>, std::greater<T>>;
 using namespace std;
 using ll = long long;
 #define add push_back 
@@ -136,86 +130,11 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-// #define endl "\n"
+#define endl "\n"
 #define double long double
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-struct SegTree {
-    int n;
-    vt<int> tree;
-    SegTree(int nn) {
-        int np = 1;
-        while(np<nn) np*=2;
-        tree.resize(2*np);
-        n=np;
-    }
-    void build(vt<int> &arr) {
-        for(int i = 0; i < arr.size(); i++) {
-            tree[i+n]=arr[i];
-        }
-        for(int i = n-1; i > 0; i--) {
-            //CHANGE HERE
-            tree[i]=max(tree[2*i],tree[2*i+1]);
-        }
-    }
-    void set(int pos, int x) {
-        pos+=n;
-        tree[pos]=x;
-        for(pos/=2; pos; pos/=2) {
-            //CHANGE HERE
-            tree[pos]=max(tree[2*pos],tree[2*pos+1]);
-        }
-    }
-    int lastGreater(int atLeast) {
-        // cout << tree << endl;
-        int cur = 1;
-        while(cur<n) {
-            if(tree[2*cur+1]>=atLeast) {
-                cur=2*cur+1;
-            } else {
-                cur*=2;
-            }
-        }
-        return cur-n;
-    }
-    int rangeQuery(int a, int b) {
-        a+=n;
-        int ans = 0;
-        b+=n;
-        while(a<=b) {
-            if(a%2==1) ans=max(ans,tree[a++]);
-            if(b%2==0) ans=max(ans,tree[b--]);
-            a/=2;
-            b/=2;
-        }
-        return ans;
-    }
-};
-int solve(vt<int> &v) {
-    int n=v.size();
-    // cout << v << endl;
-    vt<int> freq(n);    
-    F0R(i, n) {
-        int x=v[i];
-        freq[x]++;
-    }
-    SegTree s(n);
-    s.build(freq);
-    int mostBef = 0;
-    int ans = 0;
-
-    F0R(i, n) {
-        if(freq[i]==0) continue;
-        mostBef=max(mostBef, freq[i]);
-        // cout << "LINE 218 " << i << " " << freq << endl;
-        int lim = max(1LL,s.rangeQuery(0,n-1)-freq[i]);
-        ans=max(ans, s.lastGreater(lim)-i);
-        s.set(i,0);
-    }
-    return ans;
-    // cout << ans << endl;
-}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
@@ -224,40 +143,43 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        int n,q;
-        cin >> n >> q;
-        vt<int> freq(n);
-        vt<int> a(n);
+        int n;
+        cin >> n;
+        vt<vt<int>> a(n, vt<int>(n));
         F0R(i, n) {
-            cin >> a[i];
-            a[i]--;
-            // freq[x-1]++;
+            F0R(j, n) cin >> a[i][j];
         }
-        F0R(i, q) {
-            int x,y;
-            cin >> x >> y;
-            x--;
-            y--;
-            a[x]=y;
-            cout << solve(a) << endl;
+        vt<int> ret(n);
+        F0R(x, 30) {
+            vt<bool> canHave(n, true);
+            F0R(i, n) {
+                FOR(j, i+1, n) {
+                    if(a[i][j]&(1<<x)) {
+
+                    } else {
+                        canHave[i]=canHave[j]=false;
+                    } 
+                }
+            }
+            F0R(i, n) {
+                if(canHave[i]) {
+                    ret[i]|=(1<<x);
+                }
+            }
+        }
+        bool good =  true;
+        F0R(i, n) {
+            FOR(j, i+1, n) {
+                if((ret[i]|ret[j])!=a[i][j]) good=false;
+            }
+        }
+        if(good) {
+            cout << "YES" << endl;
+            trav(x, ret) cout << x << " ";
+            cout << endl;
+        } else {
+            cout << "NO" << endl;
         }
     }
     return 0;
 }
-/*
-1
-5 5
-1 1 2 3 1
-5 1
-5 2
-5 3
-5 4
-5 5
-
-1 1 2 3 1
-2
-1 1 2 3 2
-2
-1 1 2 3 3
-2
-*/

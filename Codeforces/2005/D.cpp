@@ -1,11 +1,3 @@
-/*
-For each number i, if we make this the mode of set 1, whats the max mode of set 2?
-
-(stop when we reach x such that y<x appears more than two times more often)
-find max number with frequency >= k-freq(i)
-
-*/
-
 #include <bits/stdc++.h>
 std::string to_string(__int128_t value) {
     if (value == 0) return "0";
@@ -124,6 +116,8 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+template<typename T>
+using min_pq = std::priority_queue<T, std::vector<T>, std::greater<T>>;
 using namespace std;
 using ll = long long;
 #define add push_back 
@@ -136,86 +130,20 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-// #define endl "\n"
+#define endl "\n"
 #define double long double
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-struct SegTree {
-    int n;
-    vt<int> tree;
-    SegTree(int nn) {
-        int np = 1;
-        while(np<nn) np*=2;
-        tree.resize(2*np);
-        n=np;
-    }
-    void build(vt<int> &arr) {
-        for(int i = 0; i < arr.size(); i++) {
-            tree[i+n]=arr[i];
+    ll gcd(ll a, ll b) {
+        if(a>b) swap(a,b);
+        while(a!=0) {
+            int t = a;
+            a=b%a;
+            b=t;
         }
-        for(int i = n-1; i > 0; i--) {
-            //CHANGE HERE
-            tree[i]=max(tree[2*i],tree[2*i+1]);
-        }
+        return b;
     }
-    void set(int pos, int x) {
-        pos+=n;
-        tree[pos]=x;
-        for(pos/=2; pos; pos/=2) {
-            //CHANGE HERE
-            tree[pos]=max(tree[2*pos],tree[2*pos+1]);
-        }
-    }
-    int lastGreater(int atLeast) {
-        // cout << tree << endl;
-        int cur = 1;
-        while(cur<n) {
-            if(tree[2*cur+1]>=atLeast) {
-                cur=2*cur+1;
-            } else {
-                cur*=2;
-            }
-        }
-        return cur-n;
-    }
-    int rangeQuery(int a, int b) {
-        a+=n;
-        int ans = 0;
-        b+=n;
-        while(a<=b) {
-            if(a%2==1) ans=max(ans,tree[a++]);
-            if(b%2==0) ans=max(ans,tree[b--]);
-            a/=2;
-            b/=2;
-        }
-        return ans;
-    }
-};
-int solve(vt<int> &v) {
-    int n=v.size();
-    // cout << v << endl;
-    vt<int> freq(n);    
-    F0R(i, n) {
-        int x=v[i];
-        freq[x]++;
-    }
-    SegTree s(n);
-    s.build(freq);
-    int mostBef = 0;
-    int ans = 0;
-
-    F0R(i, n) {
-        if(freq[i]==0) continue;
-        mostBef=max(mostBef, freq[i]);
-        // cout << "LINE 218 " << i << " " << freq << endl;
-        int lim = max(1LL,s.rangeQuery(0,n-1)-freq[i]);
-        ans=max(ans, s.lastGreater(lim)-i);
-        s.set(i,0);
-    }
-    return ans;
-    // cout << ans << endl;
-}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
@@ -224,40 +152,47 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        int n,q;
-        cin >> n >> q;
-        vt<int> freq(n);
-        vt<int> a(n);
-        F0R(i, n) {
-            cin >> a[i];
-            a[i]--;
-            // freq[x-1]++;
+        int n;
+        cin >> n;
+        vt<int> a(n),b(n);
+        F0R(i, n) cin >> a[i];
+        F0R(i, n) cin >> b[i];
+        vt<int> prefa(n),suffa(n),prefb(n),suffb(n);
+        prefa[0]=a[0];
+        prefb[0]=b[0];
+        FOR(i, 1, n) {
+            prefa[i]=gcd(prefa[i-1], a[i]);
+            prefb[i]=gcd(prefb[i-1], b[i]);
         }
-        F0R(i, q) {
-            int x,y;
-            cin >> x >> y;
-            x--;
-            y--;
-            a[x]=y;
-            cout << solve(a) << endl;
+        suffa[n-1]=a[n-1];
+        suffb[n-1]=b[n-1];
+        R0F(i, n-1) {
+            suffa[i]=gcd(suffa[i+1], a[i]);
+            suffb[i]=gcd(suffb[i+1], b[i]);
         }
-    }
+        int ans = suffa[0]+suffb[0];
+        FOR(i, 0, n-1) {
+            ans=max(ans, gcd(prefa[i], suffb[i+1])+gcd(prefb[i], suffa[i+1]));
+            // cout << i << " " << gcd(prefa[i], suffb[i+1])+gcd(prefb[i], suffa[i+1]) << endl;
+        }
+        cout << ans << endl;
+        vt<int> factors;
+        for(int i = 1; i*i<=a[0]; i++) {
+            if(a[0]%i==0) {
+                factors.add(i);
+                if(i*i!=a[0]) factors.add(a[0]/i);
+            }
+        }
+        sort(begin(factors),end(factors));
+
+    }   
     return 0;
 }
 /*
-1
-5 5
-1 1 2 3 1
-5 1
-5 2
-5 3
-5 4
-5 5
-
-1 1 2 3 1
-2
-1 1 2 3 2
-2
-1 1 2 3 3
-2
+Look for factors of a[0]
+dp[i][j][k] = 
+- numbers 1 through i
+- j = which factor
+- k = which stage (0 = not begun switching, 1 = begun switching, 2 = stopped switching)
+- dp = max value of dp[1]
 */
