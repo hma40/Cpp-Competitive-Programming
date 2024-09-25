@@ -143,61 +143,15 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        int l,n,m;
-        cin >> l >> n >> m;
-        bool dp[l][n][m];//true if player to go wins with the submatrix starting at (j,k) and array i
-        vt<int> a(l);
-        vt<vt<int>> mat(n, vt<int>(m));
-        F0R(i, l) cin >> a[i];
-        F0R(i, n) {
-            F0R(j, m) cin >> mat[i][j];
-        }
-        F0R(i, l) {
-            if(mat[n-1][m-1]==a[i]) {
-                dp[i][n-1][m-1]=true;
-            } else {
-                dp[i][n-1][m-1]=false;
-            }
-        }
-        F0R(i, l) {
-            R0F(j, n-1) {
-                if(mat[j][m-1]==a[i]||dp[i][j+1][m-1]) {
-                    dp[i][j][m-1]=true;
-                } else {
-                    dp[i][j][m-1]=false;
-                }
-            }
-        }
-        F0R(i, l) {
-            R0F(j, m-1) {
-                if(mat[n-1][j]==a[i]||dp[i][n-1][j+1]) {
-                    dp[i][n-1][j]=true;
-                } else {
-                    dp[i][n-1][j]=false;
-                }
-            }
-        }
-        R0F(i, n-1) {
-            R0F(j, m-1) {
-                F0R(k, l) {
-                    bool win = false;
-                    win|=dp[k][i+1][j];
-                    win|=dp[k][i][j+1];
-                    if(mat[i][j]==a[k]) {
-                        if(k==l-1) win=true;
-                        else {
-                            if(!dp[k+1][i+1][j+1]) win=true;
-                        }
-                    }
-                    dp[k][i][j]=win;
-                }
-            }
-        }
-        if(dp[0][0][0]) {
-            cout << "T" << endl;
-        } else {
-            cout << "N" << endl;
-        }
+        int l,r;
+        cin >> l >> r;
+        int firstOdd = l;
+        if(l%2==0) firstOdd++;
+        int lastOdd = r;
+        if(r%2==0) lastOdd--;
+        int odds = (lastOdd-firstOdd)/2+1;
+        int groups = odds/2;
+        cout << groups << endl;
     }
     return 0;
 }

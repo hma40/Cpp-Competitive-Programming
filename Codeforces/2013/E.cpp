@@ -116,6 +116,8 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+template<typename T>
+using min_pq = std::priority_queue<T, std::vector<T>, std::greater<T>>;
 using namespace std;
 using ll = long long;
 #define add push_back 
@@ -133,32 +135,6 @@ using ll = long long;
 ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-struct RMQ {
-    vt<vt<int>> sparse;
-    vt<int> lg;
-    RMQ(vt<int> v, int log) {
-        lg.resize(v.size()+5);
-        FOR(i, 2, lg.size()) {
-            lg[i]=lg[i/2]+1;
-        }
-        sparse.resize(v.size(), vt<int>(log, -1));
-        F0R(i, v.size()) {
-            sparse[i][0]=v[i];
-        }
-        FOR(i, 1, log) {
-            F0R(j, (int)v.size()-(1LL<<i)+1) {
-                // cout << (int)v.size()-(1LL<<i)+1 << endl;
-                // cout << i << " " << j << endl;
-                sparse[j][i]=max(sparse[j][i-1], sparse[j+(1<<(i-1))][i-1]);
-            }
-        }
-    }
-    int getMin(int lo, int hi) {
-        if(lo<0) return inf;
-        int log = lg[hi-lo+1];
-        return max(sparse[lo][log], sparse[hi-(1<<log)+1][log]);
-    }
-};
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
@@ -167,79 +143,34 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        int n,x;
-        cin >> n >> x;
-        vt<int> a(n);
-        F0R(i, n) cin >> a[i];
-        vt<int> pref(n+1);
-        F0R(i, n) pref[i+1]+=pref[i]+a[i];
-        vt<int> leftWall(n, -1), rightWall(n, -1);
-        FOR(i, 1, n) {
-            if(a[i]<=a[i-1]) continue;
-            int lo = -1, hi = i-1;
-            while(lo+1<hi) {
-                int mid = (1+lo+hi)/2;
-                if(pref[i]-pref[mid]<a[i]) {
-                    //from mid to i-1 is less -> set hi to mid
-                    hi=mid;
-                } else {
-                    lo=mid;
+        int n;
+        cin >> n;
+        int g=0, cur=0;
+        multiset<int> ms;
+        F0R(i, n) {
+            int x;
+            cin >> x;
+            g=gcd(g,x);
+            ms.insert(x);
+        } 
+        multiset<int> ms2;
+        int best = 0, bestGCD = inf, ans = 0;
+        trav(x, ms) ms2.insert(x/g);
+        while(cur!=1) {
+            best=0;
+            bestGCD=inf;
+            trav(x, ms2) {
+                if(gcd(cur,x)<bestGCD) {
+                    bestGCD=gcd(cur,x);
+                    best=x;
                 }
             }
-            leftWall[i]=hi;
+            ms2.erase(ms2.find(best));
+            cur=bestGCD;
+            ans+=cur;
         }
-        // cout << leftWall << endl;
-        R0F(i, n-1) {
-            if(a[i]<=a[i+1]) continue;
-            int lo = i+1, hi = n;
-            while(lo+1<hi) {
-                int mid = (lo+hi)/2;
-                if(pref[mid+1]-pref[i+1]<a[i]) { //sum from i+1 to mid is less -> set lo to mid
-                    lo=mid; 
-                } else {
-                    hi=mid;
-                }
-            }
-            rightWall[i]=lo;
-        }
-        leftWall.add(1);
-        // cout << leftWall << rightWall << endl;
-        RMQ left(leftWall, 20), right(rightWall, 20);
-        vt<int> diffArr(n+1);
-        F0R(i, n+1) {
-            if(leftWall[i]==-1) continue;
-            if(right.getMin(leftWall[i]-1, i-1)<i-1) continue;
-            int lo = leftWall[i]-2, hi = i-1;
-            while(lo+1<hi) {
-
-                int mid = (1+lo+hi)/2;    
-                if((lo+hi)%2==0) mid=(lo+hi)/2;
-                // cout << i << " " << mid << " " << right.getMin(leftWall[i]-1, mid) << endl;
-                if(right.getMin(leftWall[i]-1, mid)<i-1) {
-                    lo=mid;
-                } else {
-                    hi=mid;
-                }
-            }
-            // cout << i << " " << hi << endl;
-            diffArr[hi+1]--;
-            diffArr[i]++;
-        }
-        int ans = 0;
-        if(diffArr[0]==0) ans++;
-        // cout << diffArr << endl;
-        FOR(i, 1, n) {
-            diffArr[i]+=diffArr[i-1];
-            if(diffArr[i]==0) ans++;
-        }
-        cout << ans << endl;
+        ans+=ms2.size();
+        cout << ans*g << endl;
     }
     return 0;
 }
-/*
- if there exists a proper subarray sum that is strictly smaller than its neighbors, then all of the elements in the subarray cannot be achieved
-
- for each element i, bsearch for the largest element j such that sum from i+1 to j is less than i and least element k such that sum from k to i-1 is less than i.
- For each i, assume i is the right wall. We have [k, i-1] blocked. On this range, find smallest p such that leftWall(j)<=i-1
- then everything from [p, i-1] is NO
-*/
