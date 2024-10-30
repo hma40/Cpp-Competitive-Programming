@@ -116,6 +116,8 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+template<typename T>
+using min_pq = std::priority_queue<T, std::vector<T>, std::greater<T>>;
 using namespace std;
 using ll = long long;
 #define add push_back 
@@ -141,7 +143,25 @@ signed main() {
     int t = 1;
     cin >> t;
     while(t--) {
-        
+        int n,s,k;
+        cin >> n >> s >> k;
+        set<int> bad;
+        F0R(i, k) {
+            int x;
+            cin >> x;
+            bad.insert(x);
+        }
+        int ans = inf;
+        F0R(i, k+5) {
+            int up = s+i, down = s-i;
+            if(!bad.count(up)&&up>0&&up<=n) {
+                ans=min(ans, i);
+            } 
+            if(!bad.count(down)&&down>0&&down<=n) {
+                ans=min(ans, i);
+            }
+        }
+        cout << ans << endl;
     }
     return 0;
 }
