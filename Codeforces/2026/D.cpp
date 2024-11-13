@@ -132,109 +132,94 @@ using ll = long long;
 #define vt vector
 #define endl "\n"
 #define double long double
-ll mod = 998244353;
+ll mod = 1000000007;
 ll inf = 1e18;
-    ll bexpo(ll b, ll e) {
-        ll a = 1;
-        while(e) {
-            if(e%2) {
-                a*=b;
-                a%=mod;
-            }
-            e/=2;
-            b*=b;
-            b%=mod;
-        }
-        return a;
-    }
-    vt<int> fact(10000), invfact(10000);
-    int nck(int n, int k) {
-        if(n<k) return 0;
-        return fact[n]*invfact[k]%mod*invfact[n-k]%mod;
-    }
+map<int,int> mp;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+int n;
+vt<int> a;
+vt<int> pref, dc, ddc;
+int query(int x) {
+    auto lb = mp.upper_bound(x);
+    // cout << x << (*lb) << endl;
+    // if((*lb).f!=x) --lb; 
+    --lb;
+    int group = (*lb).s;
+    int ans = ddc[(*lb).s];
+    // cout << "LINE 148 " << ans << endl;
+    /*
+    now we have everything before. Lets deal with this group now
+    lets calculate displacement first
+    original: 4a0+3a1+2a2+a3
+    this group: 2a1+a2
+    */
+    if(x==0) return 0;
+    x-=(*lb).f;
+    // cout << x << endl;
+    ans+=dc[x+group];
+    // cout << "LINE 159 " << ans << endl;
+    ans-=dc[group];
+    // cout << "LINE 161 " << ans << endl;
+    /*
+    +4a1 +3a2
+    -4a1
+
+    */
+    int amt = n-(x+group);
+    // cout << "AMT: " << amt << endl;
+    ans-=(amt)*pref[x+group];
+    // cout << "LINE 169 " << ans << endl;
+    ans+=(amt)*pref[group];
+    // cout << "LINE 171 " << ans << endl;
+    // return -1;
+    return ans;
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    // vt<int> fact(10000);
-    fact[0]=1;
-    FOR(i, 1, 10000) fact[i]=fact[i-1]*i%mod;
-    // vt<int> invfact(10000);
-    F0R(i, 10000) invfact[i]=bexpo(fact[i], mod-2);
-    vt<int> cata(501);
-    F0R(i, 501) {
-        cata[i]=nck(2*i,i)-nck(2*i, i+1);
-        cata[i]%=mod;
-        cata[i]+=mod;
-        cata[i]%=mod;
+    cin >> n;
+    a.resize(n);
+    F0R(i, n) cin >> a[i];
+    int end = 0;
+    mp[0]=0;
+    mp[inf]=n+1;
+    R0F(i, n) {
+        mp[end+i+1]=mp[end]+1;
+        end+=i+1;
     }
-    int n,m;
-    cin >> n >> m;
-    vt<int> ways(m+1);//ways[i] = ways for Alice to take i, Bob to take n-i, and for 1 to cover for n-2i
+    // cout << mp << endl;
     /*
-    how to calculate ways? ways[i]=
+    1 2 5 10
+    1 3 8 18
+    1 4 12 30
+
+    1+(1+2)+(1+2+5)+(1+2+5+10) = 4a1+3a2+2a3+a4
+    2+(2+5)+(2+5+10) = 3a2+
+    5+(5+10)+10
     */
-    vt<vt<int>> dp(m+1, vt<int>(m+1));//dp[i][j] = 1-i, alice takes j already
-    dp[1][1]=0;
-    dp[1][0]=1;
-    FOR(tot, 2, m+1) {
-        F0R(taken, tot+1) {
-            int bobtaken = tot-taken;
-            if(taken>bobtaken) continue;
-            dp[tot][taken]+=dp[tot-1][taken];
-            if(taken>0) dp[tot][taken]+=dp[tot-1][taken-1];
-            dp[tot][taken]%=mod;
-        }
+    pref.resize(n+1);
+    F0R(i, n) pref[i+1]=pref[i]+a[i];
+    dc.resize(n+1);
+    F0R(i, n) {
+        dc[i+1]=dc[i]+(n-i)*a[i];
     }
-    // cout << dp << endl;
-    vt<vt<int>> dp2(n+1, vt<int>(m+1));
-    FOR(alice, m/2, m+1) {
-        int bob = m-alice;
-        dp2[1][alice-bob]=dp[m][bob];
+    // cout << dc << endl;
+    ddc.resize(n+1);
+    F0R(i, n) ddc[i+1]=ddc[i]+dc[n]-dc[i];
+    // cout << ddc << endl;
+    int q;
+    cin >> q;
+    while(q--) {
+        int x,y;
+        cin >> x >> y;
+        x--;
+        // y--;
+        // query(x);
+        // cout << query(x) << endl;
+        cout << query(y)-query(x) << endl;
+        // cout << query(x) << " " << query(y) << endl;
     }
-    FOR(i, 1, n) {
-        F0R(prev, m+1 ){
-            FOR(alice, 0, m/2+1) {
-                int bob = m-alice;
-                int ndelta = prev-(bob-alice);
-                if(ndelta<0) continue;
-                // cout << i << " " << prev << " " << alice << " " << ndelta << endl;
-                dp2[i+1][ndelta]+=dp2[i][prev]*dp[m][alice];
-                dp2[i+1][ndelta]%=mod;
-            }
-        }
-    }
-    // cout << dp2 << endl;
-    cout << dp2[n][0] << endl;
     return 0;
-
 }
-/*
-1 2 3 4
-A can take 
-- 4 3
-- 4 2
-- 4 3 2
-- 4 3 1
-- 4 2 1
-- 4 3 2 1 
-
-1 2 3 4 5 6
-- 6 5 4
-- 6 5 3
-- 6 5 2
-- 6 4 3
-- 6 4 2
-- 6 5 4 3
-- 6 5 4 2
-- 6 5 4 1
-- 6 5 3 2
-- 6 5 3 1
-- 6 5 2 1
-- 6 4 3 2
-- 6 4 3 1
-- 6 4 2 1
-
-*/

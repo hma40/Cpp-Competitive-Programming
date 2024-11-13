@@ -1,3 +1,24 @@
+/*
+dp[i][j] = ways such that the correct path goes through specific node of layer i and a_v=j
+how to calculate? Loop through score of parent. 
+- if other child has score 0: 1 way ig
+- if other child has score 1: there are (subsize(x)) ways to put that score
+- if other child has score 2: there are (subsize(x)^2) ways to put that score
+
+example: 3,2,988244353
+dp[0][2] = 1
+dp[1][0] = 0
+dp[1][1]
+- other=0, parent=2: dp[0][2] * 2^0 * 2 = 2
+dp[1][2]
+- other=0, parent=2: dp[0][2] * 2^0 * 2 = 2
+dp[2][0] = 0
+dp[2][1]:
+- other=0, parent=1: dp[1][1] * 2^0 * 2 = 4
+- other=0, parent=2: dp[1][2] * 2^0 * 2 = 4
+dp[2][2]: 
+- other=0, parent=2: dp[1][2] * 2^0 * 2 = 4
+*/
 #include <bits/stdc++.h>
 std::string to_string(__int128_t value) {
     if (value == 0) return "0";
@@ -132,109 +153,69 @@ using ll = long long;
 #define vt vector
 #define endl "\n"
 #define double long double
-ll mod = 998244353;
+ll mod = 1000000007;
 ll inf = 1e18;
-    ll bexpo(ll b, ll e) {
-        ll a = 1;
-        while(e) {
-            if(e%2) {
-                a*=b;
-                a%=mod;
-            }
-            e/=2;
-            b*=b;
-            b%=mod;
-        }
-        return a;
-    }
-    vt<int> fact(10000), invfact(10000);
-    int nck(int n, int k) {
-        if(n<k) return 0;
-        return fact[n]*invfact[k]%mod*invfact[n-k]%mod;
-    }
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    // vt<int> fact(10000);
-    fact[0]=1;
-    FOR(i, 1, 10000) fact[i]=fact[i-1]*i%mod;
-    // vt<int> invfact(10000);
-    F0R(i, 10000) invfact[i]=bexpo(fact[i], mod-2);
-    vt<int> cata(501);
-    F0R(i, 501) {
-        cata[i]=nck(2*i,i)-nck(2*i, i+1);
-        cata[i]%=mod;
-        cata[i]+=mod;
-        cata[i]%=mod;
-    }
-    int n,m;
-    cin >> n >> m;
-    vt<int> ways(m+1);//ways[i] = ways for Alice to take i, Bob to take n-i, and for 1 to cover for n-2i
-    /*
-    how to calculate ways? ways[i]=
-    */
-    vt<vt<int>> dp(m+1, vt<int>(m+1));//dp[i][j] = 1-i, alice takes j already
-    dp[1][1]=0;
-    dp[1][0]=1;
-    FOR(tot, 2, m+1) {
-        F0R(taken, tot+1) {
-            int bobtaken = tot-taken;
-            if(taken>bobtaken) continue;
-            dp[tot][taken]+=dp[tot-1][taken];
-            if(taken>0) dp[tot][taken]+=dp[tot-1][taken-1];
-            dp[tot][taken]%=mod;
-        }
-    }
-    // cout << dp << endl;
-    vt<vt<int>> dp2(n+1, vt<int>(m+1));
-    FOR(alice, m/2, m+1) {
-        int bob = m-alice;
-        dp2[1][alice-bob]=dp[m][bob];
-    }
-    FOR(i, 1, n) {
-        F0R(prev, m+1 ){
-            FOR(alice, 0, m/2+1) {
-                int bob = m-alice;
-                int ndelta = prev-(bob-alice);
-                if(ndelta<0) continue;
-                // cout << i << " " << prev << " " << alice << " " << ndelta << endl;
-                dp2[i+1][ndelta]+=dp2[i][prev]*dp[m][alice];
-                dp2[i+1][ndelta]%=mod;
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n,k;
+        cin >> n >> k >> mod;
+        vt<int> pow2(501);
+        pow2[0]=1;
+        FOR(i, 1, 501) {
+            pow2[i]=pow2[i-1]*2%mod;
+        }   
+        vt<vt<int>> pref(501, vt<int>(501));//pref[i][j] = number of ways to put i score or less in 2^j-1 nodes
+        vt<vt<int>> ppref(501, vt<int>(501));
+
+        F0R(i, 501) pref[i][1]=i+1;
+        F0R(i, 501) pref[0][i]=1;
+        FOR(i, 1, 501) {
+            FOR(j, 2, 501) {
+                pref[i][j]=pref[i-1][j]*(pow2[j]-1)%mod;
             }
         }
+        F0R(i, 501) ppref[i][1]=i+1;
+        F0R(i, 501) ppref[0][i]=1;
+        FOR(i, 1, 501) {
+            FOR(j, 2, 501) {
+                ppref[i][j]=ppref[i-1][j]+pref[i][j];
+            }
+        }
+        cout << ppref[2][2] << " " << ppref[1][2] << " " << ppref[0][2] << endl;
+        // cout << pref[1][1] << endl;
+        cout << pref[2][2] << " " << pref[1][2] << " " << pref[0][2] << endl;
+        vt<vt<int>> dp(n, vt<int>(k+1));
+        dp[0][k]=1;
+        FOR(layer, 1, n) {
+            FOR(score, 1, k+1) {
+                FOR(parscore, score, k+1) {
+                    int maxother = min(parscore-score, score-1);
+                    int layersLeft = n-layer;
+                    dp[layer][score]+=dp[layer-1][parscore]*2*ppref[maxother][layersLeft];
+                    dp[layer][score]%=mod;
+                }
+            }
+        }
+        int ans = 0;
+        cout << dp << endl;
+        F0R(score, k+1) ans = (ans+dp[n-1][score])%mod;
+        cout << ans << endl;
     }
-    // cout << dp2 << endl;
-    cout << dp2[n][0] << endl;
-    return 0;
 
+    return 0;
 }
 /*
-1 2 3 4
-A can take 
-- 4 3
-- 4 2
-- 4 3 2
-- 4 3 1
-- 4 2 1
-- 4 3 2 1 
+3 5 998244353
 
-1 2 3 4 5 6
-- 6 5 4
-- 6 5 3
-- 6 5 2
-- 6 4 3
-- 6 4 2
-- 6 5 4 3
-- 6 5 4 2
-- 6 5 4 1
-- 6 5 3 2
-- 6 5 3 1
-- 6 5 2 1
-- 6 4 3 2
-- 6 4 3 1
-- 6 4 2 1
-
+dp[1][1]: 2
+dp[1][2]: 2+6=8
+dp[1][3]:
+- 2(1+3+9)=
 */
