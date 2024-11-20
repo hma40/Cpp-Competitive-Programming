@@ -132,47 +132,34 @@ using ll = long long;
 #define vt vector
 #define endl "\n"
 #define double long double
-ll mod = 998244353;
+ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-int bexpo(int b, int e) {
-    int ans = 1;
-    while(e) {
-        if(e&1) ans = ans*b%mod;
-        b=b*b%mod;
-        e>>=1;
-    }
-    return ans;
-}
-vt<int> f(1e6+5), invf(1e6+5);
-int nck(int n, int k) {
-    return f[n]*invf[n-k]%mod*invf[k]%mod;
-}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-
-    f[0]=invf[0]=1;
-    FOR(i, 1, 1e6+5) {
-        f[i]=f[i-1]*i%mod;
-        invf[i]=bexpo(f[i], mod-2);
-    }
-    FOR(i, 1, 1e6+5) {
-        invf[i]+=invf[i-1];
-        invf[i]%=mod;
-        f[i]+=f[i-1];
-        f[i]%=mod;
-    }
     int t = 1;
     cin >> t;
     while(t--) {
-        int x,l,r;
-        cin >> x >> l >> r;
-        int ans = (f[r]-f[l-1])*(invf[x])%mod;
-        ans+=mod;
-        ans%=mod;
+        int n;
+        cin >> n;
+        vt<int> a(n);
+        F0R(i, n) cin >> a[i];
+        bool found0 = false, found1 = false;
+        int ans = 2;
+        while(true) {
+            F0R(i, n) {
+                if(a[i]%2) found1=true;
+                else found0=true;
+            }
+            if(found0&&found1) break;
+            ans*=2;
+            F0R(i, n) a[i]/=2;
+            found1=false;
+            found0=false;
+        }
         cout << ans << endl;
     }
     return 0;

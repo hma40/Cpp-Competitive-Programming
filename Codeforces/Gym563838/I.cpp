@@ -132,48 +132,59 @@ using ll = long long;
 #define vt vector
 #define endl "\n"
 #define double long double
-ll mod = 998244353;
+ll mod = 1000000007;
 ll inf = 1e18;
-mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-int bexpo(int b, int e) {
-    int ans = 1;
-    while(e) {
-        if(e&1) ans = ans*b%mod;
-        b=b*b%mod;
-        e>>=1;
+struct DSU {
+    vt<int> par, sz;
+    int find(int x) {
+        if(par[x]==-1) return x;
+        return par[x]=find(par[x]);
     }
-    return ans;
-}
-vt<int> f(1e6+5), invf(1e6+5);
-int nck(int n, int k) {
-    return f[n]*invf[n-k]%mod*invf[k]%mod;
-}
+    DSU(int n) {
+        par.resize(n, -1);
+        sz.resize(n, 1);
+    }
+    void unite(int x,int y) {
+        x=find(x);
+        y=find(y);
+        if(x==y) return;
+        if(sz[x]>sz[y]) swap(x,y);
+        par[x]=y;
+        sz[y]+=sz[x];
+    }
+};
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-
-    f[0]=invf[0]=1;
-    FOR(i, 1, 1e6+5) {
-        f[i]=f[i-1]*i%mod;
-        invf[i]=bexpo(f[i], mod-2);
+    int n,m,a,b;
+    cin >> n >> m >> a >> b;
+    vt<pair<int,int>> edges;
+    F0R(i, m) {
+        int x,y;
+        cin >> x >> y;
+        edges.add({x-1,y-1});
     }
-    FOR(i, 1, 1e6+5) {
-        invf[i]+=invf[i-1];
-        invf[i]%=mod;
-        f[i]+=f[i-1];
-        f[i]%=mod;
+    DSU d(n);
+    DSU d2(n);
+    a--;b--;
+    trav(x, edges) {
+        if(x.f!=a&&x.s!=a) {
+            d.unite(x.f,x.s);
+        }
+        if(x.f!=b&&x.s!=b) {
+            d2.unite(x.f,x.s);
+        }
     }
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        int x,l,r;
-        cin >> x >> l >> r;
-        int ans = (f[r]-f[l-1])*(invf[x])%mod;
-        ans+=mod;
-        ans%=mod;
-        cout << ans << endl;
+    int ans = 0;
+    F0R(i, n) {
+        FOR(j, i+1, n) {
+            if(i==a||i==b||j==a||j==b) continue;
+            if(d.find(i)!=d.find(j)&&d2.find(i)!=d2.find(j)) ans++;
+        }
     }
+    cout << ans << endl;
     return 0;
 }

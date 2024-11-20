@@ -132,47 +132,36 @@ using ll = long long;
 #define vt vector
 #define endl "\n"
 #define double long double
-ll mod = 998244353;
+ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-int bexpo(int b, int e) {
-    int ans = 1;
-    while(e) {
-        if(e&1) ans = ans*b%mod;
-        b=b*b%mod;
-        e>>=1;
-    }
-    return ans;
-}
-vt<int> f(1e6+5), invf(1e6+5);
-int nck(int n, int k) {
-    return f[n]*invf[n-k]%mod*invf[k]%mod;
-}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-
-    f[0]=invf[0]=1;
-    FOR(i, 1, 1e6+5) {
-        f[i]=f[i-1]*i%mod;
-        invf[i]=bexpo(f[i], mod-2);
-    }
-    FOR(i, 1, 1e6+5) {
-        invf[i]+=invf[i-1];
-        invf[i]%=mod;
-        f[i]+=f[i-1];
-        f[i]%=mod;
-    }
     int t = 1;
     cin >> t;
+    vt<vt<int>> primeFacts(100001);
+    for(int i = 2; i < 100001; i++) {
+        if(primeFacts[i].size()) continue;
+        for(int j = i; j<100001; j+=i) {
+            primeFacts[j].add(i);
+        }
+    }
     while(t--) {
-        int x,l,r;
-        cin >> x >> l >> r;
-        int ans = (f[r]-f[l-1])*(invf[x])%mod;
-        ans+=mod;
-        ans%=mod;
+        int n;
+        cin >> n;
+        map<int,int> count;
+        int ans = 0;
+        for(int i = 2; i < n; i++) {
+            trav(x, primeFacts[n]) count[x]++;
+            trav(x, primeFacts[i]) count[x]++;
+            int c = 0;
+            trav(x, count) if(x.s==2) c++;
+            if(c==1) ans++;
+            count.clear();
+        }
         cout << ans << endl;
     }
     return 0;

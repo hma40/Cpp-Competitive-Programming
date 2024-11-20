@@ -134,46 +134,84 @@ using ll = long long;
 #define double long double
 ll mod = 998244353;
 ll inf = 1e18;
-mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-int bexpo(int b, int e) {
+int npk(int n, int k) {
     int ans = 1;
-    while(e) {
-        if(e&1) ans = ans*b%mod;
-        b=b*b%mod;
-        e>>=1;
+    F0R(i, k) {
+        ans=ans*(n-k)%mod;
     }
     return ans;
 }
-vt<int> f(1e6+5), invf(1e6+5);
-int nck(int n, int k) {
-    return f[n]*invf[n-k]%mod*invf[k]%mod;
+int bexpo(int b, int e) {
+    int a = 1;
+    while(e) {
+        if(e&1) a=a*b%mod;
+        e>>=1;
+        b=b*b%mod;
+    }
+    return a;
 }
+int fact[400005], invfact[400005];
+int nck(int n, int k) {
+    if(n<k) return 0;
+    return fact[n]*invfact[k]%mod*invfact[n-k]%mod;
+}
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
+    fact[0]=invfact[0]=1;
+    FOR(i, 1, 400005) {
+        fact[i]=fact[i-1]*i%mod;
+        invfact[i]=bexpo(fact[i], mod-2);
+    }
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-
-    f[0]=invf[0]=1;
-    FOR(i, 1, 1e6+5) {
-        f[i]=f[i-1]*i%mod;
-        invf[i]=bexpo(f[i], mod-2);
-    }
-    FOR(i, 1, 1e6+5) {
-        invf[i]+=invf[i-1];
-        invf[i]%=mod;
-        f[i]+=f[i-1];
-        f[i]%=mod;
-    }
     int t = 1;
     cin >> t;
     while(t--) {
-        int x,l,r;
-        cin >> x >> l >> r;
-        int ans = (f[r]-f[l-1])*(invf[x])%mod;
-        ans+=mod;
-        ans%=mod;
-        cout << ans << endl;
+        int n;
+        cin >> n;
+        vt<pair<int,int>> reqs;
+        reqs.add({0,0});
+        F0R(i, n) {
+            int x;
+            cin >> x;
+            if(x!=-1) reqs.add({i+1,x});
+        }
+        if(reqs.back().f==n&&reqs.back().s!=n) {
+            cout << -1 << endl;
+            continue;
+        }
+        if(reqs.back().f!=n) reqs.add({n,n});
+        int ans = 1;
+        cout << reqs << endl;
+        FOR(i, 1, reqs.size()) {
+            if(reqs[i].s<reqs[i-1].s) {
+                ans=0;
+                break;
+            }
+            /*
+            say we have requirements 
+            (3,1)
+            (11,8)
+            - take 0 from 4-11 for the empty hole: (2 choose 0)(8 choose 0)(0!)(8 choose 7)(9)(8)...(3)
+            - take 1 from 4-11 for the empty holes: (2 choose 1)(8 choose 1)(1!)(8 choose 6)(8)...(3)
+            - take 2 from 4-11 for the empty holes: (2 choose 2)(8 choose 2)(2!)(8 choose 5)(7)(...)(3)
+            */
+            int here = 0;
+            int factBef = npk(reqs[i].f-reqs[i-1].s, reqs[i].s-reqs[i-1].s);
+            F0R(holesfilled, reqs[i-1].f) {
+                
+            }
+        }
     }
     return 0;
 }
+/*
+1
+4
+1 1 2 4 
+
+1 4 3 2
+1 4 2 3
+*/

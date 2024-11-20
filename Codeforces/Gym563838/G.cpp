@@ -132,48 +132,47 @@ using ll = long long;
 #define vt vector
 #define endl "\n"
 #define double long double
-ll mod = 998244353;
+ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-int bexpo(int b, int e) {
-    int ans = 1;
-    while(e) {
-        if(e&1) ans = ans*b%mod;
-        b=b*b%mod;
-        e>>=1;
+int n;
+vt<int> a;
+bool works(int x) {
+    int highest = x, bestInd = -1;
+    int cur = x;
+    F0R(i, n) {
+        cur+=a[i];
+        if(cur<=0) {
+            break;
+        }
+        if(cur>highest) {
+            highest=cur;
+            bestInd=i;
+        }
     }
-    return ans;
-}
-vt<int> f(1e6+5), invf(1e6+5);
-int nck(int n, int k) {
-    return f[n]*invf[n-k]%mod*invf[k]%mod;
+    cur=highest*2;
+    FOR(i, bestInd+1, n) {
+        cur+=a[i];
+    }
+    return cur>0;
 }
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-
-    f[0]=invf[0]=1;
-    FOR(i, 1, 1e6+5) {
-        f[i]=f[i-1]*i%mod;
-        invf[i]=bexpo(f[i], mod-2);
+    cin >> n;
+    a.resize(n);
+    F0R(i, n) cin >>a[i];
+    int lo = 0, hi = 1e18;
+    while(lo+1<hi) {
+        int mid = (lo+hi)/2;
+        if(works(mid)) {
+            hi=mid;
+        } else {
+            lo=mid;
+        }
     }
-    FOR(i, 1, 1e6+5) {
-        invf[i]+=invf[i-1];
-        invf[i]%=mod;
-        f[i]+=f[i-1];
-        f[i]%=mod;
-    }
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        int x,l,r;
-        cin >> x >> l >> r;
-        int ans = (f[r]-f[l-1])*(invf[x])%mod;
-        ans+=mod;
-        ans%=mod;
-        cout << ans << endl;
-    }
+    cout << hi << endl;
     return 0;
 }

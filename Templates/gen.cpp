@@ -161,11 +161,16 @@ FastMod fs(mod);
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    cout << 1 << endl;
-    int n = 5;
-    cout << n << endl;
-    FOR(i, 1, n) {
-        int r = rand_num(0,i-1);
-        cout << i+1 << " " << r+1 << endl;
-    }
+    int n = 4;
+    cout << 1 << endl << n << endl;
+    F0R(i, n) cout << rand_num(0,n) << " ";
+    cout << endl;
 }
+/*
+5 71
+4 3
+2 3
+4 3
+2 4
+3 3
+*/

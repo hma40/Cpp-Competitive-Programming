@@ -132,48 +132,121 @@ using ll = long long;
 #define vt vector
 #define endl "\n"
 #define double long double
-ll mod = 998244353;
+ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-int bexpo(int b, int e) {
-    int ans = 1;
-    while(e) {
-        if(e&1) ans = ans*b%mod;
-        b=b*b%mod;
-        e>>=1;
-    }
-    return ans;
-}
-vt<int> f(1e6+5), invf(1e6+5);
-int nck(int n, int k) {
-    return f[n]*invf[n-k]%mod*invf[k]%mod;
-}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
+    int T;
+    cin >> T;
+    vt<int> primes(3401);
+    // int[] primes = new int[3401];
+    primes[0] = 2;
+    int index = 1;
+    for(int i = 3; i * i <= 1000000000; i++) {
+      bool prime = true;
+      for(int j = 0; primes[j]*primes[j] <= i; j++) {
+        if(i % primes[j] == 0) {prime = false; break;}
+      }
+      if(prime) {primes[index] = i; index++;}
+    }
 
-    f[0]=invf[0]=1;
-    FOR(i, 1, 1e6+5) {
-        f[i]=f[i-1]*i%mod;
-        invf[i]=bexpo(f[i], mod-2);
+    int x = 1;
+    int total = 0;
+    vt<int> phi(57358), sumphi(57358);
+    // int[] phi = new int[57358];
+    // int[] sumphi = new int[57358];
+    while(total < 1000000000) {
+      x++;
+      int temp = x;
+      int phii = 1;
+      index = 0;
+      while(primes[index] * primes[index] <= temp) {
+        if(temp % primes[index] == 0) {
+          while(temp % primes[index] == 0) {
+            temp /= primes[index];
+            phii *= primes[index];
+          }
+          phii /= primes[index];
+          phii *= primes[index] - 1;
+        }
+        index++;
+      }
+      if(temp > 1) {
+        phii *= temp - 1;
+      }
+      phi[x] = phii;
+      total += phii;
     }
-    FOR(i, 1, 1e6+5) {
-        invf[i]+=invf[i-1];
-        invf[i]%=mod;
-        f[i]+=f[i-1];
-        f[i]%=mod;
+
+    for(int i = 2; i < sumphi.size(); i++) {
+      sumphi[i] = sumphi[i - 1] + phi[i];
     }
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        int x,l,r;
-        cin >> x >> l >> r;
-        int ans = (f[r]-f[l-1])*(invf[x])%mod;
-        ans+=mod;
-        ans%=mod;
-        cout << ans << endl;
+
+    while(T-- > 0) {
+    //   st = new StringTokenizer(rr.readLine());
+    //   int n = Integer.parseInt(st.nextToken());
+      int n;
+      cin >> n;
+      int left = 1;
+      int right = phi.size() - 1;
+      while(right - left > 1) {
+        int test = (left + right)/2;
+        if(sumphi[test] >= n) {
+          right = test;
+        } else {
+          left = test;
+        }
+      }
+      n -= sumphi[left];
+      vt<int> factors;
+    //   ArrayList<Integer> factors = new ArrayList<Integer>();
+      index = 0;
+      int temp = right;
+      while(primes[index] * primes[index] <= temp) {
+        if(temp % primes[index] == 0) {
+          factors.add(primes[index]);
+          while(temp % primes[index] == 0) {
+            temp /= primes[index];
+          }
+        }
+        index++;
+      }
+      if(temp > 1) {factors.add(temp);}
+      int top = 1;
+      for(int i = 0; i < factors.size(); i++) {top *= 2;}
+
+      int small = 0;
+      int big = right;
+      while(big - small > 1) {
+        int test = (small + big)/2;
+        int amount = 0;
+        for(int iter = 0; iter < top; iter++) {
+          int it = iter;
+          bool pos = true;
+          int divisor = 1;
+          int primeIndex = 0;
+          while(it > 0) {
+            if(it % 2 == 1) {
+              pos = !pos;
+              divisor *= factors[primeIndex];
+            }
+            primeIndex++;
+            it /= 2;
+          }
+          if(pos) {amount += test/divisor;}
+          else {amount -= test/divisor;}
+        }
+        if(amount >= n) {big = test;}
+        else {small = test;}
+      }
+      cout << big << " " << right-big << endl;
+    //   pw.println(big + " " + (right - big));
     }
+
+    // pw.close();
     return 0;
 }

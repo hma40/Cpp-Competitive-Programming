@@ -130,50 +130,66 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-#define endl "\n"
+// #define endl "\n"
 #define double long double
-ll mod = 998244353;
+ll mod = 1000000007;
+map<int,int> mp;
+set<pair<int,int>> st;
+vt<vt<int>> primeFacts(1e6+5);
+void ins(int y) {
+    trav(x, primeFacts[y]) {
+        if(mp.count(x)) {
+            st.erase({mp[x], x});
+        } 
+        mp[x]++;
+        st.insert({mp[x], x});
+    }
+}
+void er(int y) {
+    trav(x, primeFacts[y]) {
+        st.erase({mp[x], x});
+        mp[x]--;
+        if(mp[x]==0) {
+            mp.erase(x);
+        } else {
+            st.insert({mp[x], x});
+        }
+    }
+}
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-int bexpo(int b, int e) {
-    int ans = 1;
-    while(e) {
-        if(e&1) ans = ans*b%mod;
-        b=b*b%mod;
-        e>>=1;
-    }
-    return ans;
-}
-vt<int> f(1e6+5), invf(1e6+5);
-int nck(int n, int k) {
-    return f[n]*invf[n-k]%mod*invf[k]%mod;
-}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
+    int n,k;
+    cin >> n >> k;
+    vt<int> a(n);
+    F0R(i, n) cin >> a[i];
 
-    f[0]=invf[0]=1;
-    FOR(i, 1, 1e6+5) {
-        f[i]=f[i-1]*i%mod;
-        invf[i]=bexpo(f[i], mod-2);
+    FOR(i, 2, 1000005) {
+        if(primeFacts[i].size()) continue;
+        for(int j = i; j < 1000005; j+=i) primeFacts[j].add(i);
     }
-    FOR(i, 1, 1e6+5) {
-        invf[i]+=invf[i-1];
-        invf[i]%=mod;
-        f[i]+=f[i-1];
-        f[i]%=mod;
+    a.add(1);
+    int right = -1;
+    int ans = 0;
+    for(int left = 0; left < n; left++) {
+        right=max(right, left-1);
+        while(right<n&&mp.size()<=k) {
+            right++;
+            if(right>n) return 0;
+            ins(a[right]);
+        }
+        er(a[right]);
+        right--;
+        if(mp.size()==k&&st.size()&&(*st.rbegin()).f!=right-left+1) {
+            // cout << "LINE 181 " << left << " " << right << " " << mp << endl;
+            ans=max(ans, right-left+1);
+        }
+        er(a[left]);
     }
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        int x,l,r;
-        cin >> x >> l >> r;
-        int ans = (f[r]-f[l-1])*(invf[x])%mod;
-        ans+=mod;
-        ans%=mod;
-        cout << ans << endl;
-    }
+    cout << ans << endl;
     return 0;
 }

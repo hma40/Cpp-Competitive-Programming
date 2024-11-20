@@ -132,48 +132,92 @@ using ll = long long;
 #define vt vector
 #define endl "\n"
 #define double long double
-ll mod = 998244353;
+ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-int bexpo(int b, int e) {
-    int ans = 1;
-    while(e) {
-        if(e&1) ans = ans*b%mod;
-        b=b*b%mod;
-        e>>=1;
+set<pair<int,int>> sections;
+set<int> active;
+struct DSU {
+    int n;
+    vector<int> sz, par, mn, mx;
+    DSU(int nn) {
+        this->n=nn;
+        sz.resize(n, 1);
+        par.resize(n, -1);
+        F0R(i, n) {
+            mn.add(i);
+            mx.add(i);
+        }
     }
-    return ans;
-}
-vt<int> f(1e6+5), invf(1e6+5);
-int nck(int n, int k) {
-    return f[n]*invf[n-k]%mod*invf[k]%mod;
-}
+    int find(int x) {
+        if(par[x]==-1) return x;
+        return par[x]=find(par[x]);
+    }
+    void unite(int i, int j) {
+        i=find(i);
+        j=find(j);
+        if(i==j) return;
+        if(sz[i]>sz[j]) swap(i,j);
+        sections.erase({-sz[i], mn[i]});
+        sections.erase({-sz[j], mn[j]});
+        sz[j]+=sz[i];
+        par[i]=j;
+        mn[j]=min(mn[j], mn[i]);
+        mx[j]=max(mx[j], mx[i]);
+        sections.insert({-sz[j], mn[j]});
+    }
+};
+int n;
+vt<int> a;
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
+    cin >> n;
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-
-    f[0]=invf[0]=1;
-    FOR(i, 1, 1e6+5) {
-        f[i]=f[i-1]*i%mod;
-        invf[i]=bexpo(f[i], mod-2);
+    a.resize(n);
+    F0R(i, n) cin >> a[i];
+    F0R(i, n) active.insert(i);
+    DSU d(n);
+    F0R(i, n) {
+        sections.insert({-1, i});
     }
-    FOR(i, 1, 1e6+5) {
-        invf[i]+=invf[i-1];
-        invf[i]%=mod;
-        f[i]+=f[i-1];
-        f[i]%=mod;
+    FOR(i, 1, n) {
+        if(a[i]==a[i-1]) d.unite(i-1,i); 
     }
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        int x,l,r;
-        cin >> x >> l >> r;
-        int ans = (f[r]-f[l-1])*(invf[x])%mod;
-        ans+=mod;
-        ans%=mod;
-        cout << ans << endl;
+    active.insert(-inf);
+    active.insert(inf);
+    int ans = 0;
+    while(sections.size()) {
+        auto f = *(sections.begin());
+        sections.erase(f);
+        int nxt = f.s;
+        F0R(i, -f.f) {
+            int cur = nxt;
+            nxt=(*active.upper_bound(cur));
+            active.erase(cur);
+        }
+        // cout << active << sections << endl;
+        ans++;
+        auto ub = active.upper_bound(f.s);
+        auto lb = active.upper_bound(f.s);
+        --lb;
+        // cout << (*ub) << " " << (*lb) << endl;
+        if((*ub)==inf||(*lb)==-inf) continue;
+        if(a[*ub]==a[*lb]) {
+            d.unite((*ub), (*lb));
+        }
     }
+    cout << ans << endl;
     return 0;
 }
+/*
+10
+4 1 5 8 8 5 1 1 5 4 
+4 1 5 5 1 1 5 4
+4 1 1 1 5 4
+4 5 4
+5 4
+4
+
+*/

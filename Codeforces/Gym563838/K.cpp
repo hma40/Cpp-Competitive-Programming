@@ -132,48 +132,69 @@ using ll = long long;
 #define vt vector
 #define endl "\n"
 #define double long double
-ll mod = 998244353;
+ll mod = 1000000007;
 ll inf = 1e18;
-mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-int bexpo(int b, int e) {
-    int ans = 1;
-    while(e) {
-        if(e&1) ans = ans*b%mod;
-        b=b*b%mod;
-        e>>=1;
+set<pair<double,double>> intervals;
+void add(pair<double,double> p) {
+    auto ub = intervals.upper_bound(p), lb = intervals.lower_bound(p);
+    --lb;
+    if(p.s>(*ub).f) {
+        p.s=max(p.s,(*ub).s);
+        p.f=min(p.f,(*ub).f);
+        intervals.erase(ub);
     }
-    return ans;
+    if(p.f<(*lb).s) {
+        p.f=min(p.f,(*lb).f);
+        p.s=max(p.s,(*lb).s);
+        intervals.erase(lb);
+    }
+    intervals.insert(p);
 }
-vt<int> f(1e6+5), invf(1e6+5);
-int nck(int n, int k) {
-    return f[n]*invf[n-k]%mod*invf[k]%mod;
-}
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-
-    f[0]=invf[0]=1;
-    FOR(i, 1, 1e6+5) {
-        f[i]=f[i-1]*i%mod;
-        invf[i]=bexpo(f[i], mod-2);
+    int n,p;
+    cin >> n >> p;
+    intervals.insert({-inf,-inf});
+    intervals.insert({inf,inf});
+    intervals.insert({0,0});
+    double sum = 0;
+    F0R(i, n) {
+        double a,b;
+        cin >> a >> b;
+        sum+=2*(a+b);
+        vt<pair<double,double>> ad;
+        trav(x, intervals) {
+            if(x.f!=inf&&x.f!=-inf) {
+                ad.push_back({x.f+2*min(a,b),x.s+2*sqrt(a*a+b*b)});
+            }
+        }
+        // cout << i << ad << endl;
+        trav(x, ad) add(x);
+        // cout << intervals << endl;
     }
-    FOR(i, 1, 1e6+5) {
-        invf[i]+=invf[i-1];
-        invf[i]%=mod;
-        f[i]+=f[i-1];
-        f[i]%=mod;
+    double ans = sum, nd = p-sum;
+    trav(x, intervals) {
+        if(abs(x.f-nd)<=1e-9) {
+            ans=p;
+            break;
+        }
+        if(abs(x.s-nd)<=1e-9) {
+            ans=p;
+            break;
+        }
+        if(x.f<=nd&&nd<=x.s) {
+            ans=p;
+            break;
+        } else {
+            if(x.f>nd) continue;
+            else ans=sum+x.s;
+        }
     }
-    int t = 1;
-    cin >> t;
-    while(t--) {
-        int x,l,r;
-        cin >> x >> l >> r;
-        int ans = (f[r]-f[l-1])*(invf[x])%mod;
-        ans+=mod;
-        ans%=mod;
-        cout << ans << endl;
-    }
+    // cout << intervals << endl;
+    cout << fixed << setprecision(20) << ans << endl;
     return 0;
 }

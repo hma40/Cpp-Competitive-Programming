@@ -132,48 +132,47 @@ using ll = long long;
 #define vt vector
 #define endl "\n"
 #define double long double
-ll mod = 998244353;
+ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-int bexpo(int b, int e) {
-    int ans = 1;
-    while(e) {
-        if(e&1) ans = ans*b%mod;
-        b=b*b%mod;
-        e>>=1;
-    }
-    return ans;
-}
-vt<int> f(1e6+5), invf(1e6+5);
-int nck(int n, int k) {
-    return f[n]*invf[n-k]%mod*invf[k]%mod;
+int n,h,d,s,p;
+bool works(double healingTime) {
+    double health = n+h*healingTime;
+    double time = healingTime+(0.0+d)/s;
+    return time*p<=health;
 }
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-
-    f[0]=invf[0]=1;
-    FOR(i, 1, 1e6+5) {
-        f[i]=f[i-1]*i%mod;
-        invf[i]=bexpo(f[i], mod-2);
-    }
-    FOR(i, 1, 1e6+5) {
-        invf[i]+=invf[i-1];
-        invf[i]%=mod;
-        f[i]+=f[i-1];
-        f[i]%=mod;
-    }
     int t = 1;
     cin >> t;
     while(t--) {
-        int x,l,r;
-        cin >> x >> l >> r;
-        int ans = (f[r]-f[l-1])*(invf[x])%mod;
-        ans+=mod;
-        ans%=mod;
-        cout << ans << endl;
+
+        cin >> n >> h >> d >> s >> p;
+        if(h<p) {
+            if(works(0)) {
+                cout << (d+0.0)/s << endl;
+            } else {
+                cout << -1.0 << endl;
+            }
+            continue;
+        }
+        if(!works(1e18)) {
+            cout << -1.0 << endl;
+            continue;
+        }
+        double lo = 0, hi = 1e18;
+        while(hi-lo>0.00001) {
+            double mid = (lo+hi)/2;
+            if(works(mid)) {
+                hi=mid;
+            } else {
+                lo=mid;
+            }
+        }
+        cout << fixed << setprecision(10) << lo+(0.0+d)/s << endl;
     }
     return 0;
 }
