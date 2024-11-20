@@ -132,31 +132,83 @@ using ll = long long;
 #define vt vector
 #define endl "\n"
 #define double long double
-ll mod = 998244353;
+ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-int bexpo(int b, int e) {
-    int ans = 1;
-    while(e) {
-        if(e&1) ans = ans*b%mod;
-        b=b*b%mod;
-        e>>=1;
-    }
-    return ans;
-}
-vt<int> f(1e6+5), invf(1e6+5);
-int nck(int n, int k) {
-    return f[n]*invf[n-k]%mod*invf[k]%mod;
-}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n,m;
+        cin >> n >> m;
+        vt<int> a(n), b(n);
+        F0R(i, n) cin >> a[i];
+        F0R(i, n) cin >> b[i];
+        if(n==1) {
+            cout << abs(a[0]-b[0]) << endl;
+            continue;
+        }
+        int ans = 0;
+        F0R(i, n) ans+=abs(a[i]-b[i]);
+        multiset<int> allb;
+        F0R(i, n) allb.insert(b[i]);
+        int mx = 1;
+        while(mx<=m) mx*=2;
+        vt<int> closest(mx);
+        vt<int> cl(mx);
+        F0R(i, mx) {
+            auto ptr = (allb.upper_bound(i));
+            if(ptr==allb.begin()) {
+                closest[i]=-1;
+                cl[i]=-1;
+                continue;
+            } else {
+                ptr--;
+                closest[i]=(*ptr);
+                if(ptr==allb.begin()) {
+                    cl[i]=-1;
+                } else {
+                    ptr--;
+                    cl[i]=(*ptr);
+                }
+            }
+            
+        }
+        // cout << closest << ans << endl;
+        F0R(i, mx) {
+            int sm = closest[i];
+            // cout << i << " " << sm << endl;
+            if(sm==-1) continue;
+            for (int num=i; num; num=(num-1)&i) {
+                int sm2 = cl[num];
+                if(sm<=num) {
 
-for (int i = 0; i < (1 << 2); i++) {
-	// iterate over all subsets of i directly
-	for (int j = (i - 1) & i; j >= 0; j = (j - 1) & i) { cout << i << " " << j << endl; }
-}
+                } else {
+                    sm2=closest[num];
+                }
+
+                if(sm2==-1) continue;
+                // cout << i << " " << num << " " << sm << " " << sm2 << endl;
+                ans=min(ans, i+num-sm-sm2);
+            }
+            int sm2 = cl[0];
+            if(sm<=0) {
+
+            } else {
+                sm2=closest[0];
+            }
+            if(sm2==-1) continue;
+            ans=min(ans, i-sm-sm2);
+            // cout << i << " " << ans << endl;
+        }
+        cout << ans << endl;
+    }
     return 0;
 }
+/*
+
+*/

@@ -132,31 +132,111 @@ using ll = long long;
 #define vt vector
 #define endl "\n"
 #define double long double
-ll mod = 998244353;
+ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-int bexpo(int b, int e) {
-    int ans = 1;
-    while(e) {
-        if(e&1) ans = ans*b%mod;
-        b=b*b%mod;
-        e>>=1;
+struct Node {
+    vector<pair<int,int>> data;
+    Node* left;
+    Node* right;
+    Node() {
+        left = nullptr;
+        right = nullptr;
     }
-    return ans;
-}
-vt<int> f(1e6+5), invf(1e6+5);
-int nck(int n, int k) {
-    return f[n]*invf[n-k]%mod*invf[k]%mod;
-}
+};
+struct MergeSortTree {
+    int nn;
+    Node* root;
+    MergeSortTree(vector<int> &a) {
+        root = new Node();
+        nn = a.size();
+        insert(a, root, 0, nn-1);
+    }
+    Node* insert(vector<int> &a, Node* n, int l, int r) {
+        if(l==r) {
+            n->data.resize(1);
+            n->data[0]={a[l], a[l]};
+            return n;
+        }
+        Node* lft = insert(a, new Node(), l, (l+r)/2);
+        Node* rt = insert(a, new Node(), (l+r)/2+1, r);
+        int lpt = 0, rpt = 0;
+        int sm = 0;
+        while(lpt<lft->data.size() && rpt<rt->data.size()) {
+            if(lft->data[lpt].f<rt->data[rpt].f) {
+                sm+=lft->data[lpt].f;
+                n->data.add({lft->data[lpt].f, sm});
+                lpt++;
+            } else {
+                sm+=rt->data[rpt].f;
+                n->data.add({rt->data[rpt].f, sm});\
+                rpt++;
+            }
+        }
+        while(lpt<lft->data.size()) {
+            sm+=lft->data[lpt].f;
+            n->data.add({lft->data[lpt].f, sm});
+            lpt++;
+        }
+        while(rpt<rt->data.size()) {
+            sm+=rt->data[rpt].f;
+            n->data.add({rt->data[rpt].f, sm});\
+            rpt++;
+        }
+        return n;
+    }
+};
+struct SegTree {
+    int n;
+    vt<int> tree;
+    SegTree(int nn) {
+        int np = 1;
+        while(np<nn) np*=2;
+        tree.resize(2*np);
+        n=np;
+    }
+    void set(int pos, int x) {
+        pos+=n;
+        tree[pos]=x;
+        for(pos/=2; pos; pos/=2) {
+            //CHANGE HERE
+            tree[pos]=min(tree[2*pos], tree[2*pos+1]);
+        }
+    }
+    int rangeQuery(int a, int b) {
+        a+=n;
+        int ans = inf;
+        b+=n;
+        while(a<=b) {
+            if(a%2==1) ans=min(ans,tree[a++]);
+            if(b%2==0) ans=min(ans,tree[b--]);
+            a/=2;
+            b/=2;
+        }
+        return ans;
+    }
+};
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-
-for (int i = 0; i < (1 << 2); i++) {
-	// iterate over all subsets of i directly
-	for (int j = (i - 1) & i; j >= 0; j = (j - 1) & i) { cout << i << " " << j << endl; }
-}
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        vt<int> a(n);
+        F0R(i, n) cin >> a[i];
+        MergeSortTree st(a);
+        vector<int> lex;
+        
+    }
     return 0;
 }
+/*
+keep a merge sort tree
+each node contains sorted list of values, each containing prefix sum of everything LEQ
+loop through the array, keeping track of lex largest array
+
+*/

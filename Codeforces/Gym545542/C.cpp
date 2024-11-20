@@ -130,33 +130,70 @@ using ll = long long;
 #define trav(a,x) for (auto& a: x)
 #define int long long
 #define vt vector
-#define endl "\n"
 #define double long double
-ll mod = 998244353;
+ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-int bexpo(int b, int e) {
-    int ans = 1;
-    while(e) {
-        if(e&1) ans = ans*b%mod;
-        b=b*b%mod;
-        e>>=1;
-    }
-    return ans;
-}
-vt<int> f(1e6+5), invf(1e6+5);
-int nck(int n, int k) {
-    return f[n]*invf[n-k]%mod*invf[k]%mod;
-}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-
-for (int i = 0; i < (1 << 2); i++) {
-	// iterate over all subsets of i directly
-	for (int j = (i - 1) & i; j >= 0; j = (j - 1) & i) { cout << i << " " << j << endl; }
-}
+    int t = 1;
+    cin >> t;
+    int odd = 0, even = 0;
+    F0R(i, 30) {
+        if(i%2) odd+=(1<<i);
+        else even+=(1<<i);
+    }
+    while(t--) {
+        /*
+        f(n,x)+f(n,y) = 2*n+(stuff in x without bits of n) + (stuff in y without bits of n)
+        ask odd and even bits
+        */
+        cout << odd << endl;
+        int p,q;
+        cin >> p;
+        cout << even << endl;
+        cin >> q;
+        p-=2*odd;
+        q-=2*even;
+        /*
+        p now contains sum of even bits
+        look at every 2 bits (even, odd)
+        10: 01 + 01
+        01: 01 + 00
+        00: 00+00
+        */
+        int x=0, y=0;
+        // cout << p << " " << q << endl;
+        for(int i = 29; i > 0; i-=2) {
+            bool ph = p&(1<<i);
+            bool phh = p&(1<<(i-1));
+            if(ph&&phh) assert(false);
+            else if(ph) {
+                x+=(1<<(i-1));
+                y+=(1<<(i-1));
+            } else if(phh) {
+                x+=(1<<(i-1));
+            }
+        }
+        for(int i = 30; i > 0; i-=2) {
+            bool ph = q&(1<<i);
+            bool phh = q&(1<<(i-1));
+            if(ph&&phh) assert(false);
+            else if(ph) {
+                x+=(1<<(i-1));
+                y+=(1<<(i-1));
+            } else if(phh) {
+                x+=(1<<(i-1));
+            }
+        }
+        // cout << "LINE192 " << x << " " << y << endl;
+        cout << "!" << endl;
+        int m;
+        cin >> m;
+        cout << (m|x)+(m|y) << endl;
+    }
     return 0;
 }

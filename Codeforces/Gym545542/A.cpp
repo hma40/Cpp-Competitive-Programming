@@ -132,31 +132,23 @@ using ll = long long;
 #define vt vector
 #define endl "\n"
 #define double long double
-ll mod = 998244353;
+ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-int bexpo(int b, int e) {
-    int ans = 1;
-    while(e) {
-        if(e&1) ans = ans*b%mod;
-        b=b*b%mod;
-        e>>=1;
-    }
-    return ans;
-}
-vt<int> f(1e6+5), invf(1e6+5);
-int nck(int n, int k) {
-    return f[n]*invf[n-k]%mod*invf[k]%mod;
-}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-
-for (int i = 0; i < (1 << 2); i++) {
-	// iterate over all subsets of i directly
-	for (int j = (i - 1) & i; j >= 0; j = (j - 1) & i) { cout << i << " " << j << endl; }
-}
+    int t = 1;
+    cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        cout << n*(n+1) << endl;
+    }
     return 0;
 }
+/*
+((()))
+*/
