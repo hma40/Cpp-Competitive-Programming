@@ -1,41 +1,76 @@
-import java.util.Scanner;
+import java.util.*;
+import java.io.*;
+public class correct {
+    public static void main(String[] args) throws IOException {
+        BufferedReader rr = new BufferedReader(new InputStreamReader(System.in));
+        PrintWriter pw = new PrintWriter(System.out);
 
-public class OnesForAll_John {
+        StringTokenizer st = new StringTokenizer(rr.readLine());
+        int T = Integer.parseInt(st.nextToken());
+        while(T-- > 0) {
+            st = new StringTokenizer(rr.readLine());
+            int n = Integer.parseInt(st.nextToken());
+            int k = Integer.parseInt(st.nextToken()) * 2;
+            int l = Integer.parseInt(st.nextToken()) * 2;
+            st = new StringTokenizer(rr.readLine());
+            int[] arr = new int[n];
+            for(int i = 0; i < n; i++) {
+                arr[i] = Integer.parseInt(st.nextToken()) * 2;
+            }
+            if(n == 1) {
+                pw.println(arr[0] + Math.max(0, l - k));
+            } else {
+                int time = arr[0];
+                arr[0] = 0;
+                for(int i = 1; i < n; i++) {
+                    if(arr[i] - arr[i - 1] > k) {
+                        arr[i] -= Math.min(time, arr[i] - arr[i - 1] - k);
+                    } else {
+                        arr[i] += Math.min(time, arr[i - 1] + k - arr[i]);
+                    }
+                }
+                //System.out.println(Arrays.toString(arr));
+                int crow = 0;
+                int index = 0;
+                while(crow - arr[index] <= k && crow - arr[index] >= 0) {
+                    crow = arr[index] + k;
+                    index++;
+                    if(index == n) {break;}
+                }
+                //System.out.println(crow + ", " + index);
+                int free = 0;
+                while(crow < l) {
+                    if(index == n) {
+                        time += l - crow;
+                        crow = l;
+                    } else {
+                        int next = (arr[index] - crow)/2;
+                        free += next;
+                        if(crow + next >= l) {
+                            time += l - crow;
+                            crow = l;
+                        } else {
+                            time += next;
+                            free += next;
+                            crow += next;
+                            arr[index] -= next;
+                            while(crow - arr[index] <= k && crow - arr[index] >= 0) {
+                                crow = arr[index] + k;
+                                index++;
+                                if(index == n) {break;}
+                                if(arr[index] - arr[index - 1] > k) {
+                                    arr[index] -= Math.min(free, arr[index] - arr[index - 1] - k);
+                                } else {
+                                    arr[index] += Math.min(free, arr[index - 1] + k - arr[index]);
+                                }
+                            }
+                        }
+                    }
+                }
+                pw.println(time);
+            }
+        }
 
-	public static final int MAXN = 150000;
-	
-	public static void main(String[] args) {
-
-		Scanner in = new Scanner(System.in);
-		int n = in.nextInt();
-		int [] table = new int[n+1];
-		
-		table[0] = MAXN;
-		table[1] = 1;
-		for(int i=2; i<=n; i++) {
-			table[i] = MAXN;
-										// check for a+b=i
-			for(int j=1; j<= i/2; j++) {
-				if (table[j] + table[i-j] < table[i]) {
-					table[i] = table[j] + table[i-j];
-				}
-			}
-										// check for a*b = i
-			for(int j=2; j<Math.sqrt(i+1); j++) {
-				if (i%j == 0 && table[j] + table[i/j] < table[i]) {
-					table[i] = table[j] + table[i/j];
-				}
-			}
-										// check for a@b = i
-			String s = i+"";
-			for(int j=1; j<s.length(); j++) {
-				int n1 = Integer.parseInt(s.substring(0,j));
-				int n2 = Integer.parseInt(s.substring(j));
-				if (table[n1] + table[n2] < table[i] && s.charAt(j) != '0') {
-					table[i] = table[n1] + table[n2];
-				}
-			}
-		}
-		System.out.println(table[n]);
-	}
+        pw.close();
+    }
 }

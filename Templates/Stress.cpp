@@ -80,31 +80,84 @@ TestCase randTC() {
     return tc;
 }
 struct WrongSol {
-    string solve(TestCase tc) {
-
-    }
-};
-struct CorrectSol {
-    string solve(TestCase tc) {
-
-    }
-};
-signed main() {
-    while(true) {
-        TestCase tc = randTC();
-        WrongSol w;
-        CorrectSol c;
-        auto wa = w.solve(tc);
-        auto cor = c.solve(tc);
-        if(wa==cor) {
-            cout << "PASSED" << endl;
-            print_TC(tc);
-            cout << wa << endl << cor << endl;
+    string solve(string s) {
+        if(s.size()==1) {
+            return "-1";
+        }
+        if(s.size()==2&&s[0]!=s[1]) {
+            return "-1";
+        }
+        string ret = "";
+        if(s[0]==s[1]) {
+            ret+=s[0];
+            ret+=s[0];
+        } else if(s[1]!=s[2]) {
+            ret+=s[0];
+            ret+=s[1];
+            ret+=s[2];
         } else {
-            cout << "WRONG ANSWER" << endl;
-            print_TC(tc);
-            cout << wa << endl << cor << endl;
-            break;
+            ret+=s[1];
+            ret+=s[1];
+        }
+        return ret;
+    }
+};
+bool works(string s) {
+    set<string> seen;   
+    F0R(start, s.size()) {
+        FOR(end, start, s.size()) {
+            string t = "";
+            FOR(i, start, end+1) t+=s[i];
+            seen.insert(t);
+        }
+    }
+    cout << seen << endl;
+    return seen.size()%2==0;
+}
+
+signed main() {
+    WrongSol w;
+    while(true) {
+        string s = "";
+        int sz = rand_num(1,5);
+        F0R(i, sz) {
+            char c = char('a'+rand_num(0,25));
+            s+=c;
+        }
+        s="ababa";
+        cout << "LINE 115 " << s << endl;
+        auto ss = w.solve(s);
+        if(ss=="-1") {
+            bool found = false;
+            F0R(i, s.size()) {
+                FOR(j, i, s.size()) {
+                    string tt = "";
+                    FOR(k, i, j+1) tt+=s[k];
+                    if(works(tt)) {
+                        cout << "WRONG ANSWER LINE 132" << endl << s << endl << ss << endl << tt << endl;
+                        cout << i << " " << j << endl;
+                        return 0;
+
+                    }
+                }
+            }
+        } else {
+            F0R(i, s.size()) {
+                FOR(j, i, s.size()) {
+                    string tt = "";
+                    FOR(k, i, j+1) tt+=s[k];
+                    if(works(tt)) {
+                        cout << tt << endl;
+                        return 0;
+
+                    }
+                }
+            }
+            if(!works(ss)) {
+                cout << "WRONG ANSWER" << endl;
+                cout << s << endl << ss << endl;
+                return 0;
+            }
         }
     }
     return 0;

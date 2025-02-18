@@ -161,16 +161,24 @@ FastMod fs(mod);
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    int n = 4;
-    cout << 1 << endl << n << endl;
-    F0R(i, n) cout << rand_num(0,n) << " ";
-    cout << endl;
+    int t = 1;
+    int n = 6;
+    int m = rand_num(0,n*(n-1)/2);
+    cout << 1 << endl << n << " " << m << endl;
+    set<pair<int,int>> s;
+    while(s.size()<m) {
+        int fir = rand_num(1, n-1);
+        int sec = rand_num(fir+1, n);
+        if(!s.count({fir,sec})) {
+            cout << fir << " " << sec << endl;
+            s.insert({fir,sec});
+        }
+    }
 }
 /*
-5 71
-4 3
-2 3
-4 3
-2 4
-3 3
+1
+4 4
+2 8 8 7 
+7 5 1 8 
+
 */

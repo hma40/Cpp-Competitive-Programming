@@ -116,6 +116,7 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+
 template<typename T>
 using min_pq = std::priority_queue<T, std::vector<T>, std::greater<T>>;
 using namespace std;
@@ -131,8 +132,9 @@ using ll = long long;
 #define int long long
 #define vt vector
 #define endl "\n"
+#define enld "\n"
 #define double long double
-ll mod = 1000000007;
+const ll mod = 1000000007;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {

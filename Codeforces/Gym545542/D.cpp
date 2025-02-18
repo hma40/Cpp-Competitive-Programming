@@ -144,48 +144,6 @@ struct Node {
         right = nullptr;
     }
 };
-struct MergeSortTree {
-    int nn;
-    Node* root;
-    MergeSortTree(vector<int> &a) {
-        root = new Node();
-        nn = a.size();
-        insert(a, root, 0, nn-1);
-    }
-    Node* insert(vector<int> &a, Node* n, int l, int r) {
-        if(l==r) {
-            n->data.resize(1);
-            n->data[0]={a[l], a[l]};
-            return n;
-        }
-        Node* lft = insert(a, new Node(), l, (l+r)/2);
-        Node* rt = insert(a, new Node(), (l+r)/2+1, r);
-        int lpt = 0, rpt = 0;
-        int sm = 0;
-        while(lpt<lft->data.size() && rpt<rt->data.size()) {
-            if(lft->data[lpt].f<rt->data[rpt].f) {
-                sm+=lft->data[lpt].f;
-                n->data.add({lft->data[lpt].f, sm});
-                lpt++;
-            } else {
-                sm+=rt->data[rpt].f;
-                n->data.add({rt->data[rpt].f, sm});\
-                rpt++;
-            }
-        }
-        while(lpt<lft->data.size()) {
-            sm+=lft->data[lpt].f;
-            n->data.add({lft->data[lpt].f, sm});
-            lpt++;
-        }
-        while(rpt<rt->data.size()) {
-            sm+=rt->data[rpt].f;
-            n->data.add({rt->data[rpt].f, sm});\
-            rpt++;
-        }
-        return n;
-    }
-};
 struct SegTree {
     int n;
     vt<int> tree;
@@ -195,27 +153,85 @@ struct SegTree {
         tree.resize(2*np);
         n=np;
     }
+    void build(vt<int> &arr) {
+        for(int i = 0; i < arr.size(); i++) {
+            tree[i+n]=arr[i];
+        }
+        for(int i = n-1; i > 0; i--) {
+            //CHANGE HERE
+            tree[i]=tree[2*i]+tree[2*i+1];
+        }
+    }
     void set(int pos, int x) {
         pos+=n;
         tree[pos]=x;
         for(pos/=2; pos; pos/=2) {
             //CHANGE HERE
-            tree[pos]=min(tree[2*pos], tree[2*pos+1]);
+            tree[pos]=tree[2*pos]+tree[2*pos+1];
+        }
+    }
+    void add(int pos, int x) {
+        pos+=n;
+        tree[pos]+=x;
+        for(pos/=2; pos; pos/=2) {
+            tree[pos]=tree[2*pos]+tree[2*pos+1];
         }
     }
     int rangeQuery(int a, int b) {
         a+=n;
-        int ans = inf;
+        int ans = 0;
         b+=n;
         while(a<=b) {
-            if(a%2==1) ans=min(ans,tree[a++]);
-            if(b%2==0) ans=min(ans,tree[b--]);
+            if(a%2==1) ans+=tree[a++];
+            if(b%2==0) ans+=tree[b--];
             a/=2;
             b/=2;
         }
         return ans;
     }
 };
+vt<int> hello(vt<int> &a, int mxEle) {
+    // cout << "HELLO CALLED FOR " << mxEle << endl;
+    int n = a.size();
+    vt<int> suffSum(n);
+    suffSum[n-1]=(a[n-1]>mxEle? 0:a[n-1]);
+    R0F(i, n-1) {
+        if(a[i]>mxEle) suffSum[i]=suffSum[i+1];
+        else suffSum[i]=suffSum[i+1]+a[i];
+    }
+    priority_queue<pair<int,int>> pq;
+    F0R(i, n) {
+        if(a[i]<=mxEle) {
+            pq.push({a[i], -i});
+        }
+    }
+    set<int> seq;
+    SegTree st(n);
+    int overcome = 2*mxEle;
+    while(pq.size()) {
+        auto tp = pq.top();
+        pq.pop();
+        tp.s*=-1;
+        auto ptr = seq.upper_bound(tp.s);
+        if(ptr==seq.end()) {
+            seq.insert(tp.s);
+            st.set(tp.s,tp.f);
+            overcome-=tp.f;
+        } else {
+            int nxt = *ptr;
+            if(overcome<0||suffSum[nxt]-st.rangeQuery(nxt,n-1)>overcome) {
+                continue;
+            }
+            seq.insert(tp.s);
+            st.set(tp.s,tp.f);
+            overcome-=tp.f;
+        }
+    }
+    vt<int> ret;
+    trav(x, seq) ret.add(a[x]);
+    // cout << ret << endl;
+    return ret;
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
@@ -228,15 +244,46 @@ signed main() {
         cin >> n;
         vt<int> a(n);
         F0R(i, n) cin >> a[i];
-        MergeSortTree st(a);
-        vector<int> lex;
-        
+        vt<int> b = a;
+        sort(begin(b),end(b));
+        pair<int,int> consider = {-1,-1};
+        vt<int> pref(n+1);
+        F0R(i, n) pref[i+1]=pref[i]+b[i];
+        F0R(i, n) {
+            if(pref[i+1]<=2*b[i]) continue;
+            /*
+            bsearch for last j such that a[j]+...+a[i-1]>a[i]
+            */
+            int lo = 0, hi = i;
+            while(lo+1<hi) {
+                int mid = (lo+hi)/2;
+                if(pref[i]-pref[mid]>b[i]) {
+                    lo=mid;
+                } else {
+                    hi=mid;
+                }
+            }
+            consider={b[lo],b[i]};
+        }
+        vt<int> ans;
+        set<int> tried;
+        FOR(j, 0, min(n,60LL)) {
+            int i = n-1-j;
+            if(tried.count(i)) continue;
+            if(pref[i+1]<=2*b[i]) continue;
+            if(b[i]<consider.f||b[i]>consider.s) continue;
+            ans=max(ans, hello(a,b[i]));
+        }
+        if(ans.size()==0) {
+            cout << -1 << endl;
+            continue;
+        }
+        cout << ans.size() << endl;
+        trav(x, ans) cout << x << " ";
+        cout << endl;
     }
     return 0;
 }
 /*
-keep a merge sort tree
-each node contains sorted list of values, each containing prefix sum of everything LEQ
-loop through the array, keeping track of lex largest array
 
 */

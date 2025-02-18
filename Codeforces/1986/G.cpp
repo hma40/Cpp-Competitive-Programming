@@ -55,42 +55,45 @@ int gcd(int a, int b) {
     if(a==0) return b;
     return gcd(b%a, a);
 }
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    int MAXN = 5e5+50;
-    vt<vt<int>> divis(MAXN);
-    for(int i = 1; i < MAXN; i++) {
-        for(int j = i; j < MAXN; j+=i) {
-            divis[j].add(i);
-        }
+    vt<vt<int>> factors(500005);
+    FOR(i, 1, 500005) {
+        for(int j = i; j < 500005; j+=i) factors[j].add(i);
     }
     int t;
     cin >> t;
     while(t--) {
         int n;
         cin >> n;
-        vt<int> v(n);
-        F0R(i, n) cin >> v[i];
-        // map<pair<int,int>,int> maps;
-        multiset<pair<int,int>> maps;
+        vt<vt<int>> a(n+1), b(n+1);
         ll ans = 0;
-        F0R(i, n) {
-            pair<int,int> p = {v[i], i+1};
-            int g = gcd(p.f, p.s);
-            p.f/=g;
-            p.s/=g;
-            trav(x, divis[p.f]) {
-                ans+=maps.count({x,p.s});
-                // if(maps.count({x,p.s})) {
-                //     ans+=maps[{x,p.s}];
-                // }
+        FOR(i, 1, n+1) {
+            int x;
+            cin >> x;
+            int g = gcd(i,x);
+            x/=g;
+            int j = i/g;
+            b[x].add(j);
+            a[j].add(x);
+            if(i==g) ans--;
+        }
+        // cout << a << endl << b << endl;
+        vt<int> c(n+1);
+        FOR(i, 1, n+1) {
+            for(int j = i; j <= n; j+=i) {
+                trav(x, b[j]) c[x]++;
             }
-            trav(x, divis[p.f]) {
-                maps.insert({p.s,x});
+            for(int x: a[i]) {
+                trav(y, factors[x]) ans+=c[y];
+            }
+            for(int j = i; j <= n; j+=i) {
+                trav(x, b[j]) c[x]--;
             }
         }
-        cout << ans << endl;
+        cout << ans/2 << endl;
     }
     return 0;
-}
+}//
