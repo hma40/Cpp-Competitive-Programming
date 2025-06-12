@@ -116,8 +116,20 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+
 template<typename T>
 using min_pq = std::priority_queue<T, std::vector<T>, std::greater<T>>;
+template<typename T> std::ostream& operator<<(std::ostream& os, min_pq<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.top() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
 using namespace std;
 using ll = long long;
 #define add push_back 
@@ -131,41 +143,50 @@ using ll = long long;
 #define int long long
 #define vt vector
 #define endl "\n"
+#define enld "\n"
 #define double long double
-ll mod = 1000000007;
+const ll mod = 998244353;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-int solve(vt<vt<int>> &left, vt<vt<int>> &adj, int n) {
-    queue<int> q;
-    vt<int> par(n,-1);
-    q.push(0);
-    while(q.size()) {
-        auto tp = q.front();
-        q.pop();
-        trav(x, adj[tp]) {
-            if(left[tp][x]==0) continue;
-            if(par[x]!=-1) continue;
-            par[x]=tp;
-            q.push(x);
-        }
-    }
-    if(par[n-1]==-1) return 0;
-    // if(dist[n-1]==inf) return 0;
-    vt<int> path;
-    path.add(n-1);
-    while(path.back()!=0) path.add(par[path.back()]);
-    reverse(begin(path),end(path));
-    // cout << path << endl;
-    int here = inf;
-    FOR(i, 1, path.size()) {
-        here=min(here, left[path[i-1]][path[i]]);
-    }
-    FOR(i, 1, path.size()) {
-        left[path[i-1]][path[i]]-=here;
-        left[path[i]][path[i-1]]+=here;
-    }
-    return here+solve(left,adj,n);
-}
+struct Dinic {
+	using F = ll; // flow type
+	struct Edge { int to; F flo, cap; };
+	int N; vt<Edge> eds; vt<vt<int>> adj;
+	void init(int _N) { N = _N; adj.resize(N), cur.resize(N); }
+	/// void reset() { each(e,eds) e.flo = 0; }
+	void ae(int u, int v, F cap, F rcap = 0) { assert(min(cap,rcap) >= 0); 
+		adj[u].add((eds).size()); eds.add({v,0,cap});
+		adj[v].add((eds).size()); eds.add({u,0,rcap});
+	}
+	vt<int> lev; vt<vt<int>::iterator> cur;
+	bool bfs(int s, int t) { // level = shortest distance from source
+		lev = vt<int>(N,-1); F0R(i,N) cur[i] = begin(adj[i]);
+		queue<int> q({s}); lev[s] = 0; 
+		while (q.size()) { int u = q.front(); q.pop();
+			trav(e,adj[u]) { const Edge& E = eds[e];
+				int v = E.to; if (lev[v] < 0 && E.flo < E.cap) 
+					q.push(v), lev[v] = lev[u]+1;
+			}
+		}
+		return lev[t] >= 0;
+	}
+	F dfs(int v, int t, F flo) {
+		if (v == t) return flo;
+		for (; cur[v] != end(adj[v]); cur[v]++) {
+			Edge& E = eds[*cur[v]];
+			if (lev[E.to]!=lev[v]+1||E.flo==E.cap) continue;
+			F df = dfs(E.to,t,min(flo,E.cap-E.flo));
+			if (df) { E.flo += df; eds[*cur[v]^1].flo -= df;
+				return df; } // saturated >=1 one edge
+		}
+		return 0;
+	}
+	F maxFlow(int s, int t) {
+		F tot = 0; while (bfs(s,t)) while (F df = 
+			dfs(s,t,numeric_limits<F>::max())) tot += df;
+		return tot;
+	}
+};
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
@@ -173,16 +194,25 @@ signed main() {
     // freopen("output.txt" , "w", stdout);
     int n,m;
     cin >> n >> m;
-    vector<vector<int>> left(n,vt<int>(n)), adj(n);
+    Dinic d;
+    d.init(n);
     F0R(i, m) {
         int a,b,c;
         cin >> a >> b >> c;
         a--;
         b--;
-        adj[a].add(b);
-        adj[b].add(a);
-        left[a][b]+=c;
+        d.ae(a,b,c);
     }
-    cout << solve(left, adj, n) << endl;
+    cout << d.maxFlow(0,n-1) << endl;
     return 0;
 }
+/*
+6 7
+1 2 1
+1 3 1
+2 6 1
+3 4 1
+3 5 1
+4 6 1
+5 6
+*/

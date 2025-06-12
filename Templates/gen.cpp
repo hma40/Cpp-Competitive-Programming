@@ -71,7 +71,7 @@ template<typename T> std::ostream& operator<<(std::ostream& os, std::deque<T> q)
     os << "{ ";
     while (!q.empty()) {
         os << q.front() << " ";
-        q.pop_front();
+        q.pop();
     }
     os << "}";
     // Print a newline at the end
@@ -101,9 +101,11 @@ template<typename T> std::ostream& operator<<(std::ostream& os, std::priority_qu
 }
 
 template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
+    os << "[ ";
     for(const auto& elem : vec) {
         os << elem << " ";
     }
+    os << "]";
     return os;
 }
 template<typename K, typename V> std::ostream& operator<<(std::ostream& os, const std::map<K, V>& m) {
@@ -114,8 +116,20 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
+
 template<typename T>
 using min_pq = std::priority_queue<T, std::vector<T>, std::greater<T>>;
+template<typename T> std::ostream& operator<<(std::ostream& os, min_pq<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.top() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
 using namespace std;
 using ll = long long;
 #define add push_back 
@@ -129,56 +143,51 @@ using ll = long long;
 #define int long long
 #define vt vector
 #define endl "\n"
+#define enld "\n"
 #define double long double
+const ll mod = 998244353;
 ll inf = 1e18;
-
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-int rand_num(int lo, int hi) {
-    return rnd()%(hi-lo+1)+lo;
-}
-typedef unsigned long long ull;
-typedef __uint128_t L;
-ll mod = 1000000007;
-struct FastMod {
-	ull b, m;
-	FastMod(ull bb) : b(bb), m(ull((L(1) << 64) / b)) {}
-	ull reduce(ull a) {
-		ull q = (ull)((L(m) * a) >> 64);
-		ull r = a - q * b; // can be proven that 0 <= r < 2*b
-		return r >= b ? r - b : r;
-	}
-};
-    ll gcd(ll a, ll b) {
-        if(a>b) swap(a,b);
-        while(a!=0) {
-            int t = a;
-            a=b%a;
-            b=t;
+int best_b(vt<int> a) {
+    int n = a.size();
+    vector<int> best_b;
+    // mask from 0 to (1<<(n-1)) - 1 encodes cuts after positions 0..n-2
+    for (int mask = 0; mask < (1 << (n - 1)); mask++) {
+        vector<int> b;
+        int cur_min = a[0];
+        // scan positions 0..n-2, decide if we cut after i
+        for (int i = 0; i < n - 1; i++) {
+            cur_min = min(cur_min, a[i]);
+            if (mask & (1 << i)) {
+                // cut here
+                b.push_back(cur_min);
+                cur_min = a[i + 1];
+            }
         }
-        return b;
+        // last segment ends at n-1
+        cur_min = min(cur_min, a[n - 1]);
+        b.push_back(cur_min);
+
+        if (mask == 0 || b > best_b) {
+            best_b = move(b);
+        }
     }
-FastMod fs(mod);
+    // cout << a << best_b << endl;
+    return best_b.size();
+}
+int rand_num(int a, int b) {
+    return rnd()%(b-a+1)+a;
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    int t = 1;
-    int n = 6;
-    int m = rand_num(0,n*(n-1)/2);
-    cout << 1 << endl << n << " " << m << endl;
-    set<pair<int,int>> s;
-    while(s.size()<m) {
-        int fir = rand_num(1, n-1);
-        int sec = rand_num(fir+1, n);
-        if(!s.count({fir,sec})) {
-            cout << fir << " " << sec << endl;
-            s.insert({fir,sec});
-        }
+    cout << 1 << endl;
+    int n = 3, k = rand_num(1,10);
+    cout << n << " " << k << endl;
+    F0R(i, n) {
+        cout << rand_num(1,n) << " " << rand_num(1,10) << endl;
     }
 }
 /*
-1
-4 4
-2 8 8 7 
-7 5 1 8 
-
+1 2 2 3 4 5 5 6 
 */

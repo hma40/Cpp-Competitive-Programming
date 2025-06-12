@@ -30,7 +30,7 @@ def files_are_identical(file1, file2):
     with open(file1, 'r') as f1, open(file2, 'r') as f2:
         content1 = f1.read().strip()  # Strip whitespace
         content2 = f2.read().strip()  # Strip whitespace
-        print("LINE 19",content1)
+        print("LINE 19",content1, content2)
     return content1 == content2
 def are_floats_close():
     # Read the float from wrong_output.txt

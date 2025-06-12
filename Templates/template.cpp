@@ -71,7 +71,7 @@ template<typename T> std::ostream& operator<<(std::ostream& os, std::deque<T> q)
     os << "{ ";
     while (!q.empty()) {
         os << q.front() << " ";
-        q.pop();
+        q.pop_front();
     }
     os << "}";
     // Print a newline at the end
@@ -119,6 +119,17 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
 
 template<typename T>
 using min_pq = std::priority_queue<T, std::vector<T>, std::greater<T>>;
+template<typename T> std::ostream& operator<<(std::ostream& os, min_pq<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.top() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
 using namespace std;
 using ll = long long;
 #define add push_back 
@@ -134,7 +145,7 @@ using ll = long long;
 #define endl "\n"
 #define enld "\n"
 #define double long double
-const ll mod = 1000000007;
+const ll mod = 998244353;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 signed main() {
@@ -142,7 +153,7 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
+    int t;
     cin >> t;
     while(t--) {
         

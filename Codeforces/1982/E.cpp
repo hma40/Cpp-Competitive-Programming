@@ -1,28 +1,39 @@
 #include <bits/stdc++.h>
-using namespace std;
-using ll = long long;
-#define add push_back 
-#define FOR(i,a,b) for (int i = (a); i < (b); ++i)
-#define F0R(i,a) FOR(i,0,a)
-#define ROF(i,a,b) for (int i = (b)-1; i >= (a); --i)
-#define R0F(i,a) ROF(i,0,a)
-#define f first
-#define s second
-#define trav(a,x) for (auto& a: x)
-#define int long long
-#define vt vector
-// #define endl "\n"
-ll mod = 1000000007;
-ll inf = 1e18;
+std::string to_string(__int128_t value) {
+    if (value == 0) return "0";
+    
+    std::string result;
+    bool negative = (value < 0);
+    if (negative) value = -value;
+    
+    while (value > 0) {
+        result += '0' + (value % 10);
+        value /= 10;
+    }
+    
+    if (negative) result += '-';
+    
+    std::reverse(result.begin(), result.end());
+    return result;
+}
+
+// Overload << operator for __int128
+std::ostream& operator<<(std::ostream& os, __int128_t value) {
+    return os << to_string(value);
+}
 template<typename T1, typename T2>
 std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
     return os;
 }
-template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
-    os << "[ ";
-    for(const auto& elem : vec) {
-        os << elem << " ";
+template <typename T, std::size_t N>
+std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
+    os << "[";
+    for (std::size_t i = 0; i < N; ++i) {
+        os << arr[i];
+        if (i < N - 1) {
+            os << ", ";
+        }
     }
     os << "]";
     return os;
@@ -43,6 +54,60 @@ template<typename T> std::ostream& operator<<(std::ostream& os, const std::multi
     os << "}";
     return os;
 }
+
+template<typename T> std::ostream& operator<<(std::ostream& os, std::queue<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.front() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
+template<typename T> std::ostream& operator<<(std::ostream& os, std::deque<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.front() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
+template<typename T> std::ostream& operator<<(std::ostream& os, std::stack<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.top() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
+template<typename T> std::ostream& operator<<(std::ostream& os, std::priority_queue<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.top() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
+
+template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
+    os << "[ ";
+    for(const auto& elem : vec) {
+        os << elem << " ";
+    }
+    os << "]";
+    return os;
+}
 template<typename K, typename V> std::ostream& operator<<(std::ostream& os, const std::map<K, V>& m) {
     os << "{ ";
     for(const auto& pair : m) {
@@ -51,120 +116,104 @@ template<typename K, typename V> std::ostream& operator<<(std::ostream& os, cons
     os << "}";
     return os;
 }
-int binExp(int base, int expo) {
-    int ans = 1;
-    while(expo) {
-        if(expo%2) {
-            ans*=base;
-            ans%=mod;
-        }
-        base*=base;
-        base%=mod;
-        expo/=2;
-    }
-    return ans;
-}
 
-vt<int> fact,invFact;
-int nck(int n, int k) {
-    return fact[n]*invFact[k]%mod*invFact[n-k]%mod;
-}
-vt<vt<int>> dp(62, vt<int>(62)), beg(62, vt<int>(62)), ed(62, vt<int>(62));
-signed main() {
-    ios_base::sync_with_stdio(false); 
-    cin.tie(0);
-        // freopen("file.out", "w", stdout);
-    fact.resize(100);
-    invFact.resize(100);
-    fact[0]=invFact[0]=1;
-    FOR(i, 1, 100) {
-        fact[i]=fact[i-1]*i;
-        invFact[i]=binExp(fact[i], mod-2);
+template<typename T>
+using min_pq = std::priority_queue<T, std::vector<T>, std::greater<T>>;
+template<typename T> std::ostream& operator<<(std::ostream& os, min_pq<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.top() << " ";
+        q.pop();
     }
-    F0R(i, 61) dp[0][i]=beg[0][i]=ed[0][i]=1;
-    FOR(bits, 1, 61) {
-        beg[bits][0]=1;
-        ed[bits][0]=0;
-        dp[bits][0]=1;
-        FOR(k, 1, 61) {
-            if(k>=bits) {
-                int nums = (1LL<<bits)%mod;
-                beg[bits][k]=ed[bits][k]=nums;
-                dp[bits][k]=(nums*(nums+1))%mod * 500000004 % mod;
-                assert(0<=dp[bits][k]&&dp[bits][k]<mod);
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
+using namespace std;
+using ll = long long;
+#define add push_back 
+#define FOR(i,a,b) for (int i = (a); i < (b); ++i)
+#define F0R(i,a) FOR(i,0,a)
+#define ROF(i,a,b) for (int i = (b)-1; i >= (a); --i)
+#define R0F(i,a) ROF(i,0,a)
+#define f first
+#define s second
+#define trav(a,x) for (auto& a: x)
+#define int long long
+#define vt vector
+#define endl "\n"
+#define enld "\n"
+#define double long double
+const ll mod = 1000000007;
+ll inf = 1e18;
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+map<pair<int,int>,array<int,3>> mp;//mp[{x, k}]={first, ans, last}
+int solve(int n, int k) {
+    // cout << n << " " << k << endl;
+    if(mp.count({n,k})) return mp[{n,k}][1];
+    if(n==0) {
+        mp[{n,k}][0]=mp[{n,k}][2]=-1;
+        mp[{n,k}][1]=1;
+        return 1;
+    }
+    if(k==0) {
+        mp[{n,k}][0]=1;
+        mp[{n,k}][2]=0;
+        mp[{n,k}][1]=1;
+        return 1;
+    }
+    R0F(i, 62) {
+        if(n&(1LL<<i)) {
+            pair<int,int> fir = {(1LL<<i)-1, k}, sec = {n-(1LL<<i), k-1};
+            solve(fir.f,fir.s);
+            solve(sec.f,sec.s);
+            if(mp[fir][0]==-1 && mp[sec][0] == -1) {
+                int m = (n+1)%mod;
+                int ans = m*(m+1)/2;
+                ans%=mod;
+                mp[{n,k}]={-1, ans, -1};
+                return ans;
+            } else if(mp[fir][0]==-1) {
+                mp[{n,k}][0]=(fir.f+1+mp[sec][0])%mod;
+                mp[{n,k}][2]=mp[sec][2];
+                int ans = mp[sec][1]+mp[fir][1];
+                ans+=mp[sec][0]*((fir.f+1)%mod);
+                ans%=mod;
+                mp[{n,k}][1]=ans;
+                return ans;
+            } else if(mp[sec][0]==-1) {
+                mp[{n,k}][0]=mp[fir][0];
+                mp[{n,k}][2]=(mp[fir][2]+sec.f+1)%mod;
+                int ans = mp[fir][1]+mp[sec][1];
+                ans+=mp[fir][2]*((sec.f+1)%mod);
+                ans%=mod;
+                mp[{n,k}][1]=ans;
+                return ans;
             } else {
-                ed[bits][k]=0;
-                beg[bits][k]=((1LL<<(k+1))-1)%mod;
-                dp[bits][k]+=dp[bits-1][k];
-                dp[bits][k]-=ed[bits-1][k]*(ed[bits-1][k]+1) % mod * 500000004 % mod;
-                dp[bits][k]%=mod;
-                dp[bits][k]+=mod;
-                dp[bits][k]%=mod;
-                dp[bits][k]+=dp[bits-1][k-1];
-                dp[bits][k]-=beg[bits-1][k-1]*(beg[bits-1][k-1]+1)% mod * 500000004 % mod;
-                dp[bits][k]%=mod;
-                dp[bits][k]+=mod;
-                dp[bits][k]%=mod;
-                dp[bits][k]+=(ed[bits-1][k]+beg[bits-1][k-1])*(ed[bits-1][k]+beg[bits-1][k-1]+1) % mod * 500000004 % mod;
-                dp[bits][k]%=mod;
-                dp[bits][k]+=mod;
-                dp[bits][k]%=mod;
+                mp[{n,k}][0]=mp[fir][0];
+                mp[{n,k}][2]=mp[sec][2];
+                int ans = mp[fir][1]+mp[sec][1];
+                ans+=mp[fir][2]*mp[sec][0];
+                ans%=mod;
+                mp[{n,k}][1]=ans;
+                return ans;
             }
         }
     }
-    // int u;
-    // cin >> u;
-    // while(u--) {
-    //     int x,y;
-    //     cin >> x >> y;
-    //     cout << dp[x][y] << " " << beg[x][y] << " " << ed[x][y] << endl;
-    // }
-    // cout << dp << endl << beg << endl << ed << endl;
+}
+signed main() {
+    ios_base::sync_with_stdio(false); 
+    cin.tie(0);
+    // freopen("input.txt" , "r" , stdin);
+    // freopen("output.txt" , "w", stdout);
     int t;
     cin >> t;
     while(t--) {
         int n,k;
         cin >> n >> k;
-        // n--;
-        // if(n==0) {
-        //     cout << 1 << endl;
-        //     continue;
-        // }
-        int ans = 0;
-        int edbefore = -1;
-        R0F(i, 61) {
-            if(n&(1LL<<i)) {     
-                cout << i << " " << k << " " << ans << " " << edbefore << " " << ed[i][k] << endl;
-                if(edbefore!=-1) {
-                    ans+=dp[i][k];
-                    ans-=beg[i][k]*(beg[i][k]+1) % mod * 500000004 % mod;
-                    ans%=mod;
-                    ans+=mod;
-                    ans%=mod;
-                    ans-=edbefore * (edbefore+1) % mod * 500000004 % mod;
-                    ans%=mod;
-                    ans+=mod;
-                    ans%=mod;
-                    ans+=(edbefore+beg[i][k]) * (edbefore+beg[i][k]+1) % mod * 500000004 % mod;
-                    ans%=mod;
-                    ans+=mod;
-                    ans%=mod;
-                } else {
-                    ans+=dp[i][k]; 
-                    ans%=mod;
-                }
-                edbefore = ed[i][k];
-                k--;
-                if(k<0) break;
-            }
-        }
-        cout << ans << endl;
+        cout << solve(n-1,k) << endl;    
+        // cout << mp << endl;
     }
     return 0;
 }
-/*
-10100111001
-*/
-/*
-0 1 10
-*/
