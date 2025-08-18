@@ -153,11 +153,59 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int x;
-    cin >> x;
-    if(x==-1) {
-        cout << "WA" << endl;
-    } else {
+    int t=1;
+    // cin >> t;
+    while(t--) {
+        int n;
+        cin >> n;
+        vt<int> a(n);
+        F0R(i, n) cin >> a[i];
+        vt<int> p(n);
+        F0R(i,n) p[i]=i;
+        int ans = inf;
+        do {
+            vt<bool> dead(n);
+            int here = 0;
+            trav(i, p) {
+                if(dead[i]) continue;
+                int mn = max(0LL, i-a[i]+1);
+                int mx = min(n-1, i+a[i]-1);
+                FOR(ix, mn, mx+1) dead[ix]=true;
+                here++;
+            }
+            bool ok = true;
+            F0R(i, n) if(!dead[i]) ok=false;
+            if(ok) ans=min(ans, here);
+        } while(next_permutation(begin(p),end(p)));
+        // cout << ans << endl;
+        // if(ans==inf) cout << -1 << enld;
+        // else cout << ans << endl;
+        if(ans==inf) ans=-1;
+        int pans;
+        cin >> pans;
+        if(pans!=ans) {
+            cout << "WA" << endl;
+            return 0;
+        }
+        vt<int> pa(pans);
+        F0R(i, pans) cin >> pa[i];
+        F0R(i, pans) pa[i]--;
+        vt<bool> dead(n);
+        trav(i, pa) {
+            if(dead[i]) {
+                cout << "WA" << enld;
+                return 0;
+            }
+            int mn = max(0LL, i-a[i]+1);
+            int mx = min(n-1, i+a[i]-1);
+            FOR(ix, mn, mx+1) dead[ix]=true;
+        }
+        F0R(i, n) {
+            if(!dead[i]) {
+                cout << "WA" << endl;
+                return 0;
+            }
+        }
         cout << "OK" << endl;
     }
     return 0;

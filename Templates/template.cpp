@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+using namespace std;
 std::string to_string(__int128_t value) {
     if (value == 0) return "0";
     
@@ -26,111 +27,54 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
     return os;
 }
-template <typename T, std::size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
-    os << "[";
-    for (std::size_t i = 0; i < N; ++i) {
-        os << arr[i];
-        if (i < N - 1) {
-            os << ", ";
-        }
-    }
-    os << "]";
-    return os;
-}
-template<typename T> std::ostream& operator<<(std::ostream& os, const std::set<T>& s) {
+template <typename T, typename = void>
+struct is_iterable : std::false_type {};
+
+template <typename T>
+struct is_iterable<T, std::void_t<
+    decltype(std::begin(std::declval<T>())),
+    decltype(std::end(std::declval<T>()))
+>> : std::true_type {};
+
+// Generic container printer (vector, set, deque, array, map, etc.)
+template <typename T>
+typename std::enable_if<is_iterable<T>::value, ostream&>::type
+operator<<(ostream& os, const T& container) {
     os << "{ ";
-    for(const auto& elem : s) {
-        os << elem << " ";
+    for (auto it = std::begin(container); it != std::end(container); ++it) {
+        os << *it;
+        if (std::next(it) != std::end(container)) os << ", ";
     }
-    os << "}";
-    return os;
-}
-template<typename T> std::ostream& operator<<(std::ostream& os, const std::multiset<T>& s) {
-    os << "{ ";
-    for(const auto& elem : s) {
-        os << elem << " ";
-    }
-    os << "}";
+    os << " }";
     return os;
 }
 
-template<typename T> std::ostream& operator<<(std::ostream& os, std::queue<T> q) {
-    // Print each element in the queue
+// Queue-like adapters (stack, queue, priority_queue)
+template <typename T>
+ostream& operator<<(ostream& os, queue<T> q) {
     os << "{ ";
-    while (!q.empty()) {
-        os << q.front() << " ";
-        q.pop();
-    }
-    os << "}";
-    // Print a newline at the end
-    return os;
-}
-template<typename T> std::ostream& operator<<(std::ostream& os, std::deque<T> q) {
-    // Print each element in the queue
-    os << "{ ";
-    while (!q.empty()) {
-        os << q.front() << " ";
-        q.pop_front();
-    }
-    os << "}";
-    // Print a newline at the end
-    return os;
-}
-template<typename T> std::ostream& operator<<(std::ostream& os, std::stack<T> q) {
-    // Print each element in the queue
-    os << "{ ";
-    while (!q.empty()) {
-        os << q.top() << " ";
-        q.pop();
-    }
-    os << "}";
-    // Print a newline at the end
-    return os;
-}
-template<typename T> std::ostream& operator<<(std::ostream& os, std::priority_queue<T> q) {
-    // Print each element in the queue
-    os << "{ ";
-    while (!q.empty()) {
-        os << q.top() << " ";
-        q.pop();
-    }
-    os << "}";
-    // Print a newline at the end
+    while (!q.empty()) { os << q.front(); q.pop(); if (!q.empty()) os << ", "; }
+    os << " }";
     return os;
 }
 
-template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
-    os << "[ ";
-    for(const auto& elem : vec) {
-        os << elem << " ";
-    }
-    os << "]";
-    return os;
-}
-template<typename K, typename V> std::ostream& operator<<(std::ostream& os, const std::map<K, V>& m) {
+template <typename T>
+ostream& operator<<(ostream& os, stack<T> st) {
     os << "{ ";
-    for(const auto& pair : m) {
-        os << pair.first << " : " << pair.second << ", ";
-    }
-    os << "}";
+    while (!st.empty()) { os << st.top(); st.pop(); if (!st.empty()) os << ", "; }
+    os << " }";
     return os;
 }
 
-template<typename T>
-using min_pq = std::priority_queue<T, std::vector<T>, std::greater<T>>;
-template<typename T> std::ostream& operator<<(std::ostream& os, min_pq<T> q) {
-    // Print each element in the queue
+template <typename T>
+ostream& operator<<(ostream& os, priority_queue<T> pq) {
     os << "{ ";
-    while (!q.empty()) {
-        os << q.top() << " ";
-        q.pop();
-    }
-    os << "}";
-    // Print a newline at the end
+    while (!pq.empty()) { os << pq.top(); pq.pop(); if (!pq.empty()) os << ", "; }
+    os << " }";
     return os;
 }
-using namespace std;
+
+// using namespace std;
 using ll = long long;
 #define add push_back 
 #define FOR(i,a,b) for (int i = (a); i < (b); ++i)

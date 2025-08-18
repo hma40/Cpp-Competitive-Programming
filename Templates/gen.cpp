@@ -181,13 +181,13 @@ int rand_num(int a, int b) {
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    cout << 1 << endl;
-    int n = 3, k = rand_num(1,10);
-    cout << n << " " << k << endl;
-    F0R(i, n) {
-        cout << rand_num(1,n) << " " << rand_num(1,10) << endl;
-    }
+    int n = 8;
+    cout << 1 << endl << n << endl;;
+    F0R(i, n) cout << rand_num(0,n) << " ";
+    cout << endl;
 }
 /*
-1 2 2 3 4 5 5 6 
+
+
+
 */

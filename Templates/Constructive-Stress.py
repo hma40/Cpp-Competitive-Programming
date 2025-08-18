@@ -3,9 +3,9 @@ import os
 import shutil
 
 # File paths
-gen_cpp = "C:/Users/vgoof/Documents/Cpp-Competitive-Programming/Templates/gen.cpp"
-wrong_cpp = "C:/Users/vgoof/Documents/Cpp-Competitive-Programming/Templates/wrong.cpp"
-check_cpp = "C:/Users/vgoof/Documents/Cpp-Competitive-Programming/Templates/check.cpp"
+gen_cpp = "./gen.cpp"
+wrong_cpp = "./wrong.cpp"
+check_cpp = "./check.cpp"
 gen_exe = "gen.exe"
 wrong_exe = "wrong.exe"
 check_exe = "check.exe"

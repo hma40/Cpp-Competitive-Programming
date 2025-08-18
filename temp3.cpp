@@ -150,43 +150,48 @@ ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
 struct SegTree {
     int n;
-    vt<array<int,4>> tree;//sum, maxPrefix, maxSuffix, maxSum
-    vt<int> sum, maxPrefix, maxSuffix, maxSum;
+    vt<int> tree;
     SegTree(int nn) {
         int np = 1;
         while(np<nn) np*=2;
         tree.resize(2*np);
         n=np;
-        for(int i = np; i < 2*np; i++) {
-            tree[i][0]=-1;
-            tree[i][1]=0;
-            tree[i][2]=0;
-            tree[i][3]=0;
+    }
+    void build(vt<int> &arr) {
+        for(int i = 0; i < arr.size(); i++) {
+            tree[i+n]=arr[i];
         }
-        for(int i = np-1; i > 0; i--) {
-            tree[i][0]=tree[2*i][0]+tree[2*i+1][0];
-            tree[i][1]=max(tree[2*i][1], tree[2*i][0]+tree[2*i+1][1]);
-            tree[i][2]=max(tree[2*i+1][2], tree[2*i+1][0]+tree[2*i][2]);
-            tree[i][3]=max({tree[2*i+1][3], tree[2*i][3], tree[2*i][2]+tree[2*i+1][1]});
+        for(int i = n-1; i > 0; i--) {
+            //CHANGE HERE
+            tree[i]=tree[2*i]+tree[2*i+1];
         }
     }
     void set(int pos, int x) {
         pos+=n;
-        tree[pos][0]=x;
-        tree[pos][1]=max(x, 0LL);
-        tree[pos][2]=max(x, 0LL);
-        tree[pos][3]=max(x, 0LL);
+        tree[pos]=x;
         for(pos/=2; pos; pos/=2) {
-            int i = pos;
             //CHANGE HERE
-            tree[i][0]=tree[2*i][0]+tree[2*i+1][0];
-            tree[i][1]=max(tree[2*i][1], tree[2*i][0]+tree[2*i+1][1]);
-            tree[i][2]=max(tree[2*i+1][2], tree[2*i+1][0]+tree[2*i][2]);
-            tree[i][3]=max({tree[2*i+1][3], tree[2*i][3], tree[2*i][2]+tree[2*i+1][1]});
+            tree[pos]=tree[2*pos]+tree[2*pos+1];
         }
     }
-    int query() {
-        return tree[1][3];
+    void add(int pos, int x) {
+        pos+=n;
+        tree[pos]+=x;
+        for(pos/=2; pos; pos/=2) {
+            tree[pos]=tree[2*pos]+tree[2*pos+1];
+        }
+    }
+    int rangeQuery(int a, int b) {
+        a+=n;
+        int ans = 0;
+        b+=n;
+        while(a<=b) {
+            if(a%2==1) ans+=tree[a++];
+            if(b%2==0) ans+=tree[b--];
+            a/=2;
+            b/=2;
+        }
+        return ans;
     }
 };
 signed main() {
@@ -197,79 +202,56 @@ signed main() {
     int t;
     cin >> t;
     while(t--) {
-        int n,q;
-        cin >> n >> q;
-        vt<int> ans(q);
-        set<int> no_ans;
-        priority_queue<array<int,3>> pq; //ans, left, right
-        vt<set<int>> inv(n);
-        vt<int> a;
-        F0R(i, n) {
-            int x;
-            cin >> x;
-            inv[x-1].insert(i);
-            a.add(x-1);
-        }
-        vt<vt<array<int,3>>> events(n);//time, set/unset, position
-        F0R(i, q) {
-            int p,x;
-            cin >> p >> x;
-            p--;
-            x--;
-            events[a[p]].add({i, -1, p});
-            a[p]=x;
-            events[x].add({i, 1, p});
-        }
-        set<int> active;
+        int n,k;
+        cin >> n >> k;
+        vt<int> a(n);
+        F0R(i, n) cin >> a[i];
+        F0R(i, n) a[i]--;
         SegTree st(n);
-        
+        int ainvs = 0;
         F0R(i, n) {
-            trav(x, active) st.set(x, -1);
-            active=set<int>();
-            trav(x, inv[i]) {
-                active.insert(x);
-                // cout << i << " SETTING " << x << " TO " << 1 << endl; 
-                st.set(x, 1);
-            }
-            int bef = 0;
-            trav(x, events[i]) {
-                int ans = st.query();
-
-                // cout << x << endl << ans/2 << " " << bef << " " << x[0]-1 << endl;
-                pq.push({ans/2, bef, x[0]-1});
-                // cout << "SETTING " << x[2] << " TO " << x[1] << endl;
-                st.set(x[2], x[1]);
-                if(x[1]==1) active.insert(x[2]);
-                else active.erase(x[2]);
-                bef=x[0];
-            }
-            // cout << "LINE 241 " << i << " " << st.query()/2 << " " << bef << " " << q-1 << endl;
-            pq.push({st.query()/2, bef, q-1});
+            ainvs+=st.rangeQuery(a[i]+1, n-1);
+            st.add(a[i], 1);
         }
-        // cout << pq << endl;
-        set<int> s;
-        F0R(i, q) s.insert(i);
-        while(pq.size()) {
-            auto tp = pq.top();
-            pq.pop();
-            for(int i = tp[1]; i<=tp[2]; i++) {
-                auto lb = s.lower_bound(i);
-                if(lb==s.end()) break;
-                if((*lb)>tp[2]) break;
-                ans[*lb]=tp[0];
-                s.erase(lb);
+        if((k-ainvs)%2 || ainvs+(n*(n-1)-2*ainvs)<k || ainvs>k) {
+            cout << "NO" << endl;
+            continue;
+        }
+        cout << "YES" << endl;
+        vt<int> p(n, -1);
+        int nxt = n-1;
+        k-=ainvs;
+        // cout << k << endl;
+        F0R(i, n) {
+            int more = st.rangeQuery(a[i]+1, n-1);
+            if(k-2*more<=0) {
+                // cout << "GOT HERE" << endl;
+                int nxt2 = 0;
+                FOR(j, i+1, n) {
+                    p[a[j]]=nxt2++;
+                    if(a[j]>a[i]) {
+                        k-=2;
+                        if(k==0) {
+                            p[a[i]]=nxt2++;
+                        }
+                    }
+                }
+                if(p[a[i]]==-1) p[a[i]]=nxt2++;
+                break;
+            } else {
+                p[a[i]]=nxt--;
+                k-=2*more;
+                st.set(a[i], 0);
             }
         }
-        F0R(i, q) cout << ans[i] << " ";
+        F0R(i, n) cout << p[i]+1 << " ";
         cout << endl;
     }
     return 0;
 }
 /*
-1 2 3 4 5
-1 2 4 4 5
-4 2 4 4 5
-4 4 4 4 5
-4 4 4 3 5
-4 3 4 3 5
+2 3 1
+
+2 1 3
+1 3 2
 */
