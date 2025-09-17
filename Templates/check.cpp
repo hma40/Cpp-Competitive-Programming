@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+using namespace std;
 std::string to_string(__int128_t value) {
     if (value == 0) return "0";
     
@@ -26,111 +27,54 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
     return os;
 }
-template <typename T, std::size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
-    os << "[";
-    for (std::size_t i = 0; i < N; ++i) {
-        os << arr[i];
-        if (i < N - 1) {
-            os << ", ";
-        }
-    }
-    os << "]";
-    return os;
-}
-template<typename T> std::ostream& operator<<(std::ostream& os, const std::set<T>& s) {
+// template <typename T, typename = void>
+// struct is_iterable : std::false_type {};
+
+// template <typename T>
+// struct is_iterable<T, std::void_t<
+//     decltype(std::begin(std::declval<T>())),
+//     decltype(std::end(std::declval<T>()))
+// >> : std::true_type {};
+
+// // Generic container printer (vector, set, deque, array, map, etc.)
+// template <typename T>
+// typename std::enable_if<is_iterable<T>::value, ostream&>::type
+// operator<<(ostream& os, const T& container) {
+//     os << "{ ";
+//     for (auto it = std::begin(container); it != std::end(container); ++it) {
+//         os << *it;
+//         if (std::next(it) != std::end(container)) os << ", ";
+//     }
+//     os << " }";
+//     return os;
+// }
+
+// Queue-like adapters (stack, queue, priority_queue)
+template <typename T>
+ostream& operator<<(ostream& os, queue<T> q) {
     os << "{ ";
-    for(const auto& elem : s) {
-        os << elem << " ";
-    }
-    os << "}";
-    return os;
-}
-template<typename T> std::ostream& operator<<(std::ostream& os, const std::multiset<T>& s) {
-    os << "{ ";
-    for(const auto& elem : s) {
-        os << elem << " ";
-    }
-    os << "}";
+    while (!q.empty()) { os << q.front(); q.pop(); if (!q.empty()) os << ", "; }
+    os << " }";
     return os;
 }
 
-template<typename T> std::ostream& operator<<(std::ostream& os, std::queue<T> q) {
-    // Print each element in the queue
+template <typename T>
+ostream& operator<<(ostream& os, stack<T> st) {
     os << "{ ";
-    while (!q.empty()) {
-        os << q.front() << " ";
-        q.pop();
-    }
-    os << "}";
-    // Print a newline at the end
-    return os;
-}
-template<typename T> std::ostream& operator<<(std::ostream& os, std::deque<T> q) {
-    // Print each element in the queue
-    os << "{ ";
-    while (!q.empty()) {
-        os << q.front() << " ";
-        q.pop_front();
-    }
-    os << "}";
-    // Print a newline at the end
-    return os;
-}
-template<typename T> std::ostream& operator<<(std::ostream& os, std::stack<T> q) {
-    // Print each element in the queue
-    os << "{ ";
-    while (!q.empty()) {
-        os << q.top() << " ";
-        q.pop();
-    }
-    os << "}";
-    // Print a newline at the end
-    return os;
-}
-template<typename T> std::ostream& operator<<(std::ostream& os, std::priority_queue<T> q) {
-    // Print each element in the queue
-    os << "{ ";
-    while (!q.empty()) {
-        os << q.top() << " ";
-        q.pop();
-    }
-    os << "}";
-    // Print a newline at the end
+    while (!st.empty()) { os << st.top(); st.pop(); if (!st.empty()) os << ", "; }
+    os << " }";
     return os;
 }
 
-template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
-    os << "[ ";
-    for(const auto& elem : vec) {
-        os << elem << " ";
-    }
-    os << "]";
-    return os;
-}
-template<typename K, typename V> std::ostream& operator<<(std::ostream& os, const std::map<K, V>& m) {
+template <typename T>
+ostream& operator<<(ostream& os, priority_queue<T> pq) {
     os << "{ ";
-    for(const auto& pair : m) {
-        os << pair.first << " : " << pair.second << ", ";
-    }
-    os << "}";
+    while (!pq.empty()) { os << pq.top(); pq.pop(); if (!pq.empty()) os << ", "; }
+    os << " }";
     return os;
 }
 
-template<typename T>
-using min_pq = std::priority_queue<T, std::vector<T>, std::greater<T>>;
-template<typename T> std::ostream& operator<<(std::ostream& os, min_pq<T> q) {
-    // Print each element in the queue
-    os << "{ ";
-    while (!q.empty()) {
-        os << q.top() << " ";
-        q.pop();
-    }
-    os << "}";
-    // Print a newline at the end
-    return os;
-}
-using namespace std;
+// using namespace std;
 using ll = long long;
 #define add push_back 
 #define FOR(i,a,b) for (int i = (a); i < (b); ++i)
@@ -153,60 +97,70 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t=1;
-    // cin >> t;
-    while(t--) {
-        int n;
-        cin >> n;
-        vt<int> a(n);
-        F0R(i, n) cin >> a[i];
-        vt<int> p(n);
-        F0R(i,n) p[i]=i;
-        int ans = inf;
-        do {
-            vt<bool> dead(n);
-            int here = 0;
-            trav(i, p) {
-                if(dead[i]) continue;
-                int mn = max(0LL, i-a[i]+1);
-                int mx = min(n-1, i+a[i]-1);
-                FOR(ix, mn, mx+1) dead[ix]=true;
-                here++;
+    int n;
+    string s;
+    string ss;
+    cin >> n >> s >> ss;
+    auto good = [&](string sss)->bool{
+        // cout << sss << endl;
+        int sum = 0;
+        trav(x, sss) {
+            if(x=='(') sum++;
+            else sum--;
+            if(sum<0) return false;
+        }
+        return sum==0;
+    };
+    set<string> st;
+    deque<string> dq;
+    dq.push_back(s);
+    st.insert(s);
+    while(dq.size()) {
+        auto tp = dq.front();
+        dq.pop_front();
+        FOR(i, 1, n) {
+            if(tp[i-1]=='(' && tp[i]=='(') {
+                auto cpy = tp;
+                cpy[i-1]=cpy[i]=')';
+                if(!st.count(cpy)) {
+                    st.insert(cpy);
+                    dq.add(cpy);
+                }
             }
-            bool ok = true;
-            F0R(i, n) if(!dead[i]) ok=false;
-            if(ok) ans=min(ans, here);
-        } while(next_permutation(begin(p),end(p)));
-        // cout << ans << endl;
-        // if(ans==inf) cout << -1 << enld;
-        // else cout << ans << endl;
-        if(ans==inf) ans=-1;
-        int pans;
-        cin >> pans;
-        if(pans!=ans) {
+            if(tp[i-1]==')' && tp[i]==')') {
+                auto cpy = tp;
+                cpy[i-1]=cpy[i]='(';
+                if(!st.count(cpy)) {
+                    st.insert(cpy);
+                    dq.add(cpy);
+                }
+            }
+        }
+    }
+    bool found = false;
+    trav(x, st) {
+        // cout << x << endl;
+        if(good(x)) found=true;
+    }
+    // cout << found << endl;
+    // cout << ss << found << endl;
+    if(ss=="-1") {
+        if(found) {
             cout << "WA" << endl;
-            return 0;
+        } else {
+            cout << "OK" << endl;
         }
-        vt<int> pa(pans);
-        F0R(i, pans) cin >> pa[i];
-        F0R(i, pans) pa[i]--;
-        vt<bool> dead(n);
-        trav(i, pa) {
-            if(dead[i]) {
-                cout << "WA" << enld;
-                return 0;
-            }
-            int mn = max(0LL, i-a[i]+1);
-            int mx = min(n-1, i+a[i]-1);
-            FOR(ix, mn, mx+1) dead[ix]=true;
+    } else {
+        if(good(ss) && st.count(ss)) {
+            cout << "OK" << endl;
+        } else {
+            cout << "WA" << endl;
         }
-        F0R(i, n) {
-            if(!dead[i]) {
-                cout << "WA" << endl;
-                return 0;
-            }
-        }
-        cout << "OK" << endl;
     }
     return 0;
 }
+/*
+10
+)))(()))((
+(())))))((
+*/

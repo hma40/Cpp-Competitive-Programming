@@ -1,0 +1,210 @@
+#include <bits/stdc++.h>
+using namespace std;
+std::string to_string(__int128_t value) {
+    if (value == 0) return "0";
+    
+    std::string result;
+    bool negative = (value < 0);
+    if (negative) value = -value;
+    
+    while (value > 0) {
+        result += '0' + (value % 10);
+        value /= 10;
+    }
+    
+    if (negative) result += '-';
+    
+    std::reverse(result.begin(), result.end());
+    return result;
+}
+
+// Overload << operator for __int128
+std::ostream& operator<<(std::ostream& os, __int128_t value) {
+    return os << to_string(value);
+}
+template<typename T1, typename T2>
+std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
+    os << "(" << p.first << ", " << p.second << ")";
+    return os;
+}
+template <typename T, typename = void>
+struct is_iterable : std::false_type {};
+
+template <typename T>
+struct is_iterable<T, std::void_t<
+    decltype(std::begin(std::declval<T>())),
+    decltype(std::end(std::declval<T>()))
+>> : std::true_type {};
+
+// Generic container printer (vector, set, deque, array, map, etc.)
+template <typename T>
+typename std::enable_if<is_iterable<T>::value, ostream&>::type
+operator<<(ostream& os, const T& container) {
+    os << "{ ";
+    for (auto it = std::begin(container); it != std::end(container); ++it) {
+        os << *it;
+        if (std::next(it) != std::end(container)) os << ", ";
+    }
+    os << " }";
+    return os;
+}
+
+// Queue-like adapters (stack, queue, priority_queue)
+template <typename T>
+ostream& operator<<(ostream& os, queue<T> q) {
+    os << "{ ";
+    while (!q.empty()) { os << q.front(); q.pop(); if (!q.empty()) os << ", "; }
+    os << " }";
+    return os;
+}
+
+template <typename T>
+ostream& operator<<(ostream& os, stack<T> st) {
+    os << "{ ";
+    while (!st.empty()) { os << st.top(); st.pop(); if (!st.empty()) os << ", "; }
+    os << " }";
+    return os;
+}
+
+template <typename T>
+ostream& operator<<(ostream& os, priority_queue<T> pq) {
+    os << "{ ";
+    while (!pq.empty()) { os << pq.top(); pq.pop(); if (!pq.empty()) os << ", "; }
+    os << " }";
+    return os;
+}
+
+// using namespace std;
+using ll = long long;
+#define add push_back 
+#define FOR(i,a,b) for (int i = (a); i < (b); ++i)
+#define F0R(i,a) FOR(i,0,a)
+#define ROF(i,a,b) for (int i = (b)-1; i >= (a); --i)
+#define R0F(i,a) ROF(i,0,a)
+#define f first
+#define s second
+#define trav(a,x) for (auto& a: x)
+#define int long long
+#define vt vector
+#define endl "\n"
+#define enld "\n"
+#define double long double
+const ll mod = 998244353;
+ll inf = 1e18;
+mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+vt<int> depth;
+struct DSU {
+    int n;
+    vt<int> par;
+    vt<int> val;
+    vt<int> sz;
+    vt<int> top;
+    bool ok;
+    DSU(vt<int> &a) {
+        n=a.size();
+        ok=true;
+        par.resize(n, -1);
+        val = a;
+        sz.resize(n, 1);
+        top.resize(n);
+        F0R(i, n) top[i]=i;
+    }
+    int find(int x) {
+        if(par[x]==-1) return x;
+        return par[x]=find(par[x]);
+    }
+    void set(int node, int x) {
+        node=find(node);
+        if(val[node]!=-1 && val[node]!=x) ok=false;
+        val[node]=x;
+    }
+    void unite(int u, int v) {
+        u=find(u);
+        v=find(v);
+        if(u==v) return;
+        if(sz[u]>sz[v]) swap(u,v);
+        par[u]=v;
+        sz[v]+=sz[u];
+        if(val[v]==-1) {
+            val[v]=val[u];
+        } else if(val[v]!=val[u] && val[u]!=-1) ok=false;
+        if(depth[u]<depth[v]) top[v]=top[u]; 
+    }
+    
+};
+signed main() {
+    ios_base::sync_with_stdio(false); 
+    cin.tie(0);
+    // freopen("input.txt" , "r" , stdin);
+    // freopen("output.txt" , "w", stdout);
+    int t;
+    cin >> t;
+    while(t--) {
+        int n,m,v;
+        cin >> n >> m >> v;
+        vt<vt<int>> adj(n), tadj(n), back(n), fr(n);
+        vt<int> a(n);
+        F0R(i, n) cin >> a[i];
+        F0R(i, m) {
+            int u,v;
+            cin >> u >> v;
+            u--;
+            v--;
+            adj[u].add(v);
+            adj[v].add(u);
+        }
+        vt<int> par(n);
+        depth.assign(n,0);
+        par[0]=-1;
+        vt<bool> vis(n);
+        vis[0]=true;
+        auto dfs = [&](auto self, int node, int p)->void{
+            trav(x, adj[node]) {
+                if(vis[x]) {
+                    if(x==p) continue;
+                    if(depth[x]<depth[node]) {
+                        back[node].add(x);
+                        fr[x].add(node);
+                    }
+                } else {
+                    vis[x]=true;
+                    tadj[node].add(x);
+                    par[x]=node;
+                    depth[x]=depth[node]+1;
+                    self(self, x, node);
+                }
+            }
+        };
+        dfs(dfs, 0, -1);
+        // cout << tadj << back << endl;
+        DSU d(a);
+        vt<int> dp(n);
+        auto DFS2 = [&](auto self, int node)->void{
+            dp[node]=back[node].size()-fr[node].size();
+            trav(x, tadj[node]) {
+                self(self, x);
+                dp[node]+=dp[x];
+            }
+            if(dp[node]!=0) d.unite(node, par[node]);
+        };
+        DFS2(DFS2, 0);
+        F0R(i, n) {
+            trav(x, back[i]) {
+                if(depth[x]%2==depth[i]%2) d.set(i, 0);
+            }
+        }
+        int ans = 1;
+        F0R(i, n) {
+            if(d.find(i)==i) {
+                if(d.val[i]==-1) ans=ans*v%mod;
+            }
+        }
+        if(!d.ok) ans=0;
+        cout << ans << endl;
+    }
+    return 0;
+}
+/*
+code up DFS tree
+
+*/

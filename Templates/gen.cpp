@@ -181,9 +181,11 @@ int rand_num(int a, int b) {
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    int n = 8;
-    cout << 1 << endl << n << endl;;
-    F0R(i, n) cout << rand_num(0,n) << " ";
+    // int n = rand_num(7,7);
+    // int k = rand_num(0, n);
+    int n = 6;
+    cout << 1 << endl << n << " " << rand_num(1,n) << endl;
+    F0R(i, n) cout << rand_num(1,100) << " ";
     cout << endl;
 }
 /*
