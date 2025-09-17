@@ -1,147 +1,191 @@
-import sys
+import abc
+import random
+from collections import defaultdict
+from collections.abc import Callable
+from dataclasses import dataclass, replace
+from enum import Enum, auto
+from typing import Any
 
-# It's common for competitive programming to increase recursion limit
-# sys.setrecursionlimit(100000)
 
-def solve():
-    """
-    Main function to read N and compute the sequence.
-    You can change N here for testing.
-    """
-    N = 10 # Calculate f(0) to f(9)
+class OptionType(Enum):
+    CALL = auto()
+    PUT = auto()
 
-    # --- NTT Boilerplate ---
-    MOD = 998244353
-    ROOT = 3
-    
-    def power(a, b):
-        res = 1
-        a %= MOD
-        while b > 0:
-            if b % 2 == 1:
-                res = (res * a) % MOD
-            a = (a * a) % MOD
-            b //= 2
-        return res
+    def __str__(self) -> str:
+        return "C" if self is OptionType.CALL else "P"
 
-    def inv(n):
-        return power(n, MOD - 2)
 
-    def ntt(a, invert):
-        n = len(a)
-        j = 0
-        for i in range(1, n):
-            bit = n >> 1
-            while j & bit:
-                j ^= bit
-                bit >>= 1
-            j ^= bit
-            if i < j:
-                a[i], a[j] = a[j], a[i]
+@dataclass(eq=True, frozen=True, unsafe_hash=True)
+class Option:
+    option_id: int
+    option_type: OptionType
+    steps_until_expiry: int
+    strike: int
+    underlying_id: int
+    underlying_name: str
 
-        length = 2
-        while length <= n:
-            wlen = power(ROOT, (MOD - 1) // length)
-            if invert:
-                wlen = inv(wlen)
-            i = 0
-            while i < n:
-                w = 1
-                for j in range(length // 2):
-                    u = a[i + j]
-                    v = (a[i + j + length // 2] * w) % MOD
-                    a[i + j] = (u + v) % MOD
-                    a[i + j + length // 2] = (u - v + MOD) % MOD
-                    w = (w * wlen) % MOD
-                i += length
-            length <<= 1
-        
-        if invert:
-            n_inv = inv(n)
-            for i in range(n):
-                a[i] = (a[i] * n_inv) % MOD
-        return a
+    def __post_init__(self) -> None:
+        if self.steps_until_expiry < 0:
+            raise ValueError("Steps until expiry must be non-negative")
 
-    def convolution(a, b):
-        n = 1
-        while n < len(a) + len(b):
-            n <<= 1
-        
-        fa = a[:] + [0] * (n - len(a))
-        fb = b[:] + [0] * (n - len(b))
+    def __str__(self) -> str:
+        return f"{self.option_id} ({self.steps_until_expiry}s {self.underlying_name} {self.strike}{self.option_type!s})"
 
-        ntt(fa, False)
-        ntt(fb, False)
+    @classmethod
+    def from_underlying(
+        cls: type["Option"],
+        underlying: "Underlying",
+        option_id: int,
+        option_type: OptionType,
+        steps_until_expiry: int,
+        strike: int,
+    ) -> "Option":
+        return Option(
+            option_id=option_id,
+            option_type=option_type,
+            steps_until_expiry=steps_until_expiry,
+            strike=strike,
+            underlying_id=underlying.underlying_id,
+            underlying_name=underlying.name,
+        )
 
-        for i in range(n):
-            fa[i] = (fa[i] * fb[i]) % MOD
-        
-        ntt(fa, True)
-        return fa
-    # --- End NTT Boilerplate ---
+    def advance_step(self) -> "Option":
+        if self.steps_until_expiry == 0:
+            return self
 
-    f = [0] * (N + 1)
-    if N >= 0:
-        f[0] = 1
-    if N >= 1:
-        f[1] = 1
+        return replace(self, steps_until_expiry=self.steps_until_expiry - 1)
 
-    m = 2
-    while m <= N:
-        # 1. Define polynomials based on f[0...m-1]
-        len_conv = 2 * m
-        A = f[:m]
-        Ad = [(i * f[i]) % MOD for i in range(m)]
+    def contract_matches(self, other: "Option") -> bool:
+        return replace(other, option_id=self.option_id) == self
 
-        # 2. Perform convolutions
-        C_coeffs = convolution(A, A)[:len_conv]
-        D_coeffs = convolution(Ad, A)[:len_conv]
+    def expiry_valuation(self, underlying_valuation: float) -> float:
+        if self.option_type == OptionType.CALL:
+            return max(0, underlying_valuation - self.strike)
+        return max(0, self.strike - underlying_valuation)
 
-        # 3. Compute prefix sums
-        pc = [0] * len_conv
-        pd = [0] * len_conv
-        pc[0] = C_coeffs[0]
-        pd[0] = D_coeffs[0]
-        for i in range(1, len_conv):
-            pc[i] = (pc[i-1] + C_coeffs[i]) % MOD
-            pd[i] = (pd[i-1] + D_coeffs[i]) % MOD
 
-        # 4. Calculate f[m...2m-1]
-        for n in range(m, min(2 * m, N + 1)):
-            k = n - 1
-            half_k = k // 2
-            
-            # Sums for the first half [0, half_k]
-            c_half_sum = pc[half_k]
-            d_half_sum = pd[half_k]
+class Position:
+    def __init__(self) -> None:
+        self.option_quantity_by_option_id: dict[int, int] = defaultdict(int)
+        self.underlying_quantity_by_underlying_id: dict[int, float] = defaultdict(float)
 
-            # Sums for the second half [half_k+1, k]
-            c_second_half_sum = (pc[k] - c_half_sum + MOD) % MOD
-            d_second_half_sum = (pd[k] - d_half_sum + MOD) % MOD
-            
-            term1_val = (c_half_sum - c_second_half_sum + MOD) % MOD
-            term1 = (k * term1_val) % MOD
+    def add_option_quantity(self, option_id: int, quantity: int) -> None:
+        self.option_quantity_by_option_id[option_id] += quantity
 
-            term2_val = (d_second_half_sum - d_half_sum + MOD) % MOD
-            term2 = (2 * term2_val) % MOD
-            
-            delta_k = (term1 + term2) % MOD
-            f[n] = delta_k
+    def add_underlying_quantity(self, underlying_id: int, quantity: float) -> None:
+        quantity = round(quantity, 2)
+        self.underlying_quantity_by_underlying_id[underlying_id] += quantity
 
-        m *= 2
 
-    # Print results for verification
-    print(f"Calculated values of f(n) up to N={N-1}:")
-    for i in range(N):
-        print(f"f({i}) = {f[i]}")
+@dataclass(frozen=True)
+class Underlying:
+    name: str
+    underlying_id: int
 
-# Execute the solution
-solve()
+    valuation: float
 
-# Expected output for N=6:
-# f(0) = 1
-# f(1) = 1
-# f(2) = 2
-# f(3) = 8
-# f(4) = 52
-# f(5) = 448
+    down_move_probability: float
+    down_move_step: float
+    noise_std_dev: float
+    up_move_probability: float
+    up_move_step: float
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, Underlying):
+            return False
+        return self.underlying_id == other.underlying_id
+
+    def __post_init__(self) -> None:
+        if self.down_move_step <= 0 or self.up_move_step <= 0:
+            raise ValueError("Down/up move steps must both be positive")
+
+        if self.down_move_probability <= 0 or self.up_move_probability <= 0:
+            raise ValueError("Down/up move probabilities must both be positive")
+
+        if self.down_move_probability + self.up_move_probability != 1:
+            raise ValueError("Down and up move probabilities must sum to 1")
+
+        if ((self.down_move_probability * self.down_move_step) - (self.up_move_probability * self.up_move_step)) > 1e-5:
+            raise ValueError("Underlying has drift")
+
+    def advance_step(self) -> "Underlying":
+        if random.random() < self.up_move_probability:
+            valuation: float = self.valuation + self.up_move_step
+        else:
+            valuation = self.valuation - self.down_move_step
+
+        valuation += random.gauss(sigma=self.noise_std_dev)
+        valuation = max(valuation, 0)
+        return replace(self, valuation=round(valuation, 2))
+
+
+class BaseMarketMaker:
+    def __init__(self, underlying_initial_state: list[Underlying], option_initial_state: list[Option]) -> None:
+        self.underlying_state: list[Underlying] = underlying_initial_state
+        self.active_option_state: list[Option] = option_initial_state
+        self.position: Position = Position()
+
+    @property
+    @abc.abstractmethod
+    def name(self) -> str: ...
+
+    def buy_underlying(self, underlying_id: int, quantity: float) -> None:
+        if quantity <= 0:
+            raise ValueError("Trade quantity must be positive")
+
+        self.trade_underlying_callback(underlying_id, quantity)
+        self.position.add_underlying_quantity(underlying_id, quantity)
+
+    @abc.abstractmethod
+    def make_market(self, option: Option) -> tuple[float, float]: ...
+
+    def on_bid_hit(self, option: Option, bid_price: float) -> None:
+        self.position.add_option_quantity(option.option_id, 1)
+
+    def on_offer_hit(self, option: Option, offer_price: float) -> None:
+        self.position.add_option_quantity(option.option_id, -1)
+
+    def on_step_advance(self, new_underlying_state: list[Underlying], new_option_state: list[Option]) -> None:
+        self.underlying_state = new_underlying_state
+        self.active_option_state = new_option_state
+
+    def register_trade_underlying_callback(self, trade_underlying_callback: Callable[[int, float], None]) -> None:
+        self.trade_underlying_callback = trade_underlying_callback
+
+    @abc.abstractmethod
+    def price_option(self, option: Option) -> float: ...
+
+    def sell_underlying(self, underlying_id: int, quantity: float) -> None:
+        if quantity <= 0:
+            raise ValueError("Trade quantity must be positive")
+
+        self.trade_underlying_callback(underlying_id, -quantity)
+        self.position.add_underlying_quantity(underlying_id, -quantity)
+
+wrqw
+
+class MarketMaker(BaseMarketMaker):
+    @property
+    def name(self) -> str:
+        return "Haokai Ma"
+
+    def make_market(self, option: Option) -> tuple[float, float]:
+        awkhau
+        return (1.0, 1.0)
+        # raise NotImplementedError()  # replace with your code
+
+    def price_option(self, option: Option) -> float:
+        return 1.0
+        # raise NotImplementedError()  # replace with your code
+
+    def on_bid_hit(self, option: Option, bid_price: float) -> None:
+        super().on_bid_hit(option, bid_price)
+        # optional: your code here
+
+    def on_offer_hit(self, option: Option, offer_price: float) -> None:
+        super().on_offer_hit(option, offer_price)
+        # optional: your code here
+
+    def on_step_advance(self, new_underlying_state: list[Underlying], new_option_state: list[Option]) -> None:
+        super().on_step_advance(new_underlying_state, new_option_state)
+        # optional: your code here

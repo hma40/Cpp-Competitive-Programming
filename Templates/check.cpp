@@ -124,19 +124,31 @@ signed main() {
                 cpy[i-1]=cpy[i]=')';
                 if(!st.count(cpy)) {
                     st.insert(cpy);
+<<<<<<< Updated upstream
                     dq.add(cpy);
                 }
             }
             if(tp[i-1]==')' && tp[i]==')') {
+=======
+                    dq.push_back(cpy);
+                }
+            }
+            if(tp[i]==')' && tp[i-1]==')') {
+>>>>>>> Stashed changes
                 auto cpy = tp;
                 cpy[i-1]=cpy[i]='(';
                 if(!st.count(cpy)) {
                     st.insert(cpy);
+<<<<<<< Updated upstream
                     dq.add(cpy);
+=======
+                    dq.push_back(cpy);
+>>>>>>> Stashed changes
                 }
             }
         }
     }
+<<<<<<< Updated upstream
     bool found = false;
     trav(x, st) {
         // cout << x << endl;
@@ -156,11 +168,44 @@ signed main() {
         } else {
             cout << "WA" << endl;
         }
+=======
+    auto good = [&](string sss)->bool{
+        int count = 0;
+        trav(x, sss) {
+            if(x=='(') count++;
+            else count--;
+            if(count<0) return false;
+        }
+        return count==0;
+    };
+    bool found = false;
+    trav(x, st) {
+        if(good(x)) {
+            cout << "LINE 143 " << x << endl;
+            found=true;
+            break;
+        }
+    }
+    // cout << st.count(ss) << enld;
+    if(ss=="-1" && found) {
+        cout << "WA" << endl;
+    } else if(ss=="-1") {
+        cout << "OK" << endl;   
+    }else if(!good(ss) || !st.count(ss)) {
+        cout << "WA" << endl;
+    } else {
+        cout << "OK" << endl;
+>>>>>>> Stashed changes
     }
     return 0;
 }
 /*
 10
+<<<<<<< Updated upstream
 )))(()))((
 (())))))((
+=======
+()((((())(
+((((()))))
+>>>>>>> Stashed changes
 */

@@ -100,37 +100,52 @@ signed main() {
     int t;
     cin >> t;
     while(t--) {
-        int n,k;
-        cin >> n >> k;
-        vt<int> a(n);
-        F0R(i, n) cin >> a[i];
-        sort(begin(a),end(a));
-        int sum = 0;
-        F0R(i, n) sum+=a[i];
-        int ans = sum;
-        vt<int> p(n+1);
-        F0R(i, n) p[i+1]=p[i]+a[i];
-        auto getSum = [&](int lo, int hi)->int{
-            return p[hi+1]-p[lo];
-        };
-        FOR(i, 1, n-1) {
-            FOR(x, 1, n) {
-                if(i+x>=n) continue;
-                int sw = min(i, x*k);
-
-                int bruh = a[i]*sw-getSum(0, sw-1)-getSum(i+1, i+x)+a[i]*x;
-                // cout << i << " " << x << " " << sw << " " << bruh << endl;
-                ans=max(ans, bruh+sum);
+        int n,m;
+        cin >> n >> m;
+        m--;
+        string s;
+        cin >> s;
+        int bits = 0;
+        F0R(i, n) bits+=s[i]=='1';
+        int ans = 0;
+        auto DO = [&](int submask)->bool{
+            int bigger = m-submask;
+            if(bigger<0) return false;
+            bool ans = true;
+            int bleft = 31;
+            F0R(i, 31) if(submask&(1<<i)) bleft--;
+            R0F(i, 31) {
+                if(submask&(1<<i)) continue;
+                bleft--;
+                // cout << i << " " << bleft << endl;
+                if((1<<i)>bigger) continue;
+                bigger-=(1<<i);
+                // cout << "GOT HERE: " << submask << endl;
+                if(bleft==0) ans=!ans;
             }
+            // cout << "RETURNING " << ans << " FOR " << submask << endl;
+            return ans;
+        };
+        FOR(nums, 1, bits+1) {
+            if((bits-nums)&((nums-1)/2)) continue;
+            if(DO(nums-1)) ans^=nums-1;
+            F0R(i, 31) {
+                if((nums-1)&(1<<i)) continue;
+                if(nums-1+(1<<i)>m) continue;
+                // cout << nums << " " << i << " " << DO(nums-1+(1<<i)) << endl;
+                if(DO(nums-1+(1<<i))) ans^=(1<<i);
+                // cout << "LINE 135 " << i << " " << ans << enld;
+            }
+            // FOR(i, nums-1, m) {
+            //     int top = i;
+            //     int bot = nums-1;
+            //     if((top&bot)==bot) {
+            //         // cout << i << endl;
+            //         ans^=i;
+            //     }
+            // }
         }
         cout << ans << endl;
     }
     return 0;
 }
-/*
-x=1
-lose: a[i+1]-a[i]
-gain: sum(a[0], a[min(i-1),x-1])
-
-
-*/
