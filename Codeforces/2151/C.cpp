@@ -97,58 +97,39 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    // cin >> t;
+    int t;
+    cin >> t;
     while(t--) {
         int n;
         cin >> n;
-        vt<int> p(n);
-        F0R(i, n) cin >> p[i];
-        auto check = [&](vt<int> perm)->bool{
-            set<int> inside;
-            F0R(i, n-1) {
-                inside.insert(perm[i]);
-                if((*inside.rbegin()) == i) return false;
+        vt<int> a(2*n);
+        F0R(i, 2*n) cin >> a[i];
+        vt<int> jj(2*n+1), jj2(2*n+1);
+        // cout << jj << endl;
+        F0R(i, n*2) {
+            if(i%2) {
+                jj[i+1]=jj[i]-a[i];
+                jj2[i+1]=jj2[i]+a[i];
+            } else {
+                jj[i+1]=jj[i]+a[i];
+                jj2[i+1]=jj2[i]+a[i];
             }
-            inside.clear();
-            F0R(i, n-1) {
-                inside.insert(perm[n-i-1]);
-                if((*inside.rbegin()) ==i) return false;
-            }
-            return true;
+        }
+        auto get1 = [&](int i, int j)->int{
+            if(i>j) return 0;
+            return jj[j+1]-jj[i];
         };
-        F0R(i, n) if(p[i]!=-1) --p[i];
-        vt<int> perm(n);
-        F0R(i, n) perm[i]=i;
-        bool found = false;
-        do {
-            bool ok = true;
-            F0R(i, n) if(p[i]!=-1 && p[i]!=perm[i]) ok=false;
-            if(!ok) continue;
-            if(check(perm)) found=true;
-        }while(next_permutation(begin(perm),end(perm)));
-        vt<int> a(n);
-        cin >> a[0];
-        if(found && a[0]==-1) {
-            cout << "WA" << endl;
-            return 0;
-        } else if(a[0]==-1) {
-            cout << "OK" << endl;
-            return 0;
-        }
-        vt<bool> seen(n);
-        FOR(i, 1, n) {
-            cin >> a[i];
-        }
-        bool okok = true;
+        auto get2 = [&](int i, int j)->int{
+            if(i>j) return 0;
+            return jj2[j+1]-jj2[i];
+        };
         F0R(i, n) {
-            if(a[i]<1 || a[i]>n) okok=false;
-            a[i]--;
-            if(seen[a[i]]) okok=false;
-            if(p[i]!=-1 && p[i]!=a[i]) okok=false;
+            if(i%2==0) cout << get2(2*n-i, 2*n-1)-get2(0, i-1)-get1(i, 2*n-i-1) << " ";
+            else cout << get2(2*n-i, 2*n-1)-get2(0, i-1)+get1(i, 2*n-i-1) << " ";
+            // cout << get2(2*n-i, 2*n-1) << " " << get2(0, i-1) << " " << get1(i, 2*n-i-1) << endl;
+            // break;
         }
-        if(!check(a) || !okok) cout << "WA" << endl;
-        cout << "OK" << endl;
+        cout << endl;
     }
     return 0;
 }

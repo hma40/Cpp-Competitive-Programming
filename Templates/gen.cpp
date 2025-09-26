@@ -178,14 +178,31 @@ int best_b(vt<int> a) {
 int rand_num(int a, int b) {
     return rnd()%(b-a+1)+a;
 }
+struct DSU {
+    vt<vt<pair<int,int>>> par;
+    vt<vt<int>> sz;
+    DSU(int n, int m) {
+        par.resize(n, vt<pair<int,int>>(m, {-1,-1}));
+        sz.resize(n, vt<int>(m, 1));
+    }
+    pair<int,int> find(int x, int y) {
+        if(par[x][y].f==-1) return {x,y};
+        return par[x][y]=find(par[x][y].f, par[x][y].s);
+    }
+    void unite(int x1, int y1, int x2, int y2) {
+        auto bruh = find(x1,y1), bruh2 = find(x2,y2);
+        if(bruh==bruh2) return;
+        par[bruh.f][bruh.s]=bruh2;
+        sz[bruh2.f][bruh2.s]+=sz[bruh.f][bruh.s];
+    }
+};
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
-    // int n = rand_num(7,7);
-    // int k = rand_num(0, n);
-    int n = 6;
-    cout << 1 << endl << n << " " << rand_num(1,n) << endl;
-    F0R(i, n) cout << rand_num(1,100) << " ";
+    int x = rand_num(1,30), y = rand_num(1,30);
+    int k =rand_num(1, x+y-1);
+    cout << 1 << endl << x << " " << y << " " << k << endl;
+    F0R(i, x+y) cout << rand_num(0,1);
     cout << endl;
 }
 /*

@@ -97,58 +97,36 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    // cin >> t;
+    int t;
+    cin >> t;
     while(t--) {
         int n;
-        cin >> n;
+        string s;
+        cin >> n >> s;
+        bool bad = false;
+        if(s[0]=='0' && s[1]=='1') bad=true;
+        if(s[n-1]=='0' && s[n-2]=='1') bad=true;
+        FOR(i, 1, n-1) if(s[i-1]=='1' && s[i]=='0' && s[i+1]=='1') bad=true;
+        if(bad) {
+            cout << "NO" << endl;
+            continue;
+        }
+        vt<int> fixed;
+        F0R(i, n) if(s[i]=='1') fixed.add(i);
         vt<int> p(n);
-        F0R(i, n) cin >> p[i];
-        auto check = [&](vt<int> perm)->bool{
-            set<int> inside;
-            F0R(i, n-1) {
-                inside.insert(perm[i]);
-                if((*inside.rbegin()) == i) return false;
-            }
-            inside.clear();
-            F0R(i, n-1) {
-                inside.insert(perm[n-i-1]);
-                if((*inside.rbegin()) ==i) return false;
-            }
-            return true;
-        };
-        F0R(i, n) if(p[i]!=-1) --p[i];
-        vt<int> perm(n);
-        F0R(i, n) perm[i]=i;
-        bool found = false;
-        do {
-            bool ok = true;
-            F0R(i, n) if(p[i]!=-1 && p[i]!=perm[i]) ok=false;
-            if(!ok) continue;
-            if(check(perm)) found=true;
-        }while(next_permutation(begin(perm),end(perm)));
-        vt<int> a(n);
-        cin >> a[0];
-        if(found && a[0]==-1) {
-            cout << "WA" << endl;
-            return 0;
-        } else if(a[0]==-1) {
-            cout << "OK" << endl;
-            return 0;
+        int prev = 0;
+        trav(x, fixed) {
+            p[x]=x+1;
+            FOR(i, prev, x) p[i]=x-i+prev;
+            prev=x+1;
         }
-        vt<bool> seen(n);
-        FOR(i, 1, n) {
-            cin >> a[i];
-        }
-        bool okok = true;
+        int nxt = n;
         F0R(i, n) {
-            if(a[i]<1 || a[i]>n) okok=false;
-            a[i]--;
-            if(seen[a[i]]) okok=false;
-            if(p[i]!=-1 && p[i]!=a[i]) okok=false;
+            if(p[i]==0) p[i]=nxt--;
         }
-        if(!check(a) || !okok) cout << "WA" << endl;
-        cout << "OK" << endl;
+        cout << "YES" << endl;
+        F0R(i, n) cout << p[i] << " ";
+        cout << endl;
     }
     return 0;
 }

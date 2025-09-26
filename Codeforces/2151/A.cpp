@@ -97,58 +97,22 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    // cin >> t;
+    int t;
+    cin >> t;
     while(t--) {
-        int n;
-        cin >> n;
-        vt<int> p(n);
-        F0R(i, n) cin >> p[i];
-        auto check = [&](vt<int> perm)->bool{
-            set<int> inside;
-            F0R(i, n-1) {
-                inside.insert(perm[i]);
-                if((*inside.rbegin()) == i) return false;
-            }
-            inside.clear();
-            F0R(i, n-1) {
-                inside.insert(perm[n-i-1]);
-                if((*inside.rbegin()) ==i) return false;
-            }
-            return true;
-        };
-        F0R(i, n) if(p[i]!=-1) --p[i];
-        vt<int> perm(n);
-        F0R(i, n) perm[i]=i;
-        bool found = false;
-        do {
-            bool ok = true;
-            F0R(i, n) if(p[i]!=-1 && p[i]!=perm[i]) ok=false;
-            if(!ok) continue;
-            if(check(perm)) found=true;
-        }while(next_permutation(begin(perm),end(perm)));
-        vt<int> a(n);
-        cin >> a[0];
-        if(found && a[0]==-1) {
-            cout << "WA" << endl;
-            return 0;
-        } else if(a[0]==-1) {
-            cout << "OK" << endl;
-            return 0;
-        }
-        vt<bool> seen(n);
-        FOR(i, 1, n) {
-            cin >> a[i];
-        }
-        bool okok = true;
-        F0R(i, n) {
-            if(a[i]<1 || a[i]>n) okok=false;
-            a[i]--;
-            if(seen[a[i]]) okok=false;
-            if(p[i]!=-1 && p[i]!=a[i]) okok=false;
-        }
-        if(!check(a) || !okok) cout << "WA" << endl;
-        cout << "OK" << endl;
+        int n,m;
+        cin >> n >> m;
+        vt<int> a(m);
+        F0R(i, m) cin >> a[i];
+        int ones = 0;
+        F0R(i, m) if(a[i]==1) ones++;
+        int mx = 0;
+        F0R(i, m) mx=max(mx, a[i]);
+        int mxCount = 0;
+        F0R(i, m) if(a[i]==mx) mxCount++;
+        if(ones>1 || mxCount>1 || a.back()!=mx) cout << 1 << endl;
+        else if(a.back()==mx && mxCount==1) cout << n-mx+1 << endl;
+        else cout << n-mx << endl;
     }
     return 0;
 }

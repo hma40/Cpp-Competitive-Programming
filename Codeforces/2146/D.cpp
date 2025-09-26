@@ -97,58 +97,80 @@ signed main() {
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    // cin >> t;
+    int t;
+    cin >> t;
+    set<int> good;
+    for(int i = 0; i < (1LL<<50); i=i*2+1) good.insert(i);
     while(t--) {
-        int n;
-        cin >> n;
-        vt<int> p(n);
-        F0R(i, n) cin >> p[i];
-        auto check = [&](vt<int> perm)->bool{
-            set<int> inside;
-            F0R(i, n-1) {
-                inside.insert(perm[i]);
-                if((*inside.rbegin()) == i) return false;
+        int l,r;
+        cin >> l >> r;
+        vt<int> ans(r-l+1);
+        vt<int> inv(r-l+1);//inv[i+l]
+        int times = 0;
+        auto DO = [&](auto self, int lx, int rx)->void{
+            // cout << lx << " " << rx << endl;
+            times++;
+            if(lx>rx) return;
+            if(lx==rx) {
+                ans[lx-l]=lx;
+                inv[lx-l]=lx-l;
+                return;
             }
-            inside.clear();
-            F0R(i, n-1) {
-                inside.insert(perm[n-i-1]);
-                if((*inside.rbegin()) ==i) return false;
+            int bruh = 0;
+            R0F(i, 31) {
+                if((lx&(1LL<<i)) != (rx&(1LL<<i))) {
+                    bruh+=1LL<<i;
+                    // change=1LL<<i;
+                    break;
+                } else {
+                    bruh+=lx&(1LL<<i);
+                }
             }
-            return true;
-        };
-        F0R(i, n) if(p[i]!=-1) --p[i];
-        vt<int> perm(n);
-        F0R(i, n) perm[i]=i;
-        bool found = false;
-        do {
-            bool ok = true;
-            F0R(i, n) if(p[i]!=-1 && p[i]!=perm[i]) ok=false;
-            if(!ok) continue;
-            if(check(perm)) found=true;
-        }while(next_permutation(begin(perm),end(perm)));
-        vt<int> a(n);
-        cin >> a[0];
-        if(found && a[0]==-1) {
-            cout << "WA" << endl;
-            return 0;
-        } else if(a[0]==-1) {
-            cout << "OK" << endl;
-            return 0;
+            int nxt = bruh;
+            ROF(i, lx, bruh) {
+                ans[i-l]=nxt++;
+                if(nxt>rx) {
+                    self(self, lx, i-1);
+                    break;
+                }
+            }
+            nxt = bruh-1;
+            FOR(i, bruh, rx+1) {
+                ans[i-l]=nxt--;
+                if(nxt<lx) {
+                    self(self, i+1, rx);
+                    break;
+                }
+            }
+        };  
+        DO(DO, l, r);
+        int sum = 0;
+        FOR(i, l, r+1) {
+            sum+=i|ans[i-l];
         }
-        vt<bool> seen(n);
-        FOR(i, 1, n) {
-            cin >> a[i];
-        }
-        bool okok = true;
-        F0R(i, n) {
-            if(a[i]<1 || a[i]>n) okok=false;
-            a[i]--;
-            if(seen[a[i]]) okok=false;
-            if(p[i]!=-1 && p[i]!=a[i]) okok=false;
-        }
-        if(!check(a) || !okok) cout << "WA" << endl;
-        cout << "OK" << endl;
+        // cerr << times << endl;
+        // cout << times << endl;
+        cout << sum << endl;
+        trav(x, ans) cout << x << " ";
+        cout << endl;
     }
     return 0;
 }
+/*
+DO(0,3)
+DO(0,1), DO(2,3)
+DO(0,0), DO(1,1), DO(2,2), DO(3,3)
+[0,1,2,3]
+[1,0,3,2]
+[3,2,1,0]
+
+
+6 7 8 9 10
+DO(6,7)
+DO(8,10)
+
+
+
+6 7 8 9 10
+9 8 7 6 10
+*/

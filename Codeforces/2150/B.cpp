@@ -92,63 +92,57 @@ using ll = long long;
 const ll mod = 998244353;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+int bexpo(int b, int e) {
+    int ans = 1;
+    while(e) {
+        if(e&1) ans=ans*b%mod;
+        e>>=1;
+        b=b*b%mod;
+    }
+    return ans;
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
-    // cin >> t;
+    int t;
+    cin >> t;
+    vt<int> fact(4e5+5), ifact(4e5+5);
+    fact[0]=ifact[0]=1;
+    FOR(i, 1, 4e5+5) {
+        fact[i]=(fact[i-1]*i)%mod;
+        ifact[i]=bexpo(fact[i], mod-2);
+    }
+    auto nck = [&](int n, int k)->int{
+        return fact[n]*ifact[k]%mod*ifact[n-k]%mod;
+    };
     while(t--) {
         int n;
         cin >> n;
-        vt<int> p(n);
-        F0R(i, n) cin >> p[i];
-        auto check = [&](vt<int> perm)->bool{
-            set<int> inside;
-            F0R(i, n-1) {
-                inside.insert(perm[i]);
-                if((*inside.rbegin()) == i) return false;
-            }
-            inside.clear();
-            F0R(i, n-1) {
-                inside.insert(perm[n-i-1]);
-                if((*inside.rbegin()) ==i) return false;
-            }
-            return true;
-        };
-        F0R(i, n) if(p[i]!=-1) --p[i];
-        vt<int> perm(n);
-        F0R(i, n) perm[i]=i;
-        bool found = false;
-        do {
-            bool ok = true;
-            F0R(i, n) if(p[i]!=-1 && p[i]!=perm[i]) ok=false;
-            if(!ok) continue;
-            if(check(perm)) found=true;
-        }while(next_permutation(begin(perm),end(perm)));
         vt<int> a(n);
-        cin >> a[0];
-        if(found && a[0]==-1) {
-            cout << "WA" << endl;
-            return 0;
-        } else if(a[0]==-1) {
-            cout << "OK" << endl;
-            return 0;
+        F0R(i, n) cin >> a[i];
+        int sum = 0;
+        F0R(i, n) sum+=a[i];
+        if(sum!=n) {
+            cout << 0 << endl;
+            continue;
         }
-        vt<bool> seen(n);
-        FOR(i, 1, n) {
-            cin >> a[i];
+        int allowed = 1;
+        if(n%2==0) allowed++;
+        int ans = 1;
+        R0F(j, (n+1)/2) {   
+            sum-=a[j];
+            if(allowed<a[j]) ans=0;
+            else {
+                ans*=nck(allowed, a[j]);
+                allowed-=a[j];
+                allowed+=2;
+                ans%=mod;
+            }
         }
-        bool okok = true;
-        F0R(i, n) {
-            if(a[i]<1 || a[i]>n) okok=false;
-            a[i]--;
-            if(seen[a[i]]) okok=false;
-            if(p[i]!=-1 && p[i]!=a[i]) okok=false;
-        }
-        if(!check(a) || !okok) cout << "WA" << endl;
-        cout << "OK" << endl;
+        if(sum!=0) ans=0;
+        cout << ans << endl;
     }
     return 0;
 }

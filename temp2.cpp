@@ -1,5 +1,4 @@
 #include <bits/stdc++.h>
-using namespace std;
 std::string to_string(__int128_t value) {
     if (value == 0) return "0";
     
@@ -27,54 +26,111 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
     return os;
 }
-template <typename T, typename = void>
-struct is_iterable : std::false_type {};
-
-template <typename T>
-struct is_iterable<T, std::void_t<
-    decltype(std::begin(std::declval<T>())),
-    decltype(std::end(std::declval<T>()))
->> : std::true_type {};
-
-// Generic container printer (vector, set, deque, array, map, etc.)
-template <typename T>
-typename std::enable_if<is_iterable<T>::value, ostream&>::type
-operator<<(ostream& os, const T& container) {
-    os << "{ ";
-    for (auto it = std::begin(container); it != std::end(container); ++it) {
-        os << *it;
-        if (std::next(it) != std::end(container)) os << ", ";
+template <typename T, std::size_t N>
+std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
+    os << "[";
+    for (std::size_t i = 0; i < N; ++i) {
+        os << arr[i];
+        if (i < N - 1) {
+            os << ", ";
+        }
     }
-    os << " }";
+    os << "]";
     return os;
 }
-
-// Queue-like adapters (stack, queue, priority_queue)
-template <typename T>
-ostream& operator<<(ostream& os, queue<T> q) {
+template<typename T> std::ostream& operator<<(std::ostream& os, const std::set<T>& s) {
     os << "{ ";
-    while (!q.empty()) { os << q.front(); q.pop(); if (!q.empty()) os << ", "; }
-    os << " }";
+    for(const auto& elem : s) {
+        os << elem << " ";
+    }
+    os << "}";
     return os;
 }
-
-template <typename T>
-ostream& operator<<(ostream& os, stack<T> st) {
+template<typename T> std::ostream& operator<<(std::ostream& os, const std::multiset<T>& s) {
     os << "{ ";
-    while (!st.empty()) { os << st.top(); st.pop(); if (!st.empty()) os << ", "; }
-    os << " }";
+    for(const auto& elem : s) {
+        os << elem << " ";
+    }
+    os << "}";
     return os;
 }
 
-template <typename T>
-ostream& operator<<(ostream& os, priority_queue<T> pq) {
+template<typename T> std::ostream& operator<<(std::ostream& os, std::queue<T> q) {
+    // Print each element in the queue
     os << "{ ";
-    while (!pq.empty()) { os << pq.top(); pq.pop(); if (!pq.empty()) os << ", "; }
-    os << " }";
+    while (!q.empty()) {
+        os << q.front() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
+template<typename T> std::ostream& operator<<(std::ostream& os, std::deque<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.front() << " ";
+        q.pop_front();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
+template<typename T> std::ostream& operator<<(std::ostream& os, std::stack<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.top() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
+template<typename T> std::ostream& operator<<(std::ostream& os, std::priority_queue<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.top() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
     return os;
 }
 
-// using namespace std;
+template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
+    os << "[ ";
+    for(const auto& elem : vec) {
+        os << elem << " ";
+    }
+    os << "]";
+    return os;
+}
+template<typename K, typename V> std::ostream& operator<<(std::ostream& os, const std::map<K, V>& m) {
+    os << "{ ";
+    for(const auto& pair : m) {
+        os << pair.first << " : " << pair.second << ", ";
+    }
+    os << "}";
+    return os;
+}
+
+template<typename T>
+using min_pq = std::priority_queue<T, std::vector<T>, std::greater<T>>;
+template<typename T> std::ostream& operator<<(std::ostream& os, min_pq<T> q) {
+    // Print each element in the queue
+    os << "{ ";
+    while (!q.empty()) {
+        os << q.top() << " ";
+        q.pop();
+    }
+    os << "}";
+    // Print a newline at the end
+    return os;
+}
+using namespace std;
 using ll = long long;
 #define add push_back 
 #define FOR(i,a,b) for (int i = (a); i < (b); ++i)
@@ -84,215 +140,247 @@ using ll = long long;
 #define f first
 #define s second
 #define trav(a,x) for (auto& a: x)
+int NCK[10005][10005], pNCK[10005][10005];
 #define int long long
 #define vt vector
 #define endl "\n"
 #define enld "\n"
 #define double long double
-const ll mod = 1000000007;
+const ll mod = 998244353;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-<<<<<<< Updated upstream
-=======
-vector<bool> visited; // keeps track of which vertices are already visited
-
-// runs depth first search starting at vertex v.
-// each visited vertex is appended to the output vector when dfs leaves it.
-void dfs(int v, vector<vector<int>> const& adj, vector<int> &output) {
-    visited[v] = true;
-    for (auto u : adj[v])
-        if (!visited[u])
-            dfs(u, adj, output);
-    output.push_back(v);
+int N = 1e4+5;
+vt<int> fact(N), invfact(N);
+int bexpo(int b, int e) {
+    int ans = 1;
+    while(e) {
+        if(e&1) ans=ans*b%mod;
+        e>>=1;
+        b=b*b%mod;
+    }
+    return ans;
 }
-
-// input: adj -- adjacency list of G
-// output: components -- the strongy connected components in G
-// output: adj_cond -- adjacency list of G^SCC (by root vertices)
-void strongly_connected_components(vector<vector<int>> const& adj,
-                                  vector<vector<int>> &components,
-                                  vector<vector<int>> &adj_cond) {
-    int n = adj.size();
-    components.clear(), adj_cond.clear();
-
-    vector<int> order; // will be a sorted list of G's vertices by exit time
-
-    visited.assign(n, false);
-
-    // first series of depth first searches
-    for (int i = 0; i < n; i++)
-        if (!visited[i])
-            dfs(i, adj, order);
-
-    // create adjacency list of G^T
-    vector<vector<int>> adj_rev(n);
-    for (int v = 0; v < n; v++)
-        for (int u : adj[v])
-            adj_rev[u].push_back(v);
-
-    visited.assign(n, false);
-    reverse(order.begin(), order.end());
-
-    vector<int> roots(n, 0); // gives the root vertex of a vertex's SCC
-
-    // second series of depth first searches
-    for (auto v : order)
-        if (!visited[v]) {
-            std::vector<int> component;
-            dfs(v, adj_rev, component);
-            components.push_back(component);
-            int root = *min_element(begin(component), end(component));
-            for (auto u : component)
-                roots[u] = root;
-        }
-
-    // add edges to condensation graph
-    adj_cond.assign(n, {});
-    for (int v = 0; v < n; v++)
-        for (auto u : adj[v])
-            if (roots[v] != roots[u])
-                adj_cond[roots[v]].push_back(roots[u]);
+int nck(int n, int k) {
+    if(n<k) return 0;
+    if(n<0 || k<0) return 0;
+    return NCK[n][k];
 }
+ll getv(ll x,ll y,ll k){
+  if(min(x,y)<=-1){
+    return 0ll;
+  }
+  if(max(x,y)>=k){
+    return nck(x+y,x);
+  }
+  return nck(x+y,k);
+}
+int get2(int x, int y, int lnds_0, int lnds_1, int k) {
+    if(lnds_1+y>=k) {
+        return nck(x+y,y);
+    }
+    if(lnds_0+x>=k) {
+        return nck(x+y,y);
+    }
 
->>>>>>> Stashed changes
+    if(lnds_1+y<k && lnds_0+x+y<k) {
+        return 0;
+    }
+    int zz = k-lnds_0;
+    return nck(x+y,zz);
+}
+int get_exactly(int x, int y, int lnds_0, int lnds_1, int k) {
+    return get2(x,y,lnds_0,lnds_1,k)-get2(x,y,lnds_0,lnds_1,k+1);
+}
+int get_less(int x, int y, int lnds_0, int lnds_1, int k) {
+    return nck(x+y,x)-get2(x,y,lnds_0,lnds_1,k);
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-<<<<<<< Updated upstream
+    F0R(i, 10005) F0R(j, 10005) {
+        if(j>i) NCK[i][j]=0;
+        else if(j==0 || j==i) NCK[i][j]=1;
+        else NCK[i][j]=(NCK[i-1][j-1]+NCK[i-1][j])%mod;
+    }
+    F0R(i, 10005) {
+        pNCK[i][0]=0;
+        F0R(j, 10004) {
+            pNCK[i][j+1]=(pNCK[i][j]+NCK[i][j])%mod;
+        }
+    }
+    auto sum_nck = [&](int n, int i, int j)->int{
+        if(i>j) return 0ll;
+        i=max(0LL,i);
+        j=max(0LL,j);
+        return (pNCK[n][j+1]-pNCK[n][i])%mod;
+    };
+    fact[0]=1;
+    invfact[0]=1;
+    FOR(i, 1, N) {
+        fact[i]=fact[i-1]*i%mod;
+        invfact[i]=bexpo(fact[i], mod-2);
+    }
     int t;
     cin >> t;
     while(t--) {
-        int n,k;
-        cin >> n >> k;
-        vt<int> a(n);
-        F0R(i, n) cin >> a[i];
-        sort(begin(a),end(a));
-        int sum = 0;
-        F0R(i, n) sum+=a[i];
-        int ans = sum;
-        vt<int> p(n+1);
-        F0R(i, n) p[i+1]=p[i]+a[i];
-        auto getSum = [&](int lo, int hi)->int{
-            return p[hi+1]-p[lo];
-        };
-        FOR(i, 1, n-1) {
-            // cout << i << endl;
-            int mxX = min(n-i-1, i/k);
-            if(mxX!=n-i-1) {
-                int here = i*a[i]-getSum(0, i)-getSum(i+1, i+mxX+1)+a[i]*(mxX+1);
-                ans=max(ans, sum+here);
+        int x,y,k;
+        cin >> x >> y >> k;
+        string s;
+        cin >> s;
+        vt<int> lnds_0(x+y+1), lnds_1(x+y+1);
+        F0R(i, x+y) {
+            if(s[i]=='0') {
+                lnds_0[i+1]=lnds_0[i]+1;
+                lnds_1[i+1]=max(lnds_1[i], lnds_0[i+1]);
+            } else {
+                lnds_0[i+1]=lnds_0[i];
+                lnds_1[i+1]=1+lnds_1[i];
             }
-            int lo = 1, hi = mxX+1;
-            while(lo+1<hi) {
-                int mid = (lo+hi)/2;
-                if(a[i]*k-getSum((mid-1)*k, mid*k-1)>a[i+mid]-a[i]) {
-                    lo=mid;
-                } else {
-                    hi=mid;
+        }
+
+        int ans = 0;
+        int zl = x, ol = y;
+        F0R(i, x+y) {    
+            if(s[i]=='0') zl--;
+            else ol--;
+            if(lnds_1[i+1]==k) {
+                int l_0 = 0, l_1 = 0;          
+
+                FOR(j, i+1, x+y) {
+                    if(s[j]=='0') {
+                        //what if this is where it changes?
+                        l_1++;
+                        ol--;
+                        ans+=get2(zl, ol, l_0, l_1, k);
+                        ol++;
+                        zl--;
+                        l_1--;
+                        l_0++;
+                        l_1=max(l_0, l_1);
+                    } else {
+                        l_1++;
+                        ol--;
+                    }
                 }
+                break;
             }
-            int here = k*lo*a[i]-getSum(0, k*lo-1)-getSum(i+1, i+lo)+a[i]*lo;
-            ans=max(ans, sum+here);
+
         }
-        cout << ans << endl;
-=======
-    int n;
-    cin >> n;
-    vt<vt<int>> edges(n);
-    // vector<vt<int>> edges(n, vt<int>(2));
-    for(int i = 0; i < n; i++) {
-        // cin >> edges[i][0];
-        // edges[i][1]=i+1;
-        int v;
-        cin >> v;
-        v--;
-        edges[v].add(i);
->>>>>>> Stashed changes
-    }
-    vt<vt<int>> bruh;
-    vt<vt<int>> garbage;
-    // return 0;
-    strongly_connected_components(edges, bruh, garbage);
-    // GFG g;
-    // auto bruh = g.findSCC(n, edges);
-    // cout << bruh << endl;
-    // return 0;
-    vt<int> which(n+1);
-    F0R(i, bruh.size()) {
-        trav(x, bruh[i]) which[x]=i;
-    }
-    // cout << bruh << which << endl;
-    vt<int> ord;
-    vt<vt<int>> adj(bruh.size());
-    vt<vt<int>> ed;
-    F0R(i, n) trav(x, edges[i]) {
-        ed.add({i,x});
-    }
-    trav(x, ed) {
-        // cout << x << which[x[0]] << " " << which[x[1]] << endl;
-        if(which[x[0]]==which[x[1]]) continue;
-        // else adj.add({which[x[0]], which[x[1]]});
-        else adj[which[x[0]]].add(which[x[1]]);
-    }
-    // cout << adj << endl;
-    // return 0;
-    vt<int> in(bruh.size());
-    F0R(i, bruh.size()) trav(x, adj[i]) in[x]++;
-    deque<int> dq;
-    F0R(i, bruh.size()) if(in[i]==0) {
-        dq.push_back(i);
-        ord.add(i);
-    }
-    // return 0;
-    while(dq.size()) {
-        auto tp = dq.front();
-        dq.pop_front();
-        trav(x, adj[tp]) {
-            in[x]--;
-            if(in[x]==0) {
-                dq.push_back(x);
-                ord.add(x);
+        zl=x;
+        ol=y;
+        F0R(diff, x+y) {
+            if(s[diff]=='1') {
+                ol--;
+                continue;
             }
+            ol--;
+            int l_0 = lnds_0[diff], l_1 = lnds_1[diff]+1;
+            if(lnds_1[diff]>=k) {
+                break;
+            }
+            if(l_1==k) {
+                ans+=getv(zl,ol,k);
+                ans%=mod;
+            }
+            if(l_1>k) break;
+            FOR(eq_k, diff, x+y) {
+                int positions = eq_k-diff;
+                int zzz = k-l_0;
+                int ooo = positions-zzz;
+                ans+=get_less(zzz-1, ooo, l_0, l_1, k)*getv(zl-zzz, ol-ooo, k);
+                ans%=mod;
+                int zeroEnd = positions-(k-l_1)-1;
+                auto calc_one = [&](int zeroes)->void{
+                    int ones = positions-zeroes;
+                    // cout << zeroes << " " << ones << " " << l_1+ones << " " << k << " " << get_exactly(zeroes, ones-1, l_0, l_1, k-1)*getv(zl-zeroes, ol-ones, k) << endl;
+                    // cout << get2(zeroes,ones-1,lnds_0,lnds_1,k)-get2(x,y,lnds_0,lnds_1,k+1)<< endl;
+                    // cout << "calc_one called for " << zeroes << " " << positions << endl;
+                    // cout << get_exactly(zeroes, ones-1, l_0, l_1, k-1)*getv(zl-zeroes, ol-ones, k) << " " << zeroes << endl;
+                    ans+=get_exactly(zeroes, ones-1, l_0, l_1, k-1)*getv(zl-zeroes, ol-ones, k);
+                    ans%=mod;
+                };
+                zeroEnd=max(zeroEnd, -1LL);
+                zeroEnd=max(zeroEnd, positions-ol-1);
+                calc_one(zeroEnd+1);
+                int zeroStart = k-l_0;
+                zeroStart = min(zeroStart, zl+1);
+                if(zeroEnd+2<zeroStart) calc_one(zeroStart-1);
+                if(zeroEnd+2<zeroStart-1) {
+                    int con = nck(positions-1, k-1-l_0)-nck(positions-1, k-l_0);
+                    /*
+                    need zl-zeroes>=0 and ol-ones>=0
+                    zeroes<=zl
+                    zeroes>=positions-ol
+
+                    whats the condition for NCK(zl+ol-positions, k)?
+                    if(max(x,y)>=k){
+                        return nck(x+y,x);
+                    }
+                    so x>=k or y>=k
+                    whats x and y here?
+                    x is zl-zeroes
+                    y is ol-ones
+                    zl-zeroes>=k
+                    or 
+                    ol-ones>=k
+                    ol-(positions-zeroes)>=k
+                    ol-positions+zeroes>=k
+                    zeroes>=k-ol+positoins
+                    
+                    if zeroes<=zl-k then return C(x+y,x)
+                    if zeroes>=k-ol+positions then return C(x+y,x)
+
+                    C(zl+ol-positions, zl-zeroes)
+                    zero inc -> zl-zeroes dec
+                    */
+                    int bad_end = zl-k;
+                    bad_end = max(bad_end, zeroEnd+1);
+                    int bad_start = k-ol+positions;
+                    bad_start = min(bad_start, zeroStart-1);
+                    bad_start = max(bad_start, zeroEnd+2);
+                    ans+=sum_nck(ol+zl-positions, zl-bad_end, zl-zeroEnd-2)*con;
+                    // cout << "OUT OF LOOP1: " << sum_nck(ol+zl-positions, zl-bad_end, zl-zeroEnd-2) << endl;
+                    ans%=mod;
+                    // cout << bad_start << " " << bad_end << " " << zeroEnd+2 << " " << zeroStart-1 << endl;
+                    ans+=sum_nck(ol+zl-positions, zl-zeroStart+2, zl-bad_start)*con;
+                    // cout << zl-zeroStart+1 << " " << zl-bad_start << endl;
+                    // cout << "OUT OF LOOP2: " << sum_nck(ol+zl-positions, zl-zeroStart+2, zl-bad_start) << endl;
+                    ans%=mod;
+                    int kk = bad_start-bad_end-1;
+                    ans+=con*nck(ol+zl-positions, k)%mod*kk%mod;
+                    // cout << "OUT OF LOOP 3: " << kk << " " << nck(ol+zl-positions, k) << endl;
+                    ans%=mod;
+                }
+                // FOR(zeroes, zeroEnd+2, zeroStart-1) {
+                //     cout << "IN LOOP: " << positions << " " << getv(zl-zeroes, ol-(positions-zeroes), k) << " " << zl+ol-positions << " " << k << endl;
+                //     // calc_one(zeroes);
+                // }
+                // calc_one(zeroStart-1);
+            }
+            // cout << endl;
+
+            ol++;
+            zl--;
         }
-    }
-    // return 0;
-    vt<vt<int>> rev(bruh.size());
-    F0R(i, bruh.size()) trav(x, adj[i]) {
-        rev[x].add(i);
-    }
-    F0R(i, bruh.size()) assert(rev[i].size()<=1);
-    vt<int> dp(bruh.size());
-    F0R(i, bruh.size()) if(rev[i].size()==0) dp[i]=1;
-    R0F(i, bruh.size()) {
-        dp[ord[i]]=1;
-        trav(x, adj[ord[i]]) {
-            dp[ord[i]]*=dp[x];
-            dp[ord[i]]%=mod;
-        }
-        dp[ord[i]]++;
-    }
-    int ans = 1;
-    F0R(i, ord.size()) if(rev[i].size()==0) {
-        ans*=dp[i];
         ans%=mod;
+        ans+=mod;
+        ans%=mod;
+        cout << ans << endl;
     }
-    ans--;
-    ans%=mod;
-    ans+=mod;
-    ans%=mod;
-    cout << ans << endl;
     return 0;
-<<<<<<< Updated upstream
 }
 /*
-x=1
-lose: a[i+1]-a[i]
-gain: sum(a[0], a[min(i-1),x-1])
+1
+1 4 2
+10000
 
+11???
+1x 0, 2x 1, 
 
+10111
+11011
+11101
+11110
 */
-=======
-}
->>>>>>> Stashed changes
