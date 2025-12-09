@@ -1,33 +1,38 @@
-from PIL import Image
+s = input()
+if(s[-1] == 'E'):
+    print("INVALID")
+    exit(0)
 
-def read_binary_grid():
-    print("Enter a 21x21 binary matrix (21 lines of 21 characters each, only 0s and 1s):")
-    grid = []
-    for i in range(21):
-        while True:
-            line = input().strip()
-            if len(line) == 21 and all(c in '01' for c in line):
-                grid.append(line)
-                break
+start = 1
+smallest = -1
+def IsPow2(n):
+    temp = n
+    while temp != 1:
+        if temp%2==1:
+            return False
+        temp/=2
+    return True
+for j in range(150):
+    ok = True
+    cur = start
+    for k in range(len(s)):
+        if s[-k-1]=='O':
+            if (cur-1)%3 != 0 or (cur-1)//3 %2 != 1:
+                ok = False
             else:
-                print("Invalid input. Please enter exactly 21 characters consisting only of 0s and 1s.")
-    return grid
-
-def create_image_from_grid(binary_grid, scale=10):
-    data = [[int(bit) for bit in row] for row in binary_grid]
-    size = len(data)
-    image = Image.new("1", (size * scale, size * scale), 1)
-    pixels = image.load()
-
-    for y in range(size):
-        for x in range(size):
-            color = 0 if data[y][x] == 1 else 1
-            for dy in range(scale):
-                for dx in range(scale):
-                    pixels[x * scale + dx, y * scale + dy] = color
-
-    image.show()  # or image.save("output.png")
-
-if __name__ == "__main__":
-    binary_grid = read_binary_grid()
-    create_image_from_grid(binary_grid)
+                cur=(cur-1)//3
+        else:
+            cur=cur*2
+        if(IsPow2(cur)):
+            ok = False
+    start*=2
+    if not ok:
+        continue
+    if smallest==-1:
+        smallest = cur
+    else:
+        smallest = min(smallest, cur)
+if(smallest==-1): 
+    print("INVALID")
+else:
+    print(smallest)

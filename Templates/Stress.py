@@ -37,7 +37,7 @@ def files_are_identical(file1, file2):
     with open(file1, 'r') as f1, open(file2, 'r') as f2:
         content1 = f1.read().strip()  # Strip whitespace
         content2 = f2.read().strip()  # Strip whitespace
-        print("LINE 19", content1, content2)
+        # print("LINE 19", content1, content2)
     return content1 == content2
 
 def are_floats_close():
@@ -74,7 +74,6 @@ while True:
     if not files_are_identical(correct_file, wrong_file):
         print(f"Test failed on test case {count}. Check input.txt")
         break
-
     count += 1
-    if count % 25 == 0:
+    if count % 1 == 0:
         print(f"Tested {count} cases.")

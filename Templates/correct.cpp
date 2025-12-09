@@ -1,4 +1,6 @@
 #include <bits/stdc++.h>
+
+using namespace std;
 std::string to_string(__int128_t value) {
     if (value == 0) return "0";
     
@@ -26,111 +28,69 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
     return os;
 }
-template <typename T, std::size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T, N>& arr) {
-    os << "[";
-    for (std::size_t i = 0; i < N; ++i) {
-        os << arr[i];
-        if (i < N - 1) {
-            os << ", ";
-        }
-    }
-    os << "]";
-    return os;
-}
-template<typename T> std::ostream& operator<<(std::ostream& os, const std::set<T>& s) {
+// your original is_iterable (unchanged)
+template <typename T, typename = void>
+struct is_iterable : std::false_type {};
+
+template <typename T>
+struct is_iterable<T, std::void_t<
+    decltype(std::begin(std::declval<T>())),
+    decltype(std::end(std::declval<T>()))
+>> : std::true_type {};
+
+// detect std::basic_string<...>
+template <typename T>
+struct is_string : std::false_type {};
+
+template <typename CharT, typename Traits, typename Alloc>
+struct is_string<std::basic_string<CharT, Traits, Alloc>> : std::true_type {};
+
+// optionally also detect string_view (C++17)
+template <typename CharT, typename Traits>
+struct is_string<std::basic_string_view<CharT, Traits>> : std::true_type {};
+
+// now enable the generic container printer only when T is iterable AND not a string
+template <typename T>
+typename std::enable_if<
+    is_iterable<T>::value && !is_string<T>::value,
+    std::ostream&
+>::type
+operator<<(std::ostream& os, const T& container) {
     os << "{ ";
-    for(const auto& elem : s) {
-        os << elem << " ";
+    for (auto it = std::begin(container); it != std::end(container); ++it) {
+        os << *it;
+        if (std::next(it) != std::end(container)) os << ", ";
     }
-    os << "}";
-    return os;
-}
-template<typename T> std::ostream& operator<<(std::ostream& os, const std::multiset<T>& s) {
-    os << "{ ";
-    for(const auto& elem : s) {
-        os << elem << " ";
-    }
-    os << "}";
+    os << " }";
     return os;
 }
 
-template<typename T> std::ostream& operator<<(std::ostream& os, std::queue<T> q) {
-    // Print each element in the queue
+// Queue-like adapters (stack, queue, priority_queue)
+template <typename T>
+ostream& operator<<(ostream& os, queue<T> q) {
     os << "{ ";
-    while (!q.empty()) {
-        os << q.front() << " ";
-        q.pop();
-    }
-    os << "}";
-    // Print a newline at the end
-    return os;
-}
-template<typename T> std::ostream& operator<<(std::ostream& os, std::deque<T> q) {
-    // Print each element in the queue
-    os << "{ ";
-    while (!q.empty()) {
-        os << q.front() << " ";
-        q.pop_front();
-    }
-    os << "}";
-    // Print a newline at the end
-    return os;
-}
-template<typename T> std::ostream& operator<<(std::ostream& os, std::stack<T> q) {
-    // Print each element in the queue
-    os << "{ ";
-    while (!q.empty()) {
-        os << q.top() << " ";
-        q.pop();
-    }
-    os << "}";
-    // Print a newline at the end
-    return os;
-}
-template<typename T> std::ostream& operator<<(std::ostream& os, std::priority_queue<T> q) {
-    // Print each element in the queue
-    os << "{ ";
-    while (!q.empty()) {
-        os << q.top() << " ";
-        q.pop();
-    }
-    os << "}";
-    // Print a newline at the end
+    while (!q.empty()) { os << q.front(); q.pop(); if (!q.empty()) os << ", "; }
+    os << " }";
     return os;
 }
 
-template<typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec) {
-    os << "[ ";
-    for(const auto& elem : vec) {
-        os << elem << " ";
-    }
-    os << "]";
-    return os;
-}
-template<typename K, typename V> std::ostream& operator<<(std::ostream& os, const std::map<K, V>& m) {
+template <typename T>
+ostream& operator<<(ostream& os, stack<T> st) {
     os << "{ ";
-    for(const auto& pair : m) {
-        os << pair.first << " : " << pair.second << ", ";
-    }
-    os << "}";
+    while (!st.empty()) { os << st.top(); st.pop(); if (!st.empty()) os << ", "; }
+    os << " }";
     return os;
 }
 
-template<typename T>
-using min_pq = std::priority_queue<T, std::vector<T>, std::greater<T>>;
-template<typename T> std::ostream& operator<<(std::ostream& os, min_pq<T> q) {
-    // Print each element in the queue
+template <typename T>
+ostream& operator<<(ostream& os, priority_queue<T> pq) {
     os << "{ ";
-    while (!q.empty()) {
-        os << q.top() << " ";
-        q.pop();
-    }
-    os << "}";
-    // Print a newline at the end
+    while (!pq.empty()) { os << pq.top(); pq.pop(); if (!pq.empty()) os << ", "; }
+    os << " }";
     return os;
 }
-using namespace std;
+
+// using namespace std;
 using ll = long long;
 #define add push_back 
 #define FOR(i,a,b) for (int i = (a); i < (b); ++i)
@@ -145,165 +105,55 @@ using ll = long long;
 #define endl "\n"
 #define enld "\n"
 #define double long double
-const ll mod = 998244353;
-ll inf = 1e18;
+ll mod = 998244353;
+const ll inf = 1e18;
+template<typename T> using min_pq = std::priority_queue<T, std::vector<T>, std::greater<T>>; //defines min_pq
+
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-int N = 1e4+5;
-vt<int> fact(N), invfact(N);
+int rand_num(int l, int r) {
+    return rnd()%(r-l+1)+l;
+}
 int bexpo(int b, int e) {
     int ans = 1;
     while(e) {
         if(e&1) ans=ans*b%mod;
-        e>>=1;
         b=b*b%mod;
+        e>>=1;
     }
     return ans;
 }
-int nck(int n, int k) {
-    if(n<k) return 0;
-    if(n<0 || k<0) return 0;
-    return fact[n]*invfact[k]%mod*invfact[n-k]%mod;
-}
-ll getv(ll x,ll y,ll k){
-  if(min(x,y)<=-1){
-    return 0ll;
-  }
-  if(max(x,y)>=k){
-    return nck(x+y,x);
-  }
-  return nck(x+y,k);
-}
-int get2(int x, int y, int lnds_0, int lnds_1, int k) {
-    if(lnds_1+y>=k) {
-        return nck(x+y,y);
-    }
-    if(lnds_0+x>=k) {
-        return nck(x+y,y);
-    }
-
-    if(lnds_1+y<k && lnds_0+x+y<k) {
-        return 0;
-    }
-    int zz = k-lnds_0;
-    return nck(x+y,zz);
-}
-int get_exactly(int x, int y, int lnds_0, int lnds_1, int k) {
-    return get2(x,y,lnds_0,lnds_1,k)-get2(x,y,lnds_0,lnds_1,k+1);
-}
-
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    fact[0]=1;
-    invfact[0]=1;
-    FOR(i, 1, N) {
-        fact[i]=fact[i-1]*i%mod;
-        invfact[i]=bexpo(fact[i], mod-2);
-    }
     int t;
     cin >> t;
     while(t--) {
-        int x,y,k;
-        cin >> x >> y >> k;
-        string s;
-        cin >> s;
-        vt<int> lnds_0(x+y+1), lnds_1(x+y+1);
-        F0R(i, x+y) {
-            if(s[i]=='0') {
-                lnds_0[i+1]=lnds_0[i]+1;
-                lnds_1[i+1]=max(lnds_1[i], lnds_0[i+1]);
-            } else {
-                lnds_0[i+1]=lnds_0[i];
-                lnds_1[i+1]=1+lnds_1[i];
-            }
-        }
-
+        int n,m;
+        cin >> n >> m >> mod;
         int ans = 0;
-        int zl = x, ol = y;
-        F0R(i, x+y) {
-            if(s[i]=='0') zl--;
-            else ol--;
-            if(lnds_1[i+1]==k) {
-                int l_0 = 0, l_1 = 0;          
 
-                FOR(j, i+1, x+y) {
-                    if(s[j]=='0') {
-                        //what if this is where it changes?
-                        l_1++;
-                        ol--;
-                        // cout << i << " " << j << " " << zl << " " << ol << " " << l_0 << " " << l_1 << endl;
-                        // cout << i << " " << j << " " << "ADDING: " << get2(zl,ol,l_0,l_1,k) << " TO ANS" << endl;
-                        ans+=get2(zl, ol, l_0, l_1, k);
-                        ol++;
-                        zl--;
-                        l_1--;
-                        l_0++;
-                        l_1=max(l_0, l_1);
-                    } else {
-                        l_1++;
-                        ol--;
-                    }
-                }
-                break;
-            }
-
-        }
-        zl=x;
-        ol=y;
-        F0R(diff, x+y) {
-            if(s[diff]=='1') {
-                ol--;
-                continue;
-            }
-            ol--;
-            int l_0 = lnds_0[diff], l_1 = lnds_1[diff]+1;
-            if(lnds_1[diff]>=k) {
-                break;
-            }
-            if(l_1==k) {
-                ans+=getv(zl,ol,k);
-                ans%=mod;
-            }
-            if(l_1>k) break;
-            FOR(eq_k, diff, x+y) {
-                int positions = eq_k-diff;
-                /*
-                int get_less(int x, int y, int lnds_0, int lnds_1, int k) {
-                    return nck(x+y,x)-get2(x,y,lnds_0,lnds_1,k);
-                }
-                */
-                int zzz = k-l_0;
-                int ooo = positions-zzz;
-                ans+=nck(zzz-1+ooo, zzz-1)*getv(zl-zzz, ol-ooo, k);
-                ans-=get2(zzz-1, ooo, l_0, l_1, k)*getv(zl-zzz, ol-ooo, k);
-                ans%=mod;
-
-                F0R(zeroes, positions+1) {
-                    int ones = positions-zeroes;
-                    ans+=get_exactly(zeroes, ones-1, l_0, l_1, k-1)*getv(zl-zeroes, ol-ones, k);
+        FOR(fir, 1, n+1) {
+            FOR(sec, 1, n+1) {
+                int first_choices = n-fir+1;
+                int second_choices = n-sec+1;
+                int choices = first_choices*second_choices;
+                if(fir%2==sec%2) {
+                    choices-=min(first_choices, second_choices);
+                    ans+=bexpo(m, n-max(fir, sec)+(max(fir,sec)+1)/2)*min(first_choices,second_choices);
                     ans%=mod;
                 }
+                ans+=bexpo(m, (fir+1)/2+(sec+1)/2+n-fir-sec)*choices;
+                ans%=mod;
             }
-            ol++;
-            zl--;
         }
+        // cout << ans << endl;
+
+        ans*=bexpo(bexpo(m, n), mod-2);
         ans%=mod;
+
         cout << ans << endl;
     }
     return 0;
 }
-/*
-1
-1 4 2
-10000
-
-11???
-1x 0, 2x 1, 
-
-10111
-11011
-11101
-11110
-*/

@@ -148,59 +148,52 @@ using ll = long long;
 const ll mod = 998244353;
 ll inf = 1e18;
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-struct Dinic {
-	using F = ll; // flow type
-	struct Edge { int to; F flo, cap; };
-	int N; vt<Edge> eds; vt<vt<int>> adj;
-	void init(int _N) { N = _N; adj.resize(N), cur.resize(N); }
-	/// void reset() { each(e,eds) e.flo = 0; }
-	void ae(int u, int v, F cap, F rcap = 0) { assert(min(cap,rcap) >= 0); 
-		adj[u].add((eds).size()); eds.add({v,0,cap});
-		adj[v].add((eds).size()); eds.add({u,0,rcap});
-	}
-	vt<int> lev; vt<vt<int>::iterator> cur;
-	bool bfs(int s, int t) { // level = shortest distance from source
-		lev = vt<int>(N,-1); F0R(i,N) cur[i] = begin(adj[i]);
-		queue<int> q({s}); lev[s] = 0; 
-		while (q.size()) { int u = q.front(); q.pop();
-			trav(e,adj[u]) { const Edge& E = eds[e];
-				int v = E.to; if (lev[v] < 0 && E.flo < E.cap) 
-					q.push(v), lev[v] = lev[u]+1;
-			}
-		}
-		return lev[t] >= 0;
-	}
-	F dfs(int v, int t, F flo) {
-		if (v == t) return flo;
-		for (; cur[v] != end(adj[v]); cur[v]++) {
-			Edge& E = eds[*cur[v]];
-			if (lev[E.to]!=lev[v]+1||E.flo==E.cap) continue;
-			F df = dfs(E.to,t,min(flo,E.cap-E.flo));
-			if (df) { E.flo += df; eds[*cur[v]^1].flo -= df;
-				return df; } // saturated >=1 one edge
-		}
-		return 0;
-	}
-	F maxFlow(int s, int t) {
-		F tot = 0; while (bfs(s,t)) while (F df = 
-			dfs(s,t,numeric_limits<F>::max())) tot += df;
-		return tot;
-	}
-    vt<pair<int,int>> getMinCutEdges() {
-        vt<pair<int,int>> cutEdges;
-        F0R(u, N) {
-            if (lev[u] == -1) continue; 
-            trav(idx, adj[u]) {
-                if (idx & 1) continue; 
-                auto e = eds[idx];
-                if (lev[e.to] == -1 && e.flo == e.cap && e.cap > 0) {
-                    cutEdges.add({u, e.to});
-                }
-            }
-        }
-        return cutEdges;
+struct PushRelabel {
+    struct Edge {
+        int dest, back;
+        ll f,c;
+    };
+    vt<vt<Edge>> g;
+    vt<ll> ec;
+    vt<Edge*> cur;
+    vt<vt<int>> hs;
+    vt<int> H;
+    PushRelabel(int n): g(n), ec(n), cur(n), hs(2*n), H(n) {}
+    void addEdge(int s, int t, ll cap, ll rcap = 0) {
+        if(s==t) return;
+        g[s].add({t,(int)g[t].size(), 0, cap});
+        g[t].add({s, (int)g[s].size()-1, 0, rcap});
     }
-
+    void addFlow(Edge& e, ll f) {
+        Edge &back = g[e.dest][e.back];
+        if(!ec[e.dest] && f) hs[H[e.dest]].add(e.dest);
+        e.f+=f, e.c-=f, ec[e.dest]+=f;
+        back.f-=f, back.c+=f; ec[back.dest]-=f;
+    }
+    ll calc(int s, int t) {
+        int v = g.size();
+        H[s]=v;
+        ec[t]=1;
+        vt<int> co(2*v); co[0]=v-1;
+        F0R(i, v) cur[i]=g[i].data();
+        for(Edge& e: g[s]) addFlow(e, e.c);
+        for(int hi = 0;;) {
+            while(hs[hi].empty()) if(!hi--) return -ec[s];
+            int u = hs[hi].back(); hs[hi].pop_back();
+            while(ec[u]>0) 
+                if(cur[u]==g[u].data()+g[u].size()) {
+                    H[u]=1e9;
+                    for(Edge& e: g[u]) if(e.c && H[u]>H[e.dest]+1) 
+                        H[u]=H[e.dest]+1, cur[u]=&e;
+                    if(++co[H[u]], !--co[hi] && hi<v) 
+                        F0R(i, v) if(hi<H[i] && H[i]<v) 
+                            --co[H[i]], H[i]=v+1;
+                    hi=H[u];
+                } else if(cur[u]->c && H[u] == H[cur[u]->dest]+1)
+                    addFlow(*cur[u], min(ec[u], cur[u]->c));
+                else ++cur[u];
+        }
+    }
 };
 signed main() {
     ios_base::sync_with_stdio(false); 
@@ -210,7 +203,21 @@ signed main() {
     int t;
     cin >> t;
     while(t--) {
-        
+        int n;
+        cin >> n;
+        vt<int> a(n);
+        F0R(i, n) cin >> a[i];
+        PushRelabel p(2*n+2);
+        int ans = n;
+        F0R(i, n) p.addEdge(0, i+1, 1);
+        F0R(i, n) p.addEdge(i+n+1, 2*n+1, 1);
+        F0R(i, n) {
+            FOR(j, i+1, n) {
+                if(abs(a[i]-a[j])==1) p.addEdge(i+1, j+n+1, 1);
+            }
+        }
+        int flo = p.calc(0, 2*n+1);
+        cout << n-flo << endl;
     }
     return 0;
 }

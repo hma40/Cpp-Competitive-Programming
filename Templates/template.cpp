@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+
 using namespace std;
 std::string to_string(__int128_t value) {
     if (value == 0) return "0";
@@ -27,6 +28,7 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
     return os;
 }
+// your original is_iterable (unchanged)
 template <typename T, typename = void>
 struct is_iterable : std::false_type {};
 
@@ -36,10 +38,24 @@ struct is_iterable<T, std::void_t<
     decltype(std::end(std::declval<T>()))
 >> : std::true_type {};
 
-// Generic container printer (vector, set, deque, array, map, etc.)
+// detect std::basic_string<...>
 template <typename T>
-typename std::enable_if<is_iterable<T>::value, ostream&>::type
-operator<<(ostream& os, const T& container) {
+struct is_string : std::false_type {};
+
+template <typename CharT, typename Traits, typename Alloc>
+struct is_string<std::basic_string<CharT, Traits, Alloc>> : std::true_type {};
+
+// optionally also detect string_view (C++17)
+template <typename CharT, typename Traits>
+struct is_string<std::basic_string_view<CharT, Traits>> : std::true_type {};
+
+// now enable the generic container printer only when T is iterable AND not a string
+template <typename T>
+typename std::enable_if<
+    is_iterable<T>::value && !is_string<T>::value,
+    std::ostream&
+>::type
+operator<<(std::ostream& os, const T& container) {
     os << "{ ";
     for (auto it = std::begin(container); it != std::end(container); ++it) {
         os << *it;
@@ -90,8 +106,13 @@ using ll = long long;
 #define enld "\n"
 #define double long double
 const ll mod = 998244353;
-ll inf = 1e18;
+const ll inf = 1e18;
+template<typename T> using min_pq = std::priority_queue<T, std::vector<T>, std::greater<T>>; //defines min_pq
+
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+int rand_num(int l, int r) {
+    return rnd()%(r-l+1)+l;
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);

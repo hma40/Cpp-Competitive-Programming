@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+
 using namespace std;
 std::string to_string(__int128_t value) {
     if (value == 0) return "0";
@@ -27,6 +28,7 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
     os << "(" << p.first << ", " << p.second << ")";
     return os;
 }
+// your original is_iterable (unchanged)
 template <typename T, typename = void>
 struct is_iterable : std::false_type {};
 
@@ -36,10 +38,24 @@ struct is_iterable<T, std::void_t<
     decltype(std::end(std::declval<T>()))
 >> : std::true_type {};
 
-// Generic container printer (vector, set, deque, array, map, etc.)
+// detect std::basic_string<...>
 template <typename T>
-typename std::enable_if<is_iterable<T>::value, ostream&>::type
-operator<<(ostream& os, const T& container) {
+struct is_string : std::false_type {};
+
+template <typename CharT, typename Traits, typename Alloc>
+struct is_string<std::basic_string<CharT, Traits, Alloc>> : std::true_type {};
+
+// optionally also detect string_view (C++17)
+template <typename CharT, typename Traits>
+struct is_string<std::basic_string_view<CharT, Traits>> : std::true_type {};
+
+// now enable the generic container printer only when T is iterable AND not a string
+template <typename T>
+typename std::enable_if<
+    is_iterable<T>::value && !is_string<T>::value,
+    std::ostream&
+>::type
+operator<<(std::ostream& os, const T& container) {
     os << "{ ";
     for (auto it = std::begin(container); it != std::end(container); ++it) {
         os << *it;
@@ -90,65 +106,32 @@ using ll = long long;
 #define enld "\n"
 #define double long double
 const ll mod = 998244353;
-ll inf = 1e18;
+const ll inf = 1e18;
+template<typename T> using min_pq = std::priority_queue<T, std::vector<T>, std::greater<T>>; //defines min_pq
+
 mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+int rand_num(int l, int r) {
+    return rnd()%(r-l+1)+l;
+}
 signed main() {
     ios_base::sync_with_stdio(false); 
     cin.tie(0);
     // freopen("input.txt" , "r" , stdin);
     // freopen("output.txt" , "w", stdout);
-    int t = 1;
+    // int t;
     // cin >> t;
-    while(t--) {
-        int n;
-        cin >> n;
-        vt<int> p(n);
-        F0R(i, n) cin >> p[i];
-        auto check = [&](vt<int> perm)->bool{
-            set<int> inside;
-            F0R(i, n-1) {
-                inside.insert(perm[i]);
-                if((*inside.rbegin()) == i) return false;
-            }
-            inside.clear();
-            F0R(i, n-1) {
-                inside.insert(perm[n-i-1]);
-                if((*inside.rbegin()) ==i) return false;
-            }
-            return true;
-        };
-        F0R(i, n) if(p[i]!=-1) --p[i];
-        vt<int> perm(n);
-        F0R(i, n) perm[i]=i;
-        bool found = false;
-        do {
-            bool ok = true;
-            F0R(i, n) if(p[i]!=-1 && p[i]!=perm[i]) ok=false;
-            if(!ok) continue;
-            if(check(perm)) found=true;
-        }while(next_permutation(begin(perm),end(perm)));
-        vt<int> a(n);
-        cin >> a[0];
-        if(found && a[0]==-1) {
-            cout << "WA" << endl;
-            return 0;
-        } else if(a[0]==-1) {
-            cout << "OK" << endl;
-            return 0;
-        }
-        vt<bool> seen(n);
-        FOR(i, 1, n) {
-            cin >> a[i];
-        }
-        bool okok = true;
-        F0R(i, n) {
-            if(a[i]<1 || a[i]>n) okok=false;
-            a[i]--;
-            if(seen[a[i]]) okok=false;
-            if(p[i]!=-1 && p[i]!=a[i]) okok=false;
-        }
-        if(!check(a) || !okok) cout << "WA" << endl;
+    int n,m;
+    cin >> n >> m;
+    if(n==-1 && m!=-1) {
+        cout << "WA" << endl;
+    } else if(n!=-1 && m==-1) {
+        cout << "WA" << endl;
+    } else {
         cout << "OK" << endl;
     }
+    
     return 0;
 }
+/*
+5 7 2 8 4 3 1 6 10 9
+*/
